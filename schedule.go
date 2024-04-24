@@ -66,8 +66,8 @@ func (s *ScheduleList) writeToStore() error {
 		return err
 	}
 
-	log.Info("writing", "e", s, "marshalled json", string(j))
-	if _, err := fd.WriteString(string(j)); err != nil {
+	log.Info("writing", "e", s, "json", j)
+	if _, err := fd.Write(j); err != nil {
 		log.Error(err.Error())
 		return err
 	}
@@ -101,14 +101,30 @@ func readScheduleFromStore() (*ScheduleList, error) {
 		sl.List = make([]ScheduleEntry, 0)
 	}
 
-	for k := range sl.List {
-		if err := buildJob(&sl.List[k]); err != nil {
+	for _, v := range sl.List { // use copy, not live data, see if this fixes the Weekdays corruption
+		v.Weekdays = uniq(v.Weekdays)
+		log.Info("loading schedule entry", "entry", v)
+		if err := buildJob(&v); err != nil {
 			log.Error(err.Error())
 			return &sl, err
 		}
 	}
 
 	return &sl, nil
+}
+
+func uniq(s []time.Weekday) []time.Weekday {
+	seen := make(map[time.Weekday]struct{}, len(s))
+	j := 0
+	for _, v := range s {
+		if _, ok := seen[time.Weekday(v)]; ok {
+			continue
+		}
+		seen[v] = struct{}{}
+		s[j] = v
+		j++
+	}
+	return s[:j]
 }
 
 func (s *ScheduleList) GetEntry(id uint8) *ScheduleEntry {
@@ -121,7 +137,7 @@ func (s *ScheduleList) GetEntry(id uint8) *ScheduleEntry {
 }
 
 func (s *ScheduleList) AddEntry(e *ScheduleEntry) error {
-	// log.Info("adding entry", "e", e)
+	log.Info("adding entry", "e", e)
 
 	if len(e.Weekdays) == 0 {
 		err := fmt.Errorf("cannot schedule an entry not on any days")
@@ -186,8 +202,8 @@ func buildJob(e *ScheduleEntry) error {
 	_, err := sz.NewJob(
 		gocron.WeeklyJob(
 			1,
-			gocron.NewWeekdays(e.Weekdays[0], e.Weekdays...),
-			gocron.NewAtTimes(attimes[0], attimes...),
+			gocron.NewWeekdays(e.Weekdays[0], e.Weekdays[1:]...),
+			gocron.NewAtTimes(attimes[0], attimes[1:]...),
 		),
 		gocron.NewTask(
 			func() {

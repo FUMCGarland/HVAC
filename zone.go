@@ -75,7 +75,7 @@ func (z *Zone) writeToStore() error {
 		return err
 	}
 
-	if _, err := fd.WriteString(string(j)); err != nil {
+	if _, err := fd.Write(j); err != nil {
 		log.Error(err.Error())
 		return err
 	}
