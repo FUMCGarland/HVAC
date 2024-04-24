@@ -39,18 +39,31 @@
 		if (activeloops.includes(b.HotLoop) || activeloops.includes(b.ColdLoop)) return b;
 	});
 
+	function modeString(mode) {
+		if (mode == 0) return 'heating';
+		return 'cooling';
+	}
+
 	function parseWeekdays(w) {
 		return w.map((p) => weekdays[p]);
 	}
 
+	// comes across as a byte string of UTF8...
 	function parsePumps(p) {
-		console.log(p);
-		return 'tbp';
+		const e = new TextEncoder();
+		const u = e.encode(atob(p));
+		const sel = data.Pumps.filter((p) => u.includes(p.ID));
+		const names = sel.map((s) => s.Name);
+		return names;
 	}
 
+	// comes across as a byte string of UTF8...
 	function parseBlowers(b) {
-		console.log(b);
-		return 'tbp';
+		let e = new TextEncoder();
+		let u = e.encode(atob(b));
+		const sel = data.Blowers.filter((b) => u.includes(b.ID));
+		const names = sel.map((s) => s.Name);
+		return names;
 	}
 
 	async function doAdd() {
@@ -102,7 +115,7 @@
 				<TableBodyRow>
 					<TableBodyCell><A href="/schedule/{sched.ID}">{sched.ID}</A></TableBodyCell>
 					<TableBodyCell>{sched.Name}</TableBodyCell>
-					<TableBodyCell>{sched.Mode}</TableBodyCell>
+					<TableBodyCell>{modeString(sched.Mode)}</TableBodyCell>
 					<TableBodyCell>{parseWeekdays(sched.Weekdays)}</TableBodyCell>
 					<TableBodyCell>{sched.StartTime}</TableBodyCell>
 					<TableBodyCell>{sched.RunTime}</TableBodyCell>
