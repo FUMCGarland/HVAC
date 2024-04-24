@@ -102,7 +102,7 @@ func (b *Blower) readFromStore() error {
 	return nil
 }
 
-func (b BlowerID) Start(duration uint64, source string) error {
+func (b BlowerID) Start(duration uint64, source string) {
 	cc := MQTTRequest{
 		Device: b,
 		Command: Command{
@@ -112,10 +112,9 @@ func (b BlowerID) Start(duration uint64, source string) error {
 		},
 	}
 	cmdChan <- cc
-	return nil
 }
 
-func (b BlowerID) Stop(source string) error {
+func (b BlowerID) Stop(source string) {
 	cc := MQTTRequest{
 		Device: b,
 		Command: Command{
@@ -125,5 +124,4 @@ func (b BlowerID) Stop(source string) error {
 		},
 	}
 	cmdChan <- cc
-	return nil
 }

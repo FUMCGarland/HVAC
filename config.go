@@ -178,18 +178,13 @@ func GetMQTTChan() chan MQTTRequest {
 	return cmdChan
 }
 
-func StopAll() error {
-	var outErr error
+func StopAll() {
 	for k := range c.Pumps {
 		if !c.Pumps[k].Running {
 			continue
 		}
-		if err := c.Pumps[k].ID.Stop("manual"); err != nil {
-			outErr = err
-			log.Error("unable to stop pump", "error", err.Error())
-		} else {
-			c.Pumps[k].Running = false
-		}
+		c.Pumps[k].ID.Stop("manual")
+		c.Pumps[k].Running = false
 		time.Sleep(1 * time.Second)
 	}
 
@@ -197,14 +192,8 @@ func StopAll() error {
 		if !c.Blowers[k].Running {
 			continue
 		}
-		if err := c.Blowers[k].ID.Stop("manual"); err != nil {
-			outErr = err
-			log.Error("unable to stop blower", "error", err.Error())
-		} else {
-			c.Blowers[k].Running = false
-		}
+		c.Blowers[k].ID.Stop("manual")
+		c.Blowers[k].Running = false
 		time.Sleep(1 * time.Second)
 	}
-
-	return outErr
 }

@@ -132,7 +132,7 @@ func (p *Pump) readFromStore() error {
 	return nil
 }
 
-func (p PumpID) Start(duration uint64, source string) error {
+func (p PumpID) Start(duration uint64, source string) {
 	cc := MQTTRequest{
 		Device: p,
 		Command: Command{
@@ -142,10 +142,9 @@ func (p PumpID) Start(duration uint64, source string) error {
 		},
 	}
 	cmdChan <- cc
-	return nil
 }
 
-func (p PumpID) Stop(source string) error {
+func (p PumpID) Stop(source string) {
 	cc := MQTTRequest{
 		Device: p,
 		Command: Command{
@@ -155,5 +154,4 @@ func (p PumpID) Stop(source string) error {
 		},
 	}
 	cmdChan <- cc
-	return nil
 }

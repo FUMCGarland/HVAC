@@ -13,6 +13,7 @@ import (
 )
 
 var inline *mqtt.Server
+var root string
 
 // Start initalizes and runs the MQTT server, run it in a go()
 func Start(c *hvac.MQTTConfig, done <-chan bool) {
@@ -20,7 +21,7 @@ func Start(c *hvac.MQTTConfig, done <-chan bool) {
 		InlineClient: true,      // no need to have a distinct client, inline all our calls
 		Logger:       log.Get(), // use the main logger
 	})
-
+	root = c.Root
 	cmdChan := hvac.GetMQTTChan()
 
 	authData, err := os.ReadFile(c.Auth)
@@ -46,13 +47,13 @@ func Start(c *hvac.MQTTConfig, done <-chan bool) {
 	}()
 
 	// subscribe to the topics which relay modules and sensors will update
-	sub := fmt.Sprintf("%s/pumps/+/currentstate", c.Root)
+	sub := fmt.Sprintf("%s/pumps/+/currentstate", root)
 	server.Subscribe(sub, 1, pumpCallbackFn)
 
-	sub = fmt.Sprintf("%s/blowers/+/currentstate", c.Root)
+	sub = fmt.Sprintf("%s/blowers/+/currentstate", root)
 	server.Subscribe(sub, 1, blowerCallbackFn)
 
-	sub = fmt.Sprintf("%s/rooms/+/temp", c.Root)
+	sub = fmt.Sprintf("%s/rooms/+/temp", root)
 	server.Subscribe(sub, 1, tempCallbackFn)
 
 	inline = server

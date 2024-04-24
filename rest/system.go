@@ -97,7 +97,7 @@ func putControl(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	switch scm.ControlMode {
 	case hvac.ControlManual, hvac.ControlSchedule, hvac.ControlTemp, hvac.ControlOff:
-		_ = hvac.StopAll()
+		hvac.StopAll()
 		c.SetControlMode(scm.ControlMode)
 	default:
 		err := fmt.Errorf("unknown ControlMode %d", scm.ControlMode)

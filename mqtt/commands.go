@@ -10,7 +10,6 @@ import (
 
 // SendPumpTargetState sends a command to a pump
 func SendPumpTargetState(p hvac.PumpID, cmd *hvac.PumpCommand) error {
-	c := hvac.GetConfig()
 	if cmd.TargetState {
 		if err := p.CanEnable(); err != nil {
 			log.Error("cannot enable pump", "id", p, "cmd", cmd, "err", err.Error())
@@ -18,7 +17,7 @@ func SendPumpTargetState(p hvac.PumpID, cmd *hvac.PumpCommand) error {
 		}
 	}
 
-	topic := fmt.Sprintf("%s/pumps/%d/targetstate", c.MQTT.Root, p)
+	topic := fmt.Sprintf("%s/pumps/%d/targetstate", root, p)
 	jcmd, err := json.Marshal(cmd)
 	if err != nil {
 		log.Error("unable to marshal command", "cmd", cmd, "topic", topic)
@@ -39,6 +38,7 @@ func SendBlowerTargetState(b hvac.BlowerID, cmd *hvac.BlowerCommand) error {
 			return err
 		}
 	} else {
+		// TODO: this logic needs to be moved to hvac.BlowerID.Stop()
 		// if we are the last active blower on the loop, ensure that the pump is shut down
 		last := true
 		blower := b.Get()
@@ -68,14 +68,12 @@ func SendBlowerTargetState(b hvac.BlowerID, cmd *hvac.BlowerCommand) error {
 			}
 			pump := pl.Get()
 			if pump.Running {
-				if err := SendPumpTargetState(pump.ID, &hvac.PumpCommand{TargetState: false, RunTime: 0, Source: "internal"}); err != nil {
-					return err
-				}
+				pump.ID.Stop("internal")
 			}
 		}
 	}
 
-	topic := fmt.Sprintf("%s/blowers/%d/targetstate", c.MQTT.Root, b)
+	topic := fmt.Sprintf("%s/blowers/%d/targetstate", root, b)
 	jcmd, err := json.Marshal(cmd)
 	if err != nil {
 		log.Error("unable to marshal command", "cmd", cmd, "topic", topic)
