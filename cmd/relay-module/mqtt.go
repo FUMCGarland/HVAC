@@ -145,7 +145,7 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 		cmd.RunTime = 0
 		relay.StopTime = 0
 	}
-    relay.StartTime = time.Now().Unix()
+	relay.StartTime = time.Now().Unix()
 
 	// set the stop time if a duration is set
 	if cmd.RunTime > 0 {
@@ -176,7 +176,7 @@ func sendUpdate(rc *RelayConf, relay *hvac.Relay, response *hvac.Response) error
 		return err
 	}
 
-    ctx := context.Background()
+	ctx := context.Background()
 	if _, err = client.Publish(ctx, &paho.Publish{
 		QoS:     1,
 		Topic:   topic,
