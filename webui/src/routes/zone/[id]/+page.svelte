@@ -1,0 +1,123 @@
+<script>
+	import { onMount } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
+	import {
+		Table,
+		TableBody,
+		TableBodyCell,
+		TableBodyRow,
+		TableHead,
+		TableHeadCell,
+		Heading,
+		P,
+		A,
+		Hr,
+		Input,
+		Button,
+		Label
+	} from 'flowbite-svelte';
+	import { updateZoneTargets } from '$lib/hvac.js';
+
+	export let data;
+	let hu = data.HeatingUnoccupiedTemp;
+	let ho = data.HeatingOccupiedTemp;
+	let cu = data.CoolingUnoccupiedTemp;
+	let co = data.CoolingOccupiedTemp;
+
+	onMount(() => {
+		const interval = setInterval(() => {
+			invalidateAll();
+		}, 30000);
+
+		return () => {
+			clearInterval(interval);
+		};
+	});
+
+	function update() {
+		const c = {
+			HeatingUnoccupiedTemp: Number(hu),
+			HeatingOccupiedTemp: Number(ho),
+			CoolingUnoccupiedTemp: Number(cu),
+			CoolingOccupiedTemp: Number(co)
+		};
+		const cmd = JSON.stringify(c);
+		updateZoneTargets(data.ID, cmd);
+	}
+</script>
+
+<Heading tag="h2">Zone {data.ID}: {data.Name}</Heading>
+<form>
+	<Table>
+		<TableHead>
+			<TableHeadCell>Heating Unoccupied</TableHeadCell>
+			<TableHeadCell>Heating Occupied</TableHeadCell>
+			<TableHeadCell>Cooling Unoccupied</TableHeadCell>
+			<TableHeadCell>Cooling Occupied</TableHeadCell>
+		</TableHead>
+		<TableBody>
+			<TableBodyRow>
+				<TableBodyCell>{data.Targets.HeatingUnoccupiedTemp}</TableBodyCell>
+				<TableBodyCell>{data.Targets.HeatingOccupiedTemp}</TableBodyCell>
+				<TableBodyCell>{data.Targets.CoolingUnoccupiedTemp}</TableBodyCell>
+				<TableBodyCell>{data.Targets.CoolingOccupiedTemp}</TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell><Input type="text" bind:value={hu} id="HU" /></TableBodyCell>
+				<TableBodyCell><Input type="text" bind:value={ho} id="HO" /></TableBodyCell>
+				<TableBodyCell><Input type="text" bind:value={cu} id="CU" /></TableBodyCell>
+				<TableBodyCell><Input type="text" bind:value={co} id="CO" /></TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell colspan="3">&nbsp;</TableBodyCell>
+				<TableBodyCell
+					><Button
+						on:click={() => {
+							update();
+						}}>Update</Button
+					></TableBodyCell
+				>
+			</TableBodyRow>
+		</TableBody>
+	</Table>
+</form>
+
+<Heading tag="h3">Rooms in Zone {data.ID}: {data.Name}</Heading>
+<Table>
+	<TableHead>
+		<TableHeadCell>ID</TableHeadCell>
+		<TableHeadCell>Name</TableHeadCell>
+		<TableHeadCell>Current Temperature</TableHeadCell>
+	</TableHead>
+	<TableBody>
+		{#each data.Rooms as room}
+			<TableBodyRow>
+				<TableBodyCell><A href="/room/{room.ID}">{room.ID}</A></TableBodyCell>
+				<TableBodyCell>{room.Name}</TableBodyCell>
+				<TableBodyCell>{room.Temperature}</TableBodyCell>
+			</TableBodyRow>
+		{/each}
+	</TableBody>
+</Table>
+
+<Heading tag="h3">Blowers for Zone {data.ID}: {data.Name}</Heading>
+<Table>
+	<TableHead>
+		<TableHeadCell>ID</TableHeadCell>
+		<TableHeadCell>Name</TableHeadCell>
+		<TableHeadCell>Hot Loop</TableHeadCell>
+		<TableHeadCell>Cold Loop</TableHeadCell>
+		<TableHeadCell>Running</TableHeadCell>
+	</TableHead>
+	<TableBody>
+		{#each data.Blowers as blower}
+			<TableBodyRow>
+				<TableBodyCell><A href="/blower/{blower.ID}">{blower.ID}</A></TableBodyCell>
+				<TableBodyCell>{blower.Name}</TableBodyCell>
+				<TableBodyCell><A href="/loop/{blower.HotLoop}">{blower.HotLoop}</A></TableBodyCell>
+				<TableBodyCell><A href="/loop/{blower.ColdLoop}">{blower.ColdLoop}</A></TableBodyCell>
+				<TableBodyCell>{blower.Running}</TableBodyCell>
+			</TableBodyRow>
+		{/each}
+	</TableBody>
+</Table>

@@ -1,0 +1,84 @@
+package hvacmqtt
+
+import (
+	"fmt"
+	"os"
+
+	mqtt "github.com/mochi-mqtt/server/v2"
+	"github.com/mochi-mqtt/server/v2/hooks/auth"
+	"github.com/mochi-mqtt/server/v2/listeners"
+
+	"github.com/FUMCGarland/hvac"
+	"github.com/FUMCGarland/hvac/log"
+)
+
+var inline *mqtt.Server
+
+// Start initalizes and runs the MQTT server, run it in a go()
+func Start(c *hvac.MQTTConfig, done <-chan bool) {
+	server := mqtt.New(&mqtt.Options{
+		InlineClient: true,      // no need to have a distinct client, inline all our calls
+		Logger:       log.Get(), // use the main logger
+	})
+
+	cmdChan := hvac.GetMQTTChan()
+
+	authData, err := os.ReadFile(c.Auth)
+	if err != nil {
+		log.Error(err.Error())
+		panic(err.Error())
+	}
+
+	if err := server.AddHook(new(auth.Hook), &auth.Options{Data: authData}); err != nil {
+		log.Error(err.Error())
+		panic(err.Error())
+	}
+
+	tcp := listeners.NewTCP(listeners.Config{listeners.TypeTCP, c.ID, c.ListenAddr, nil})
+	if err := server.AddListener(tcp); err != nil {
+		panic(err.Error())
+	}
+
+	go func() {
+		if err := server.Serve(); err != nil {
+			panic(err.Error())
+		}
+	}()
+
+	// subscribe to the topics which relay modules and sensors will update
+	sub := fmt.Sprintf("%s/pumps/+/currentstate", c.Root)
+	server.Subscribe(sub, 1, pumpCallbackFn)
+
+	sub = fmt.Sprintf("%s/blowers/+/currentstate", c.Root)
+	server.Subscribe(sub, 1, blowerCallbackFn)
+
+	sub = fmt.Sprintf("%s/rooms/+/temp", c.Root)
+	server.Subscribe(sub, 1, tempCallbackFn)
+
+	inline = server
+
+	/* go func() {
+		time.Sleep(1 * time.Second)
+		_ = SetAllOff(c)
+	}() */
+
+	for {
+		select {
+		case cmd := <-cmdChan:
+			log.Info("got command", "cmd", cmd)
+			switch cmd.Device.(type) {
+			case hvac.PumpID:
+				cc := hvac.PumpCommand(cmd.Command)
+				SendPumpTargetState(cmd.Device.(hvac.PumpID), &cc)
+			case hvac.BlowerID:
+				cc := hvac.BlowerCommand(cmd.Command)
+				SendBlowerTargetState(cmd.Device.(hvac.BlowerID), &cc)
+			}
+		case <-done:
+			log.Info("Shutting down MQTT")
+			close(cmdChan)
+			server.Close()
+			return
+		}
+	}
+}

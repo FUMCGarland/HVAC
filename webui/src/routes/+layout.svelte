@@ -1,0 +1,43 @@
+<script>
+	import {
+		Navbar,
+		NavBrand,
+		NavLi,
+		NavUl,
+		NavHamburger,
+		Toast,
+		Heading,
+		P,
+		A
+	} from 'flowbite-svelte';
+	import { SvelteToast } from '@zerodevx/svelte-toast';
+	import { slide } from 'svelte/transition';
+	import '../app.pcss';
+</script>
+
+<svelte:window />
+<header class="mx-auto w-full flex-none bg-white dark:bg-slate-950">
+	<Navbar>
+		<NavBrand href="/">
+			<img src="/fumcg.jpg" class="me-3 h-6 sm:h-9" alt="FUMCG Logo" />
+			<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"
+				>FUMC Garland HVAC</span
+			>
+		</NavBrand>
+		<NavHamburger />
+		<NavUl>
+			<NavLi href="/manual">Manual</NavLi>
+			<NavLi href="/schedule">Schedule</NavLi>
+			<NavLi href="/rooms">Rooms</NavLi>
+			<NavLi href="/zones">Zones</NavLi>
+		</NavUl>
+	</Navbar>
+	<SvelteToast />
+	<div class="flex gap-10"></div>
+</header>
+
+<div class="mx-auto flex w-full px-4">
+	<main class="mx-auto w-full">
+		<slot></slot>
+	</main>
+</div>

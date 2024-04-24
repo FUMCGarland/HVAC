@@ -1,0 +1,8 @@
+{
+	"short_name": "hvac",
+	"name": "hvac",
+	"start_url": "/",
+	"display": "standalone",
+	"scope": "/",
+	"description": "FUMCG HVAC Controller"
+}

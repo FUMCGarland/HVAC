@@ -1,0 +1,45 @@
+{
+	"name": "Joyous Online Scheduler for HVAC (JOSH)",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"dev": "vite dev --host 192.168.12.5",
+		"build": "vite build",
+		"preview": "vite preview --host 192.168.12.5",
+		"lint": "prettier --check . && eslint .",
+		"format": "prettier --write .",
+		"package": "svelte-package"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^3.0.0",
+		"@sveltejs/adapter-static": "^3.0.1",
+		"@sveltejs/kit": "^2.0.0",
+		"@sveltejs/vite-plugin-svelte": "^3.0.0",
+		"@types/eslint": "^8.56.0",
+		"@zerodevx/svelte-toast": "^0.9.5",
+		"autoprefixer": "^10.4.16",
+		"eslint": "^9.1.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-svelte": "^2.36.0-next.4",
+		"flowbite": "^2.3.0",
+		"flowbite-svelte": "^0.46.0",
+		"postcss": "^8.4.32",
+		"postcss-load-config": "^5.0.2",
+		"prettier": "^3.1.1",
+		"prettier-plugin-svelte": "^3.1.2",
+		"prettier-plugin-tailwindcss": "^0.5.9",
+		"svelte": "^4.2.15",
+		"svelte-package": "^0.1.0",
+		"tailwindcss": "^3.3.6",
+		"vite": "^5.0.3"
+	},
+	"exports": {
+		".": {
+			"default": "./dist/index.js"
+		}
+	},
+	"type": "module",
+	"dependencies": {
+		"flowbite-svelte-icons": "^1.5.0"
+	}
+}
