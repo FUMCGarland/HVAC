@@ -22,6 +22,11 @@
 			clearInterval(interval);
 		};
 	});
+
+	function sm(s) {
+		if (sm == 0) return 'heating';
+		return 'cooling';
+	}
 </script>
 
 <Heading tag="h2">Pump {data.ID}: {data.Name}</Heading>
@@ -30,7 +35,7 @@
 		<TableHeadCell>ID</TableHeadCell>
 		<TableHeadCell>Name</TableHeadCell>
 		<TableHeadCell>Loop</TableHeadCell>
-		<TableHeadCell>Hot</TableHeadCell>
+		<TableHeadCell>SystemMode</TableHeadCell>
 		<TableHeadCell>Running</TableHeadCell>
 		<TableHeadCell>Current Start Time</TableHeadCell>
 		<TableHeadCell>Last Start Time</TableHeadCell>
@@ -42,7 +47,7 @@
 			<TableBodyCell><A href="/pump/{data.ID}">{data.ID}</A></TableBodyCell>
 			<TableBodyCell>{data.Name}</TableBodyCell>
 			<TableBodyCell><A href="/loop/{data.Loop}">{data.Loop}</A></TableBodyCell>
-			<TableBodyCell>{data.Hot}</TableBodyCell>
+			<TableBodyCell>{sm(data.SystemMode)}</TableBodyCell>
 			<TableBodyCell>{data.Running}</TableBodyCell>
 			<TableBodyCell>{data.CurrentStartTime}</TableBodyCell>
 			<TableBodyCell>{data.LastStartTime}</TableBodyCell>

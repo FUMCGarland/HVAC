@@ -30,7 +30,7 @@
 	let starttime = '05:00';
 	let runtime = 60;
 	$: visiblepumps = data.Pumps.filter((p) => {
-		if ((p.Hot && mode == 0) || (!p.Hot && mode == 1)) return p;
+		return mode == p.SystemMode;
 	});
 	$: activeloops = visiblepumps.map((p) => {
 		if (p.selected === true) return p.Loop;
@@ -43,15 +43,15 @@
 		return w.map((p) => weekdays[p]);
 	}
 
-    function parsePumps(p) {
-        console.log(p);
-        return "tbp";
-    }
+	function parsePumps(p) {
+		console.log(p);
+		return 'tbp';
+	}
 
-    function parseBlowers(b) {
-        console.log(b);
-        return "tbp";
-    }
+	function parseBlowers(b) {
+		console.log(b);
+		return 'tbp';
+	}
 
 	async function doAdd() {
 		const c = {

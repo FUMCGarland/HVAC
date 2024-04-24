@@ -39,9 +39,7 @@
 	}
 
 	function inMode(pump) {
-		if (data.SystemMode == 0 && pump.Hot) return true;
-		if (data.SystemMode == 1 && !pump.Hot) return true;
-		return false;
+		return data.SystemMode == pump.SystemMode;
 	}
 </script>
 

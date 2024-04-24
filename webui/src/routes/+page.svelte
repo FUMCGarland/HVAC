@@ -25,11 +25,10 @@
 
 	function systemModeLabel(sm) {
 		if (sm == 0) return 'heating';
-		if (sm == 1) return 'cooling';
-		return 'unknown';
+		return 'cooling';
 	}
 
-	function systemControlModeLabel(scm) {
+	function controlModeLabel(scm) {
 		if (scm == 0) return 'manual';
 		if (scm == 1) return 'schedule';
 		if (scm == 2) return 'temp';
@@ -38,14 +37,12 @@
 	}
 
 	function inMode(pump) {
-		if (data.SystemMode == 0 && pump.Hot) return true;
-		if (data.SystemMode == 1 && !pump.Hot) return true;
-		return false;
+		return data.SystemMode == pump.SystemMode;
 	}
 </script>
 
 <P><A href="/systemmode">System Mode</A> {systemModeLabel(data.SystemMode)}</P>
-<P><A href="/controlmode">Control Mode</A> {systemControlModeLabel(data.SystemControlMode)}</P>
+<P><A href="/controlmode">Control Mode</A> {controlModeLabel(data.SystemControlMode)}</P>
 <Hr />
 <Heading tag="h2">Blowers</Heading>
 <Table>
@@ -77,7 +74,7 @@
 		<TableHeadCell>ID</TableHeadCell>
 		<TableHeadCell>Name</TableHeadCell>
 		<TableHeadCell>Loop</TableHeadCell>
-		<TableHeadCell>Hot</TableHeadCell>
+		<TableHeadCell>System Mode</TableHeadCell>
 		<TableHeadCell>Running</TableHeadCell>
 	</TableHead>
 	<TableBody>
@@ -87,7 +84,7 @@
 					<TableBodyCell><A href="/pump/{pump.ID}">{pump.ID}</A></TableBodyCell>
 					<TableBodyCell>{pump.Name}</TableBodyCell>
 					<TableBodyCell><A href="/loop/{pump.Loop}">{pump.Loop}</A></TableBodyCell>
-					<TableBodyCell>{pump.Hot}</TableBodyCell>
+					<TableBodyCell>{systemModeLabel(pump.SystemMode)}</TableBodyCell>
 					<TableBodyCell>{pump.Running}</TableBodyCell>
 				</TableBodyRow>
 			{/if}
