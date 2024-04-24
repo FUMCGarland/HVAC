@@ -20,9 +20,14 @@ type BlowerResponse Response
 
 type DeviceID interface {
 	CanEnable() error
-	// Get() // pump & blower should have an interface...
-	Start(uint64, string)
+	// Get() *Device
+	Start(uint64, string) error
 	Stop(string)
+}
+
+type Device interface {
+	readFromStore() error
+	writeToStore() error
 }
 
 type MQTTRequest struct {

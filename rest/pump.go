@@ -44,7 +44,11 @@ func putPump(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	if pc.TargetState {
-		id.Start(pc.RunTime, "manual")
+		if err := id.Start(pc.RunTime, "manual"); err != nil {
+			log.Error(err.Error())
+			http.Error(w, jsonError(err), http.StatusInternalServerError)
+			return
+		}
 	} else {
 		id.Stop("manual")
 	}

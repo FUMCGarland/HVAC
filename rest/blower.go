@@ -44,7 +44,7 @@ func putBlower(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	if bc.TargetState {
-		if id.Start(bc.RunTime, "manual"); err != nil {
+		if err := id.Start(bc.RunTime, "manual"); err != nil {
 			log.Error(err.Error())
 			http.Error(w, jsonError(err), http.StatusNotAcceptable)
 			return

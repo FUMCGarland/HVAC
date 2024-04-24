@@ -20,12 +20,12 @@
         {"ID": 6, "Name": "Sanctuary Cold Loop"}
     ],
     "Pumps": [
-        {"ID": 1, "Name": "Main Chiller Pump", "Loop": 1, "Runtime": 0, "Hot": false, "Running": false},
-        {"ID": 2, "Name": "Hot South", "Loop": 2, "Runtime": 0, "Hot": true, "Running": false},
-        {"ID": 3, "Name": "Main Bldg Hot", "Loop": 3, "Runtime": 0, "Hot": true, "Running": false},
-        {"ID": 4, "Name": "Hot North", "Loop": 4, "Runtime": 0, "Hot": true, "Running": false},
-        {"ID": 5, "Name": "Sanctuary Hot", "Loop": 5, "Runtime": 0, "Hot": true, "Running": false},
-        {"ID": 6, "Name": "Sanctuary Chiller", "Loop": 6, "Runtime": 0, "Hot": false, "Running": false}
+        {"ID": 1, "Name": "Main Chiller Pump", "Loop": 1, "Runtime": 0, "SystemMode": 1, "Running": false},
+        {"ID": 2, "Name": "Hot South", "Loop": 2, "Runtime": 0, "SystemMode": 0, "Running": false},
+        {"ID": 3, "Name": "Main Bldg Hot", "Loop": 3, "Runtime": 0, "SystemMode": 0, "Running": false},
+        {"ID": 4, "Name": "Hot North", "Loop": 4, "Runtime": 0, "SystemMode": 0, "Running": false},
+        {"ID": 5, "Name": "Sanctuary Hot", "Loop": 5, "Runtime": 0, "SystemMode": 0, "Running": false},
+        {"ID": 6, "Name": "Sanctuary Chiller", "Loop": 6, "Runtime": 0, "SystemMode": 1, "Running": false}
     ],
     "Rooms":   [
         {"ID": 127, "Name": "Missions", "Zone": 1},

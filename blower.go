@@ -102,7 +102,11 @@ func (b *Blower) readFromStore() error {
 	return nil
 }
 
-func (b BlowerID) Start(duration uint64, source string) {
+func (b BlowerID) Start(duration uint64, source string) error {
+	if err := b.CanEnable(); err != nil {
+		return err
+	}
+
 	cc := MQTTRequest{
 		Device: b,
 		Command: Command{
@@ -112,6 +116,7 @@ func (b BlowerID) Start(duration uint64, source string) {
 		},
 	}
 	cmdChan <- cc
+	return nil
 }
 
 func (b BlowerID) Stop(source string) {

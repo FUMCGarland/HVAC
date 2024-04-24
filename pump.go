@@ -17,7 +17,7 @@ type Pump struct {
 	Name             string
 	Loop             LoopID
 	Runtime          uint64 // seconds
-	Hot              bool
+	SystemMode       SystemModeT
 	Running          bool
 	CurrentStartTime time.Time
 	LastStartTime    time.Time
@@ -34,7 +34,7 @@ func (p PumpID) Get() *Pump {
 }
 
 // CanEnable
-// (1) the loop Hot must match the current SystemMode -- no running Hot loops in cooling mode
+// (1) the loop SystemMode must match the current SystemMode -- no running Hot loops in cooling mode
 // (2) at least one blower on the loop must be running in cool mode lest the system freeze over
 // (3) don't fast-cycle the pumps, if you stop it, leave it stopped for at least 5(?) minutes
 func (p PumpID) CanEnable() error {
@@ -44,14 +44,14 @@ func (p PumpID) CanEnable() error {
 	}
 
 	pump := p.Get()
-	if pump.Hot && c.SystemMode != SystemModeHeat {
-		err := fmt.Errorf("cannot enable hot pump if system is not heating")
+	if pump.SystemMode != c.SystemMode {
+		err := fmt.Errorf("cannot enable pump if in different system mode")
 		return err
 	}
 
 	// we can enable hot pumps with no blowers for the radiator loops
 	// if the loop is a cold loop, check for running blowers
-	if !pump.Hot {
+	if pump.SystemMode == SystemModeCool {
 		blowerRunning := false
 		for k := range c.Blowers {
 			if pump.Loop == c.Blowers[k].ColdLoop && c.Blowers[k].Running {
@@ -132,7 +132,11 @@ func (p *Pump) readFromStore() error {
 	return nil
 }
 
-func (p PumpID) Start(duration uint64, source string) {
+func (p PumpID) Start(duration uint64, source string) error {
+	if err := p.CanEnable(); err != nil {
+		return err
+	}
+
 	cc := MQTTRequest{
 		Device: p,
 		Command: Command{
@@ -142,6 +146,7 @@ func (p PumpID) Start(duration uint64, source string) {
 		},
 	}
 	cmdChan <- cc
+	return nil
 }
 
 func (p PumpID) Stop(source string) {
