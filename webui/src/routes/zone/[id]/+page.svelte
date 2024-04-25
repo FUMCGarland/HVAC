@@ -24,16 +24,6 @@
 	let cu = data.CoolingUnoccupiedTemp;
 	let co = data.CoolingOccupiedTemp;
 
-	onMount(() => {
-		const interval = setInterval(() => {
-			invalidateAll();
-		}, 30000);
-
-		return () => {
-			clearInterval(interval);
-		};
-	});
-
 	function update() {
 		const c = {
 			HeatingUnoccupiedTemp: Number(hu),

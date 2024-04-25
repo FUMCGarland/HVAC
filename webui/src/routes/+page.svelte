@@ -42,7 +42,7 @@
 </script>
 
 <P><A href="/systemmode">System Mode</A> {systemModeLabel(data.SystemMode)}</P>
-<P><A href="/controlmode">Control Mode</A> {controlModeLabel(data.SystemControlMode)}</P>
+<P><A href="/controlmode">Control Mode</A> {controlModeLabel(data.ControlMode)}</P>
 <Hr />
 <Heading tag="h2">Blowers</Heading>
 <Table>
