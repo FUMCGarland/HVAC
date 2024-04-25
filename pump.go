@@ -64,7 +64,7 @@ func (p PumpID) CanEnable() error {
 		}
 	}
 
-	if !pump.LastStopTime.Before(time.Now().Add(PumpMinTimeBetweenRuns)) {
+	if !pump.LastStopTime.Before(time.Now().Add(pumpMinTimeBetweenRuns)) {
 		err := fmt.Errorf("pump recently stopped, in hold-down state")
 		return err
 	}

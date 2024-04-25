@@ -42,7 +42,7 @@ func (b BlowerID) CanEnable() error {
 	}
 
 	blower := b.Get()
-	if !blower.LastStopTime.Before(time.Now().Add(PumpMinTimeBetweenRuns)) {
+	if !blower.LastStopTime.Before(time.Now().Add(blowerMinTimeBetweenRuns)) {
 		err := fmt.Errorf("blower recently stopped, in hold-down state")
 		return err
 	}

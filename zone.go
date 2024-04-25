@@ -36,16 +36,16 @@ func (z ZoneID) Get() *Zone {
 func (z *Zone) SetTargets(c *Config, zt *ZoneTargets) error {
 	oor := fmt.Errorf("zone temperature out of sane range")
 
-	if zt.HeatingUnoccupiedTemp < 55 || zt.HeatingUnoccupiedTemp > 80 {
+	if zt.HeatingUnoccupiedTemp < minZoneTemp || zt.HeatingUnoccupiedTemp > maxZoneTemp {
 		return oor
 	}
-	if zt.HeatingOccupiedTemp < 55 || zt.HeatingOccupiedTemp > 80 {
+	if zt.HeatingOccupiedTemp < minZoneTemp || zt.HeatingOccupiedTemp > maxZoneTemp {
 		return oor
 	}
-	if zt.CoolingUnoccupiedTemp < 55 || zt.CoolingUnoccupiedTemp > 80 {
+	if zt.CoolingUnoccupiedTemp < minZoneTemp || zt.CoolingUnoccupiedTemp > maxZoneTemp {
 		return oor
 	}
-	if zt.CoolingOccupiedTemp < 55 || zt.CoolingOccupiedTemp > 80 {
+	if zt.CoolingOccupiedTemp < minZoneTemp || zt.CoolingOccupiedTemp > maxZoneTemp {
 		return oor
 	}
 
@@ -59,6 +59,8 @@ func (z *Zone) SetTargets(c *Config, zt *ZoneTargets) error {
 	}
 	return nil
 }
+
+// TODO: write to a single file instead of a file-per-zone
 
 func (z *Zone) writeToStore() error {
 	path := path.Join(c.StateStore, fmt.Sprintf("zone-%d.json", z.ID))

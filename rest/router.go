@@ -19,8 +19,6 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 	m.ServeFiles("/static/*filepath", dir)
 	m.NotFound = http.FileServer(dir)
 
-	// m.GET("/", toGui)
-
 	// Add handlers for all the endpoints
 	m.GET("/api/v1/system", getSystem)          // all devices in one shot
 	m.PUT("/api/v1/system/mode", putSystemMode) // heating or cooling
@@ -64,7 +62,7 @@ func headersMW(w http.ResponseWriter, r *http.Request) {
 }
 
 func getAuth(r *http.Request) error {
-	// get auth data from r,
+	// get auth data from r
 
 	return nil
 }
@@ -72,8 +70,4 @@ func getAuth(r *http.Request) error {
 func TODO(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	// redirect to /static/index.html
 	http.Error(w, "Forbidden", http.StatusForbidden)
-}
-
-func toGui(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	http.Redirect(w, r, "/index.html", http.StatusMovedPermanently)
 }
