@@ -5,14 +5,14 @@ export async function load({ fetch, params }) {
 	const data = await res.json();
 
 	const room = data.Rooms.filter((r) => r.ID == params.id);
-    if (room.length == 1) {
-        return room[0];
-    } else {
-        return {
-            ID: params.id,
-            Name: "404 Room not found",
-            Zone: 0,
-            Temperature: 0
-        }
-    }
+	if (room.length == 1) {
+		return room[0];
+	} else {
+		return {
+			ID: params.id,
+			Name: '404 Room not found',
+			Zone: 0,
+			Temperature: 0
+		};
+	}
 }
