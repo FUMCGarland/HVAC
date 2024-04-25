@@ -27,6 +27,7 @@ const (
 	AuthLevelAdmin                    // admin can stop the system and change heat/cool
 )
 
+// used in the cli to add/update users, should probably just be moved there
 const BcryptRounds = 4
 
 func LoadAuth(path string) ([]AuthData, error) {

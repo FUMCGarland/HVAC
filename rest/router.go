@@ -2,6 +2,7 @@ package rest
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/FUMCGarland/hvac"
 	"github.com/FUMCGarland/hvac/log"
@@ -14,7 +15,9 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 	m.HandleOPTIONS = true
 	m.GlobalOPTIONS = http.HandlerFunc(headers)
 
-	// TODO verify c.HTTPStaticDir exists
+	if _, err := os.Stat(c.HTTPStaticDir); err != nil {
+		panic(err.Error())
+	}
 	dir := http.Dir(c.HTTPStaticDir)
 	m.ServeFiles("/static/*filepath", dir)
 	m.NotFound = http.FileServer(dir)
