@@ -1,18 +1,10 @@
+# FUMCG HVAC Web User Interface aka the Joyous Online Scheduler for HVAC (JOSH)
+
+This is the GUI for the HVAC system. It talks to the REST module in the controller process. It is written in sveltekit. If you know Javascript, you should be able to work in it. Sveltekit has a built-in router and a clean syntax.
+
 # create-svelte
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+Powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
 
 ## Developing
 
