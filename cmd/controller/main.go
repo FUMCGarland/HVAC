@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"os"
 	"os/signal"
 	"sync"
@@ -17,11 +18,24 @@ func main() {
 	sigch := make(chan os.Signal, 1)
 	signal.Notify(sigch, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGHUP, os.Interrupt)
 
-	// TODO: flag for debugging
-	// TODO: move to /etc/hvac.json & allow cli flag to specify a different config
-	c, err := hvac.LoadConfig("/home/scot/HVAC/hvac.json")
+	configPathPtr := flag.String("f", "/etc/hvac.json", "Path to the config file")
+	dump := flag.Bool("c", false, "Print the parsed config and exist")
+	help := flag.Bool("h", false, "Print the help screen and exit")
+	flag.Parse()
+
+	if *help {
+		flag.PrintDefaults()
+		return
+	}
+
+	c, err := hvac.LoadConfig(*configPathPtr)
 	if err != nil {
 		panic(err.Error())
+	}
+
+	if *dump {
+		log.Info("config", "c", c)
+		return
 	}
 
 	var wg sync.WaitGroup

@@ -11,33 +11,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-/* func getBlower(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	c := hvac.GetConfig()
-
-	id, err := strconv.ParseInt(ps.ByName("id"), 10, 8)
-	if err != nil {
-		log.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-	p := c.GetBlower(hvac.BlowerID(id))
-
-	if err := json.NewEncoder(w).Encode(p); err != nil {
-		log.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-} */
-
 func putZone(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	c := hvac.GetConfig()
-	headersMW(w, r)
-
-	if err := getAuth(r); err != nil {
-		log.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusForbidden)
-		return
-	}
+	headers(w, r)
 
 	id, err := strconv.ParseInt(ps.ByName("id"), 10, 8)
 	if err != nil {

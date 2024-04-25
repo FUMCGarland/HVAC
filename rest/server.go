@@ -16,10 +16,14 @@ var srv *http.Server
 const jsonType = "application/json; charset=UTF-8"
 const jsonTypeShort = "application/json"
 const jsonStatusOK = `{"status":"ok"}`
-const jsonStatusEmpty = `{"status":"error","error":"Empty JSON"}`
 
 // Start launches the HTTP server which is responsible for the frontend and the HTTP API.
 func Start(c *hvac.Config, done <-chan bool) {
+	var err error
+	if ad, err = LoadAuth(c.HTTPAuthData); err != nil {
+		panic(err.Error())
+	}
+
 	srv = &http.Server{
 		Handler:           getServeMux(c),
 		Addr:              c.HTTPaddr,

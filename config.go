@@ -13,24 +13,32 @@ var c *Config
 var cmdChan chan MQTTRequest
 
 type Config struct {
-	StateStore    string
-	SystemMode    SystemModeT
-	ControlMode   ControlModeT
-	MQTT          *MQTTConfig
-	HTTPaddr      string
+	// the directory in which to store running state
+	StateStore string
+	// heating/cooling
+	SystemMode SystemModeT
+	// off/manual/schedule/temp
+	ControlMode ControlModeT
+	// config for the mqtt server
+	MQTT *MQTTConfig
+	// the address on which to listen :8080
+	HTTPaddr string
+	// the directory that contains the built webui
 	HTTPStaticDir string
-	Blowers       []Blower
-	Dampers       []Damper
-	Loops         []Loop
-	Pumps         []Pump
-	Rooms         []Room
-	Valves        []Valve
-	Zones         []Zone
+	// the file that contains the HTTP authentication creds
+	HTTPAuthData string
+	Blowers      []Blower
+	Dampers      []Damper
+	Loops        []Loop
+	Pumps        []Pump
+	Rooms        []Room
+	Valves       []Valve
+	Zones        []Zone
 }
 
 type MQTTConfig struct {
 	ID         string // something randomish (fumcg-hvac-server)
-	Auth       string // filename (/etc/hvac.auth.json)
+	Auth       string // filename (/etc/hvac-mqtt-auth.json)
 	Root       string // base mqtt path component(s) (fumcg)
 	ListenAddr string // (":1883")
 }
@@ -39,11 +47,13 @@ var defaults *Config = &Config{
 	StateStore: "/var/hvac",
 	MQTT: &MQTTConfig{
 		Root:       "fumcg",
+		Auth:       "/etc/hvac-mqtt-auth.json",
 		ID:         "fumcg",
 		ListenAddr: ":1883",
 	},
 	HTTPaddr:      ":8080",
-	HTTPStaticDir: "/usr/local/fumcg-hvac",
+	HTTPStaticDir: "/usr/local/hvac",
+	HTTPAuthData:  "/etc/hvac-http-auth.json",
 }
 
 func init() {

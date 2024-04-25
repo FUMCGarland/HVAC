@@ -13,7 +13,7 @@ import (
 
 func getSchedule(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	c := hvac.GetConfig()
-	headersMW(w, r)
+	headers(w, r)
 
 	sched, err := c.GetSchedule()
 	if err != nil {
@@ -31,13 +31,7 @@ func getSchedule(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func postSchedule(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	c := hvac.GetConfig()
-	headersMW(w, r)
-
-	if err := getAuth(r); err != nil {
-		log.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusForbidden)
-		return
-	}
+	headers(w, r)
 
 	e := hvac.ScheduleEntry{}
 	if err := json.NewDecoder(r.Body).Decode(&e); err != nil {

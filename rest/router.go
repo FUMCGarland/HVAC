@@ -12,7 +12,7 @@ import (
 func getServeMux(c *hvac.Config) *httprouter.Router {
 	m := httprouter.New()
 	m.HandleOPTIONS = true
-	m.GlobalOPTIONS = http.HandlerFunc(headersMW)
+	m.GlobalOPTIONS = http.HandlerFunc(headers)
 
 	// TODO verify c.HTTPStaticDir exists
 	dir := http.Dir(c.HTTPStaticDir)
@@ -20,30 +20,30 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 	m.NotFound = http.FileServer(dir)
 
 	// Add handlers for all the endpoints
-	m.GET("/api/v1/system", getSystem)          // all devices in one shot
-	m.PUT("/api/v1/system/mode", putSystemMode) // heating or cooling
-	m.PUT("/api/v1/system/control", putControl) // manual, schedule, or temp-sensor
+	m.GET("/api/v1/system", authMW(getSystem, AuthLevelView))           // all devices in one shot
+	m.PUT("/api/v1/system/mode", authMW(putSystemMode, AuthLevelAdmin)) // heating or cooling
+	m.PUT("/api/v1/system/control", authMW(putControl, AuthLevelAdmin)) // manual, schedule, or temp-sensor
 
 	// manual control
-	m.PUT("/api/v1/pump/:id/target", putPump) // set target state
-	m.PUT("/api/v1/blower/:id/target", putBlower)
+	m.PUT("/api/v1/pump/:id/target", authMW(putPump, AuthLevelControl)) // set target state
+	m.PUT("/api/v1/blower/:id/target", authMW(putBlower, AuthLevelControl))
 
 	// manual system scheduling
-	m.GET("/api/v1/schedule", getSchedule)   // get entire schedule
-	m.POST("/api/v1/schedule", postSchedule) // add a new entry
-	m.PUT("/api/v1/sched/:id", TODO)         // update an entry
-	m.DELETE("/api/v1/sched/:id", TODO)      // delete an entry
+	m.GET("/api/v1/schedule", authMW(getSchedule, AuthLevelView))      // get entire schedule
+	m.POST("/api/v1/schedule", authMW(postSchedule, AuthLevelControl)) // add a new entry
+	m.PUT("/api/v1/sched/:id", authMW(TODO, AuthLevelControl))         // update an entry
+	m.DELETE("/api/v1/sched/:id", authMW(TODO, AuthLevelControl))      // delete an entry
 
 	// temp/occupancy based scheduling (phase 2, requires sensors)
-	m.PUT("/api/v1/zone/:id/targets", putZone)         // set target temp range for zone
-	m.POST("/api/v1/room/:id/schedule", TODO)          // add an occupancy-expected entry
-	m.PUT("/api/v1/room/:id/schedule/:sched", TODO)    // update an occupancy-expected entry
-	m.DELETE("/api/v1/room/:id/schedule/:sched", TODO) // remove an occupancy-expected entry
+	m.PUT("/api/v1/zone/:id/targets", authMW(putZone, AuthLevelControl)) // set target temp range for zone
+	m.POST("/api/v1/room/:id/schedule", TODO)                            // add an occupancy-expected entry
+	m.PUT("/api/v1/room/:id/schedule/:sched", TODO)                      // update an occupancy-expected entry
+	m.DELETE("/api/v1/room/:id/schedule/:sched", TODO)                   // remove an occupancy-expected entry
 
 	return m
 }
 
-func headersMW(w http.ResponseWriter, r *http.Request) {
+func headers(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		log.Info("request", "url", r.URL, "method", r.Method)
 	}
@@ -61,13 +61,6 @@ func headersMW(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", jsonType)
 }
 
-func getAuth(r *http.Request) error {
-	// get auth data from r
-
-	return nil
-}
-
 func TODO(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	// redirect to /static/index.html
 	http.Error(w, "Forbidden", http.StatusForbidden)
 }

@@ -13,7 +13,7 @@ import (
 
 func getSystem(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	c := hvac.GetConfig()
-	headersMW(w, r)
+	headers(w, r)
 
 	if err := json.NewEncoder(w).Encode(c); err != nil {
 		log.Error(err.Error())
@@ -24,13 +24,7 @@ func getSystem(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func putSystemMode(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	c := hvac.GetConfig()
-	headersMW(w, r)
-
-	if err := getAuth(r); err != nil {
-		log.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusForbidden)
-		return
-	}
+	headers(w, r)
 
 	if !contentTypeIs(r, jsonTypeShort) {
 		err := fmt.Errorf("invalid request format: use JSON")
@@ -71,13 +65,7 @@ func putSystemMode(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 func putControl(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	c := hvac.GetConfig()
-	headersMW(w, r)
-
-	if err := getAuth(r); err != nil {
-		log.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusForbidden)
-		return
-	}
+	headers(w, r)
 
 	if !contentTypeIs(r, jsonTypeShort) {
 		err := fmt.Errorf("invalid request format: use JSON")
