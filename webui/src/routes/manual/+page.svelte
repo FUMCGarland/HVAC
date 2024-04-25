@@ -13,6 +13,12 @@
 	import { blowerStart, blowerStop, pumpStart, pumpStop } from '$lib/hvac.js';
 
 	export let data;
+	data.Pumps.forEach((p) => {
+		p.newRunTime = 0;
+	});
+	data.Blowers.forEach((b) => {
+		b.newRunTime = 0;
+	});
 
 	onMount(() => {
 		const interval = setInterval(() => {
@@ -23,20 +29,6 @@
 			clearInterval(interval);
 		};
 	});
-
-	function systemModeLabel(sm) {
-		if (sm == 0) return 'heating';
-		if (sm == 1) return 'cooling';
-		return 'unknown';
-	}
-
-	function systemControlModeLabel(scm) {
-		if (scm == 0) return 'manual';
-		if (scm == 1) return 'schedule';
-		if (scm == 2) return 'temp';
-		if (scm == 3) return 'off';
-		return 'manual';
-	}
 
 	function inMode(pump) {
 		return data.SystemMode == pump.SystemMode;
@@ -88,12 +80,12 @@
 										id="run_time{blower.ID}"
 										placeholder="60"
 										required
-										bind:this={blower.newRunTime}
+										bind:value={blower.newRunTime}
 									/>
 									<Button
 										type="submit"
 										on:click={() => {
-											blowerStart(blower.ID, blower.newRunTime.$capture_state().value);
+											blowerStart(blower.ID, blower.newRunTime);
 										}}>Start</Button
 									>
 								</div>
@@ -147,12 +139,12 @@
 											id="run_time{pump.ID}"
 											placeholder="60"
 											required
-											bind:this={pump.newRunTime}
+											bind:value={pump.newRunTime}
 										/>
 										<Button
 											type="submit"
 											on:click={() => {
-												pumpStart(pump.ID, pump.newRunTime.$capture_state().value);
+												pumpStart(pump.ID, pump.newRunTime);
 											}}>Start</Button
 										>
 									</div>
