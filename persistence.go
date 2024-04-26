@@ -1,9 +1,7 @@
 package hvac
 
 import (
-	// "fmt"
 	"os"
-	// "path"
 
 	"github.com/FUMCGarland/hvac/log"
 )
@@ -12,8 +10,6 @@ const (
 	storenameSystemMode  = "SystemMode"
 	storenameControlMode = "ControlMode"
 )
-
-// it would make sense to use badgerdb since it is already built in to mochi-mqtt, but it seems like overkill for this task
 
 func (c *Config) loadFromStore() error {
 	_, err := os.ReadDir(c.StateStore)
@@ -24,14 +20,16 @@ func (c *Config) loadFromStore() error {
 	sm, err := c.readSystemMode()
 	if err != nil {
 		log.Error("unable to load last system mode")
+		sm = SystemModeHeat
 	}
 	c.SetSystemMode(sm)
-	scm, err := c.readControlMode()
+	cm, err := c.readControlMode()
 	if err != nil {
 		log.Error("unable to load last system control mode")
+		cm = ControlOff
 	}
 	// starts the scheduler or temp handler if set
-	c.SetControlMode(scm)
+	c.SetControlMode(cm)
 
 	for k := range c.Pumps {
 		if err := c.Pumps[k].readFromStore(); err != nil {
