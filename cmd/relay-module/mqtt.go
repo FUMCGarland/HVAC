@@ -15,6 +15,7 @@ import (
 	"github.com/eclipse/paho.golang/paho"
 
 	"github.com/FUMCGarland/hvac"
+	"github.com/FUMCGarland/hvac/log"
 )
 
 var client *autopaho.ConnectionManager
@@ -30,7 +31,7 @@ func start(ctx context.Context, rc *RelayConf) {
 
 	if err := rpio.Open(); err != nil {
 		log.Error(err.Error())
-		return
+		// return
 	}
 	defer rpio.Close()
 
@@ -91,8 +92,8 @@ func start(ctx context.Context, rc *RelayConf) {
 			for k := range rc.Relays {
 				if rc.Relays[k].StopTime > 0 && rc.Relays[k].StopTime < now {
 					rc.Log.Info("duration expired", "relay", rc.Relays[k])
-					pin := rpio.Pin(rc.Relays[k].Pin)
-					pin.Low()
+					// pin := rpio.Pin(rc.Relays[k].Pin)
+					// pin.Low()
 					rc.Relays[k].Running = false
 					rc.Relays[k].RunTime += (now - rc.Relays[k].StartTime)
 					rc.Relays[k].StopTime = 0
@@ -148,14 +149,14 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 	}
 
 	rc.Log.Info("Toggling Relay", "pin", relay.Pin, "state", cmd.TargetState, "duration", cmd.RunTime)
-	pin := rpio.Pin(relay.Pin)
+	// pin := rpio.Pin(relay.Pin)
 	relay.Running = cmd.TargetState
 	if !cmd.TargetState {
 		cmd.RunTime = 0
 		relay.StopTime = 0
-		pin.Low()
+		// pin.Low()
 	} else {
-		pin.High()
+		// pin.High()
 	}
 	relay.StartTime = time.Now().Unix()
 
