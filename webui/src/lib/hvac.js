@@ -209,3 +209,24 @@ export async function postSchedule(cmd) {
 	}
 	invalidateAll();
 }
+
+export async function deleteSchedule(id) {
+	const request = {
+		method: 'DELETE',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin'
+	};
+
+	const response = await fetch(`${hvaccontroller}/api/v1/sched/${id}`, request);
+	const payload = await response.json();
+
+	if (response.status != 200) {
+		console.log(payload);
+		console.log('server returned ', response.status);
+		toast.push('Server Responded with: ' + response.status + ': ' + payload.error);
+		return;
+	}
+	invalidateAll();
+}
