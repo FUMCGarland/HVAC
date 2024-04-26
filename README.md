@@ -94,4 +94,7 @@ Loop pumps can only run when the blowers are running (lest the chiller freeze ov
 Zones will have primary temp ranges
 If a room is scheduled to be occupied, the zone will be adjusted to that room's selected range
 
+## research
+ 
+things to read: https://niektemme.com/2015/08/09/smart-thermostat/
 
