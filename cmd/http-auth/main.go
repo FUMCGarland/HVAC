@@ -24,7 +24,7 @@ func main() {
 	}
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), rest.BcryptRounds)
 	if err != nil {
-		panic(error.Error())
+		panic(err.Error())
 	}
 
 	c, err := rest.LoadAuth(*configPathPtr)
