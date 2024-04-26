@@ -12,7 +12,6 @@
 	import { Heading, P, A, Hr } from 'flowbite-svelte';
 
 	export let data;
-	console.log(data);
 </script>
 
 <Heading tag="h2">{data.Name}</Heading>
