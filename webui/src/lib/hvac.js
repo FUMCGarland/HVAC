@@ -3,6 +3,9 @@ import { toast } from '@zerodevx/svelte-toast';
 
 export const hvaccontroller = `http://192.168.12.5:8080`;
 
+// TODO: these are inconsistent, pass in object{} and JSON.stringify() in the body:
+// as in the putSchedule
+
 export async function setSystemControlMode(m) {
 	const cmd = `{ "ControlMode": ${m} }`;
 	const request = {
@@ -220,6 +223,32 @@ export async function deleteSchedule(id) {
 	};
 
 	const response = await fetch(`${hvaccontroller}/api/v1/sched/${id}`, request);
+	const payload = await response.json();
+
+	if (response.status != 200) {
+		console.log(payload);
+		console.log('server returned ', response.status);
+		toast.push('Server Responded with: ' + response.status + ': ' + payload.error);
+		return;
+	}
+	invalidateAll();
+}
+
+export async function putSchedule(cmd) {
+	const request = {
+		method: 'PUT',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(cmd)
+	};
+	console.log(cmd);
+
+	const response = await fetch(`${hvaccontroller}/api/v1/sched/${cmd.ID}`, request);
 	const payload = await response.json();
 
 	if (response.status != 200) {

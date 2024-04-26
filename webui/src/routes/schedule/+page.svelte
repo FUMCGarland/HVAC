@@ -1,6 +1,5 @@
 <script>
 	import { onMount } from 'svelte';
-	import { invalidateAll } from '$app/navigation';
 	import { postSchedule } from '$lib/hvac';
 	import {
 		Table,

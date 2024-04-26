@@ -8,15 +8,32 @@
 		TableHeadCell,
 		Heading,
 		A,
-		Button
+		Button,
+		Dropdown,
+		Checkbox,
+		Input
 	} from 'flowbite-svelte';
-	import { deleteSchedule } from '$lib/hvac.js';
+	import { ChevronDownOutline } from 'flowbite-svelte-icons';
+	import { putSchedule } from '$lib/hvac.js';
 	import { redirect } from '@sveltejs/kit';
 
 	export let data;
 	console.log(data);
 	const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	const selectedwd = weekdays.map(() => false);
+	data.Weekdays.forEach((d) => {
+		selectedwd[d] = true;
+	});
+
+	$: visiblepumps = data.System.Pumps.filter((p) => {
+		return data.Mode == p.SystemMode;
+	});
+	$: activeloops = visiblepumps.map((p) => {
+		if (p.selected === true) return p.Loop;
+	});
+	$: visibleblowers = data.System.Blowers.filter((b) => {
+		if (activeloops.includes(b.HotLoop) || activeloops.includes(b.ColdLoop)) return b;
+	});
 
 	function modeString(mode) {
 		if (mode == 0) return 'heating';
@@ -40,6 +57,36 @@
 		let u = e.encode(atob(b));
 		return u;
 	}
+
+	async function doEdit() {
+		const c = {
+			ID: Number(data.ID),
+			Name: data.Name,
+			Mode: Number(data.Mode),
+			Weekdays: selectedwd
+				.map((n, i) => {
+					if (n) {
+						return i;
+					}
+				})
+				.filter((o) => {
+					return o !== undefined;
+				}),
+			Starttime: data.StartTime,
+			Runtime: Number(data.RunTime),
+			Pumps: visiblepumps
+				.filter((p) => {
+					if (p.selected === true) return p;
+				})
+				.map((p) => p.ID),
+			Blowers: visibleblowers
+				.filter((b) => {
+					if (b.selected === true) return b;
+				})
+				.map((b) => b.ID)
+		};
+		await putSchedule(c);
+	}
 </script>
 
 <Heading tag="h2">{data.Name}</Heading>
@@ -55,7 +102,7 @@
 		</TableBodyRow>
 		<TableBodyRow>
 			<TableBodyCell>Name</TableBodyCell>
-			<TableBodyCell>{data.Name}</TableBodyCell>
+			<TableBodyCell><Input type="text" bind:value={data.Name} /></TableBodyCell>
 		</TableBodyRow>
 		<TableBodyRow>
 			<TableBodyCell>Mode</TableBodyCell>
@@ -63,30 +110,72 @@
 		</TableBodyRow>
 		<TableBodyRow>
 			<TableBodyCell>Start Times</TableBodyCell>
-			<TableBodyCell>{data.StartTime}</TableBodyCell>
+			<TableBodyCell><Input type="text" bind:value={data.StartTime} /></TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>Run Time (minutes)</TableBodyCell>
+			<TableBodyCell><Input type="text" bind:value={data.RunTime} /></TableBodyCell>
 		</TableBodyRow>
 		<TableBodyRow>
 			<TableBodyCell>Weekdays</TableBodyCell>
-			<TableBodyCell>{parseWeekdays(data.Weekdays)}</TableBodyCell>
+			<TableBodyCell>
+				{parseWeekdays(data.Weekdays)} (TODO - this displays wrong)<br />
+				<Button
+					>Weekdays<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button
+				>
+				<Dropdown class="w-44 space-y-3 p-3 text-sm">
+					{#each weekdays as wd, index}
+						<li><Checkbox value={wd} bind:checked={selectedwd[index]}>{wd}</Checkbox></li>
+					{/each}
+				</Dropdown>
+			</TableBodyCell>
 		</TableBodyRow>
 		<TableBodyRow>
 			<TableBodyCell>Pumps</TableBodyCell>
-			<TableBodyCell>{parsePumps(data.Pumps)}</TableBodyCell>
+			<TableBodyCell
+				>{parsePumps(data.Pumps)}<br />
+				<Button>Pumps<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button>
+				<Dropdown class="w-44 space-y-3 p-3 text-sm">
+					{#each visiblepumps as pump, index}
+						<li>
+							<Checkbox value={pump.ID} bind:checked={pump.selected}>{pump.Name}</Checkbox>
+						</li>
+					{/each}
+				</Dropdown>
+			</TableBodyCell>
 		</TableBodyRow>
 		<TableBodyRow>
 			<TableBodyCell>Blowers</TableBodyCell>
-			<TableBodyCell>{parseBlowers(data.Blowers)}</TableBodyCell>
+			<TableBodyCell
+				>{parseBlowers(data.Blowers)}<br />
+				<Button
+					>Blowers<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button
+				>
+				<Dropdown class="w-44 space-y-3 p-3 text-sm">
+					{#each visibleblowers as blower, index}
+						<li>
+							<Checkbox value={blower.ID} bind:checked={blower.selected}>{blower.Name}</Checkbox>
+						</li>
+					{/each}
+				</Dropdown>
+			</TableBodyCell>
 		</TableBodyRow>
 		<TableBodyRow>
-			<TableBodyCell
-				><Button
+			<TableBodyCell>
+				<Button
 					on:click={() => {
 						deleteSchedule(data.ID);
 						throw redirect(303, '/schedule');
 					}}>Delete</Button
-				></TableBodyCell
-			>
-			<TableBodyCell></TableBodyCell>
+				>
+			</TableBodyCell>
+			<TableBodyCell>
+				<Button
+					on:click={() => {
+						doEdit();
+					}}>Update</Button
+				>
+			</TableBodyCell>
 		</TableBodyRow>
 	</TableBody>
 </Table>
