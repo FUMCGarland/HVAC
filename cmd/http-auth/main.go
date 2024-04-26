@@ -23,6 +23,9 @@ func main() {
 		panic(usage)
 	}
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), rest.BcryptRounds)
+	if err != nil {
+		panic(error.Error())
+	}
 
 	c, err := rest.LoadAuth(*configPathPtr)
 	if err != nil {
@@ -42,9 +45,10 @@ func main() {
 
 	m, _ := json.MarshalIndent(c, "", " ")
 	if *writeBack {
-		if err := os.WriteFile(*configPathPtr, m, 600); err != nil {
+		if err := os.WriteFile(*configPathPtr, m, 0600); err != nil {
 			panic(err.Error())
 		}
+	} else {
+		fmt.Println(string(m))
 	}
-	fmt.Println(string(m))
 }

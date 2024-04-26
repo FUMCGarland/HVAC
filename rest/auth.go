@@ -49,7 +49,7 @@ func LoadAuth(path string) ([]AuthData, error) {
 func authMW(h httprouter.Handle, level authLevel) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		h(w, r, ps)
-    }
+	}
 }
 
 func xauthMW(h httprouter.Handle, level authLevel) httprouter.Handle {

@@ -226,21 +226,20 @@ func buildJob(e *ScheduleEntry) error {
 }
 
 func (s *ScheduleList) RemoveEntry(id uint8) {
-    index := -1
-    for k := range schedule.List {
-        if s.List[k].ID == id {
-            index = k
-            break
-        }
-    }
-    if index == -1 {
-        log.Info("unknown schedule entry ID", "id", id)
-        return
-    }
-    log.Info("removing job from schedule", "id", id)
-    sz.RemoveByTags(fmt.Sprintf("%d", id))
-    s.List = append(s.List[:index], s.List[index+1:]...)
-    log.Info("new schedule", "s", s.List)
-    _ = s.writeToStore()
-    return
+	index := -1
+	for k := range schedule.List {
+		if s.List[k].ID == id {
+			index = k
+			break
+		}
+	}
+	if index == -1 {
+		log.Info("unknown schedule entry ID", "id", id)
+		return
+	}
+	log.Info("removing job from schedule", "id", id)
+	sz.RemoveByTags(fmt.Sprintf("%d", id))
+	s.List = append(s.List[:index], s.List[index+1:]...)
+	log.Info("new schedule", "s", s.List)
+	_ = s.writeToStore()
 }
