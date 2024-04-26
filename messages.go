@@ -13,6 +13,7 @@ type Response struct {
 	RanTime      uint64 // seconds actually ran
 }
 
+// types to make sure we aren't sending blower commands to a pump even though they look the same
 type PumpCommand Command
 type BlowerCommand Command
 type PumpResponse Response
@@ -20,12 +21,12 @@ type BlowerResponse Response
 
 type DeviceID interface {
 	CanEnable() error
-	// Get() *Device
+	// Get() device
 	Start(uint64, string) error
 	Stop(string)
 }
 
-type Device interface {
+type device interface {
 	readFromStore() error
 	writeToStore() error
 }
