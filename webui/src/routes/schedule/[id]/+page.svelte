@@ -18,7 +18,6 @@
 	import { redirect } from '@sveltejs/kit';
 
 	export let data;
-	console.log(data);
 	const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	const selectedwd = weekdays.map(() => false);
 	data.Weekdays.forEach((d) => {
@@ -119,7 +118,7 @@
 		<TableBodyRow>
 			<TableBodyCell>Weekdays</TableBodyCell>
 			<TableBodyCell>
-				{parseWeekdays(data.Weekdays)} (TODO - this displays wrong)<br />
+				{parseWeekdays(data.Weekdays)}<br />
 				<Button
 					>Weekdays<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button
 				>

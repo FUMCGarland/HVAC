@@ -6,7 +6,6 @@ export async function load({ fetch, params }) {
 
 	const sched = await fetch(`${hvaccontroller}/api/v1/schedule`);
 	const s = await sched.json();
-	// console.log(s);
 	item.Schedule = s.List;
 
 	return item;
