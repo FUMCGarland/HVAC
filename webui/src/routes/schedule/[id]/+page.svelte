@@ -14,7 +14,7 @@
 		Input
 	} from 'flowbite-svelte';
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
-	import { putSchedule } from '$lib/hvac.js';
+	import { putSchedule, deleteSchedule } from '$lib/hvac.js';
 	import { redirect } from '@sveltejs/kit';
 
 	export let data;
