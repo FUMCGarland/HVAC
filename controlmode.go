@@ -51,6 +51,7 @@ func (c *Config) SetControlMode(cm ControlModeT) error {
 	switch cm {
 	case ControlManual:
 		log.Info("stopping scheduler")
+		StopAll()
 		sz.StopJobs()
 		log.Info("control mode manual")
 	case ControlSchedule:
@@ -63,6 +64,7 @@ func (c *Config) SetControlMode(cm ControlModeT) error {
 	case ControlOff:
 		log.Info("stopping scheduler")
 		sz.StopJobs()
+		StopAll()
 		log.Info("control mode off")
 	}
 
