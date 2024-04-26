@@ -80,3 +80,44 @@ func deleteSchedule(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 
 	fmt.Fprint(w, jsonStatusOK)
 }
+
+func putSchedule(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	c := hvac.GetConfig()
+	headers(w, r)
+
+	inid, err := strconv.ParseInt(ps.ByName("id"), 10, 8)
+	if err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	e := hvac.ScheduleEntry{}
+	if err := json.NewDecoder(r.Body).Decode(&e); err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+	if uint8(inid) != e.ID {
+		err := fmt.Errorf("url ID does not match incoming json")
+		log.Error(err.Error(), "id", inid, "e", e)
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	log.Info("updating schedule entry", "id", inid, "e", e)
+
+	schedule, err := c.GetSchedule()
+	if err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+	if err := schedule.EditEntry(&e); err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprint(w, jsonStatusOK)
+}

@@ -34,7 +34,7 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 	// manual system scheduling
 	m.GET("/api/v1/schedule", authMW(getSchedule, AuthLevelView))           // get entire schedule
 	m.POST("/api/v1/schedule", authMW(postSchedule, AuthLevelControl))      // add a new entry
-	m.PUT("/api/v1/sched/:id", authMW(TODO, AuthLevelControl))              // update an entry
+	m.PUT("/api/v1/sched/:id", authMW(putSchedule, AuthLevelControl))       // update an entry
 	m.DELETE("/api/v1/sched/:id", authMW(deleteSchedule, AuthLevelControl)) // delete an entry
 
 	// temp/occupancy based scheduling (phase 2, requires sensors)

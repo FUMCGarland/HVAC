@@ -243,3 +243,56 @@ func (s *ScheduleList) RemoveEntry(id uint8) {
 	log.Info("new schedule", "s", s.List)
 	_ = s.writeToStore()
 }
+
+func (s *ScheduleList) EditEntry(e *ScheduleEntry) error {
+	index := -1
+	for k := range schedule.List {
+		if s.List[k].ID == e.ID {
+			index = k
+			break
+		}
+	}
+	if index == -1 {
+		err := fmt.Errorf("cannot update non-existent entry")
+		log.Error(err.Error(), "entry", e)
+		return err
+	}
+
+	if len(e.Weekdays) == 0 {
+		err := fmt.Errorf("cannot schedule an entry not on any days")
+		log.Error(err.Error(), "entry", e)
+		return err
+	}
+
+	if len(e.Blowers) == 0 && len(e.Pumps) == 0 {
+		err := fmt.Errorf("cannot schedule an entry without any pumps or blowers")
+		log.Error(err.Error(), "entry", e)
+		return err
+	}
+
+	if e.Mode != SystemModeHeat && e.Mode != SystemModeCool {
+		err := fmt.Errorf("invalid system mode")
+		log.Error(err.Error(), "entry", e)
+		return err
+	}
+
+	if e.Name == "" {
+		e.Name = fmt.Sprintf("Unnamed %d", e.ID)
+	}
+
+	s.List[index] = *e
+	if err := s.writeToStore(); err != nil {
+		log.Error(err.Error(), "entry", e)
+		return err
+	}
+
+	log.Info("removing job from schedule", "id", e.ID)
+	sz.RemoveByTags(fmt.Sprintf("%d", e.ID))
+
+	if err := buildJob(e); err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	return nil
+}
