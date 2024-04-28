@@ -5,10 +5,12 @@ import (
 )
 
 // TODO: implement this
-// const MaxPumpRunTime uint64 = 14400
-// const MaxBlowerRunTime uint64 = 14400
+const MaxPumpRunTime time.Duration = (6 * time.Hour)
+const MinPumpRunTime time.Duration = (30 * time.Minute)
+const MaxBlowerRunTime time.Duration = (6 * time.Hour)
+const MinBlowerRunTime time.Duration = (30 * time.Minute)
 
-const pumpMinTimeBetweenRuns time.Duration = (5 * 60 * time.Second)
-const blowerMinTimeBetweenRuns time.Duration = (5 * 60 * time.Second)
+const pumpMinTimeBetweenRuns time.Duration = (5 * time.Minute)
+const blowerMinTimeBetweenRuns time.Duration = (5 * time.Minute)
 const minZoneTemp = 55
 const maxZoneTemp = 85

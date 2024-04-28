@@ -18,6 +18,7 @@
 	import { redirect } from '@sveltejs/kit';
 
 	export let data;
+	data.RunTime = data.RunTime;
 	const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	const selectedwd = weekdays.map(() => false);
 	data.Weekdays.forEach((d) => {
@@ -85,6 +86,7 @@
 				.map((b) => b.ID)
 		};
 		await putSchedule(c);
+		data.RunTime = data.RunTime;
 	}
 </script>
 

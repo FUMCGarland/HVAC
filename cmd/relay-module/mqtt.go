@@ -19,6 +19,7 @@ import (
 )
 
 var client *autopaho.ConnectionManager
+var stoppedRunning = time.Unix(0, 0)
 
 // start launches the MQTT client, connects to the server, and listens for commands
 func start(ctx context.Context, rc *RelayConf) {
@@ -87,19 +88,19 @@ func start(ctx context.Context, rc *RelayConf) {
 	for {
 		select {
 		case <-ticker.C:
-			now := time.Now().Unix()
+			now := time.Now()
 			// see if any running devices need to stop
 			for k := range rc.Relays {
-				if rc.Relays[k].StopTime > 0 && rc.Relays[k].StopTime < now {
+				if rc.Relays[k].StopTime.Equal(stoppedRunning) && rc.Relays[k].StopTime.Before(now) {
 					rc.Log.Info("duration expired", "relay", rc.Relays[k])
 					// pin := rpio.Pin(rc.Relays[k].Pin)
 					// pin.Low()
 					rc.Relays[k].Running = false
-					rc.Relays[k].RunTime += (now - rc.Relays[k].StartTime)
-					rc.Relays[k].StopTime = 0
+					rc.Relays[k].RunTime += now.Sub(rc.Relays[k].StartTime)
+					rc.Relays[k].StopTime = stoppedRunning
 					sendUpdate(rc, &rc.Relays[k], &hvac.Response{
 						CurrentState: false,
-						RanTime:      uint64(now - rc.Relays[k].StartTime),
+						RanTime:      now.Sub(rc.Relays[k].StartTime),
 					})
 				}
 			}
@@ -153,22 +154,43 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 	relay.Running = cmd.TargetState
 	if !cmd.TargetState {
 		cmd.RunTime = 0
-		relay.StopTime = 0
+		relay.StartTime = stoppedRunning
+		relay.StopTime = stoppedRunning
 		// pin.Low()
 	} else {
-		// pin.High()
-	}
-	relay.StartTime = time.Now().Unix()
+		relay.StartTime = time.Now()
+		relay.StopTime = time.Now().Add(time.Duration(cmd.RunTime))
+		if mode == "pumps" {
+			if cmd.RunTime < hvac.MinPumpRunTime {
+				err := fmt.Errorf("pump runtime too short")
+				rc.Log.Error(err.Error(), "requested", cmd.RunTime, "min", hvac.MinPumpRunTime)
+				return false, err
+			}
+			if cmd.RunTime > hvac.MaxPumpRunTime {
+				err := fmt.Errorf("pump runtime too long")
+				rc.Log.Error(err.Error(), "requested", cmd.RunTime, "max", hvac.MaxPumpRunTime)
+				return false, err
+			}
+		} else {
+			if cmd.RunTime < hvac.MinBlowerRunTime {
+				err := fmt.Errorf("blower runtime too short")
+				rc.Log.Error(err.Error(), "requested", cmd.RunTime, "min", hvac.MinBlowerRunTime)
+				return false, err
+			}
+			if cmd.RunTime > hvac.MaxBlowerRunTime {
+				err := fmt.Errorf("blower runtime too long")
+				rc.Log.Error(err.Error(), "requested", cmd.RunTime, "max", hvac.MaxBlowerRunTime)
+				return false, err
+			}
+		}
 
-	// set the stop time if a duration is set
-	if cmd.RunTime > 0 {
-		relay.StopTime = time.Now().Add(time.Duration(cmd.RunTime) * time.Second).Unix()
+		// pin.High()
 	}
 
 	// Send confirmation
 	if err := sendUpdate(rc, relay, &hvac.Response{
 		CurrentState: cmd.TargetState,
-		RanTime:      0,
+		RanTime:      0, // zero on confirmation
 	}); err != nil {
 		return false, err
 	}

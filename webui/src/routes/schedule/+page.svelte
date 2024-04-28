@@ -117,7 +117,7 @@
 					<TableBodyCell>{modeString(sched.Mode)}</TableBodyCell>
 					<TableBodyCell>{parseWeekdays(sched.Weekdays)}</TableBodyCell>
 					<TableBodyCell>{sched.StartTime}</TableBodyCell>
-					<TableBodyCell>{sched.RunTime}</TableBodyCell>
+					<TableBodyCell>{sched.RunTime / 120000000000}</TableBodyCell>
 					<TableBodyCell>{parsePumps(sched.Pumps)}</TableBodyCell>
 					<TableBodyCell>{parseBlowers(sched.Blowers)}</TableBodyCell>
 				</TableBodyRow>

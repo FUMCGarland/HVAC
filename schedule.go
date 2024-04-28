@@ -26,7 +26,7 @@ type ScheduleEntry struct {
 	Mode      SystemModeT
 	StartTime string // "10:30" "18:00;22:30;24:00""
 	Weekdays  []time.Weekday
-	RunTime   uint64
+	RunTime   time.Duration
 	Pumps     []PumpID
 	Blowers   []BlowerID
 }

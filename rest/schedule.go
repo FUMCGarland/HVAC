@@ -106,7 +106,6 @@ func putSchedule(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	log.Info("updating schedule entry", "id", inid, "e", e)
-
 	schedule, err := c.GetSchedule()
 	if err != nil {
 		log.Error(err.Error())

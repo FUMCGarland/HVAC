@@ -2,6 +2,7 @@ import { invalidateAll } from '$app/navigation';
 import { toast } from '@zerodevx/svelte-toast';
 
 export const hvaccontroller = `http://192.168.12.5:8080`;
+export const durationMult = 120000000000;
 
 // TODO: these are inconsistent, pass in object{} and JSON.stringify() in the body:
 // as in the putSchedule
@@ -57,11 +58,11 @@ export async function setSystemMode(m) {
 }
 
 // these can be consolidated into one with small wrappers, but that's work for later
-export async function blowerStart(id, duration = '60', source = 'manual') {
-	if (duration > 600) duration = 60; // cap runs at 10 hours
-	const d = duration * 60;
+export async function blowerStart(id, minutes = 60, source = 'manual') {
+	if (minutes > 600 || minutes < 5) minutes = 60; // cap runs at 10 hours
+	const goduration = minutes * 120000000000;
 
-	const cmd = `{ "TargetState": true, "RunTime": ${d}, "Source": "${source}" }`;
+	const cmd = `{ "TargetState": true, "RunTime": ${goduration}, "Source": "${source}" }`;
 	const request = {
 		method: 'PUT',
 		mode: 'cors',
@@ -110,11 +111,11 @@ export async function blowerStop(id, source = 'manual') {
 	invalidateAll();
 }
 
-export async function pumpStart(id, duration = '60', source = 'manual') {
-	if (duration > 600) duration = 60; // cap runs at 10 hours
-	const d = duration * 60;
+export async function pumpStart(id, minutes = 60, source = 'manual') {
+	if (minutes > 600 || minutes < 5) minutes = 60; // cap runs at 10 hours
+	const goduration = minutes * 120000000000;
 
-	const cmd = `{ "TargetState": true, "RunTime": ${d}, "Source": "${source}" }`;
+	const cmd = `{ "TargetState": true, "RunTime": ${goduration}, "Source": "${source}" }`;
 	const request = {
 		method: 'PUT',
 		mode: 'cors',
@@ -189,6 +190,8 @@ export async function updateZoneTargets(id, cmd) {
 }
 
 export async function postSchedule(cmd) {
+	cmd.RunTime = cmd.RunTime * durationMult;
+
 	const request = {
 		method: 'POST',
 		mode: 'cors',
@@ -235,6 +238,8 @@ export async function deleteSchedule(id) {
 }
 
 export async function putSchedule(cmd) {
+	cmd.RunTime = cmd.RunTime * durationMult;
+
 	const request = {
 		method: 'PUT',
 		mode: 'cors',
@@ -246,7 +251,6 @@ export async function putSchedule(cmd) {
 		},
 		body: JSON.stringify(cmd)
 	};
-	console.log(cmd);
 
 	const response = await fetch(`${hvaccontroller}/api/v1/sched/${cmd.ID}`, request);
 	const payload = await response.json();

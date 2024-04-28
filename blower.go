@@ -19,7 +19,7 @@ type Blower struct {
 	ColdLoop         LoopID
 	Zone             ZoneID
 	Running          bool
-	Runtime          uint64
+	Runtime          time.Duration
 	FilterTime       uint64
 	CurrentStartTime time.Time
 	LastStartTime    time.Time
@@ -102,8 +102,18 @@ func (b *Blower) readFromStore() error {
 	return nil
 }
 
-func (b BlowerID) Start(duration uint64, source string) error {
+func (b BlowerID) Start(duration time.Duration, source string) error {
 	if err := b.CanEnable(); err != nil {
+		return err
+	}
+
+	if duration < MinBlowerRunTime {
+		err := fmt.Errorf("duration shorter than minimum: requested %d min %d", duration, MinBlowerRunTime)
+		return err
+	}
+
+	if duration > MaxBlowerRunTime {
+		err := fmt.Errorf("duration longer than maximum: requested %d min %d", duration, MaxBlowerRunTime)
 		return err
 	}
 

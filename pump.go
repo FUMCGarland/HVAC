@@ -16,7 +16,7 @@ type Pump struct {
 	ID               PumpID
 	Name             string
 	Loop             LoopID
-	Runtime          uint64 // seconds
+	Runtime          time.Duration
 	SystemMode       SystemModeT
 	Running          bool
 	CurrentStartTime time.Time
@@ -132,8 +132,18 @@ func (p *Pump) readFromStore() error {
 	return nil
 }
 
-func (p PumpID) Start(duration uint64, source string) error {
+func (p PumpID) Start(duration time.Duration, source string) error {
 	if err := p.CanEnable(); err != nil {
+		return err
+	}
+
+	if duration < MinPumpRunTime {
+		err := fmt.Errorf("duration shorter than minimum: requested %d min %d", duration, MinPumpRunTime)
+		return err
+	}
+
+	if duration > MaxPumpRunTime {
+		err := fmt.Errorf("duration longer than maximum: requested %d min %d", duration, MaxPumpRunTime)
 		return err
 	}
 

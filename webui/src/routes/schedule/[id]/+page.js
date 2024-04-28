@@ -1,4 +1,4 @@
-import { hvaccontroller } from '$lib/hvac.js';
+import { hvaccontroller, durationMult } from '$lib/hvac.js';
 
 export async function load({ fetch, params }) {
 	const res = await fetch(`${hvaccontroller}/api/v1/schedule`);
@@ -7,5 +7,6 @@ export async function load({ fetch, params }) {
 
 	const system = await fetch(`${hvaccontroller}/api/v1/system`);
 	s.System = await system.json();
+	s.RunTime = s.RunTime / durationMult; // work in minutes
 	return s;
 }
