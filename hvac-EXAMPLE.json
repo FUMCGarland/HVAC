@@ -7,9 +7,9 @@
     "HTTPaddr": ":80",
     "HTTPStaticDir": "'/usr/local/hvac/",
     "Blowers": [
-        {"ID": 1, "Name": "Sanctuary 1", "HotLoop": 5, "ColdLoop": 6, "Zone": 6, "Running": false },
-        {"ID": 2, "Name": "Sanctuary 2", "HotLoop": 5, "ColdLoop": 6, "Zone": 6, "Running": false },
-        {"ID": 17, "Name": "3rd Floor", "HotLoop": 3, "ColdLoop": 1, "Zone": 4, "Running": false }
+        {"ID": 1, "Name": "Sanctuary 1", "HotLoop": 5, "ColdLoop": 6, "Zone": 6  },
+        {"ID": 2, "Name": "Sanctuary 2", "HotLoop": 5, "ColdLoop": 6, "Zone": 6 },
+        {"ID": 17, "Name": "3rd Floor", "HotLoop": 3, "ColdLoop": 1, "Zone": 4 }
     ],
     "Loops": [
         {"ID": 1, "Name": "Cold Loop" },
@@ -20,12 +20,12 @@
         {"ID": 6, "Name": "Sanctuary Cold Loop"}
     ],
     "Pumps": [
-        {"ID": 1, "Name": "Main Chiller Pump", "Loop": 1, "Runtime": 0, "SystemMode": 1, "Running": false},
-        {"ID": 2, "Name": "Hot South", "Loop": 2, "Runtime": 0, "SystemMode": 0, "Running": false},
-        {"ID": 3, "Name": "Main Bldg Hot", "Loop": 3, "Runtime": 0, "SystemMode": 0, "Running": false},
-        {"ID": 4, "Name": "Hot North", "Loop": 4, "Runtime": 0, "SystemMode": 0, "Running": false},
-        {"ID": 5, "Name": "Sanctuary Hot", "Loop": 5, "Runtime": 0, "SystemMode": 0, "Running": false},
-        {"ID": 6, "Name": "Sanctuary Chiller", "Loop": 6, "Runtime": 0, "SystemMode": 1, "Running": false}
+        {"ID": 1, "Name": "Main Chiller Pump", "Loop": 1, "Runtime": 0, "SystemMode": 1 },
+        {"ID": 2, "Name": "Hot South", "Loop": 2, "Runtime": 0, "SystemMode": 0 },
+        {"ID": 3, "Name": "Main Bldg Hot", "Loop": 3, "Runtime": 0, "SystemMode": 0 },
+        {"ID": 4, "Name": "Hot North", "Loop": 4, "Runtime": 0, "SystemMode": 0 },
+        {"ID": 5, "Name": "Sanctuary Hot", "Loop": 5, "Runtime": 0, "SystemMode": 0 },
+        {"ID": 6, "Name": "Sanctuary Chiller", "Loop": 6, "Runtime": 0, "SystemMode": 1 }
     ],
     "Rooms":   [
         {"ID": 127, "Name": "Missions", "Zone": 1},
