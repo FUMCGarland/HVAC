@@ -1,8 +1,10 @@
 package rest
 
 import (
+	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/FUMCGarland/hvac"
 	"github.com/FUMCGarland/hvac/log"
@@ -18,9 +20,11 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 	if _, err := os.Stat(c.HTTPStaticDir); err != nil {
 		panic(err.Error())
 	}
-	dir := http.Dir(c.HTTPStaticDir)
-	m.ServeFiles("/static/*filepath", dir)
-	m.NotFound = http.FileServer(dir)
+	m.ServeFiles("/static/*filepath", http.Dir(c.HTTPStaticDir))
+	appDir := fmt.Sprintf("%s/_app", c.HTTPStaticDir)
+	m.ServeFiles("/_app/*filepath", http.Dir(appDir))
+
+	m.NotFound = http.HandlerFunc(notFound)
 
 	// Add handlers for all the endpoints
 	m.GET("/api/v1/system", authMW(getSystem, AuthLevelView))           // all devices in one shot
@@ -47,10 +51,6 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 }
 
 func headers(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		log.Info("request", "url", r.URL, "method", r.Method)
-	}
-
 	origin := r.Header.Get("Origin")
 	if origin != "" {
 		w.Header().Add("Access-Control-Allow-Origin", origin)
@@ -66,4 +66,21 @@ func headers(w http.ResponseWriter, r *http.Request) {
 
 func TODO(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	http.Error(w, "Forbidden", http.StatusForbidden)
+}
+
+func notFound(w http.ResponseWriter, r *http.Request) {
+	if r.URL.String() == "" || r.URL.String() == "/" {
+		http.Redirect(w, r, "/static/index.html", http.StatusMovedPermanently)
+		return
+	}
+
+	if strings.HasPrefix(r.URL.String(), "/static") {
+		err := fmt.Errorf("404, not found")
+		http.Error(w, jsonError(err), http.StatusNotFound)
+		return
+	}
+
+	newLoc := fmt.Sprintf("/static%s", r.URL)
+	log.Debug("not found, redirecting", "request", r.URL, "new", newLoc, "method", r.Method)
+	http.Redirect(w, r, newLoc, http.StatusMovedPermanently)
 }
