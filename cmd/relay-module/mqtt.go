@@ -83,7 +83,7 @@ func start(ctx context.Context, rc *RelayConf) {
 		panic(err)
 	}
 
-	ticker := time.NewTicker(60 * time.Second)
+	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
 	for {
 		select {

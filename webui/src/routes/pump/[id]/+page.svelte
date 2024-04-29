@@ -3,13 +3,14 @@
 	import { invalidateAll } from '$app/navigation';
 	import {
 		Table,
+		TableBodyRow,
 		TableBody,
 		TableBodyCell,
-		TableBodyRow,
-		TableHead,
-		TableHeadCell
+		Heading,
+		P,
+		A,
+		Hr
 	} from 'flowbite-svelte';
-	import { Heading, P, A, Hr } from 'flowbite-svelte';
 
 	export let data;
 
@@ -31,27 +32,41 @@
 
 <Heading tag="h2">Pump {data.ID}: {data.Name}</Heading>
 <Table>
-	<TableHead>
-		<TableHeadCell>ID</TableHeadCell>
-		<TableHeadCell>Name</TableHeadCell>
-		<TableHeadCell>Loop</TableHeadCell>
-		<TableHeadCell>SystemMode</TableHeadCell>
-		<TableHeadCell>Running</TableHeadCell>
-		<TableHeadCell>Current Start Time</TableHeadCell>
-		<TableHeadCell>Last Start Time</TableHeadCell>
-		<TableHeadCell>Last Stop Time</TableHeadCell>
-		<TableHeadCell>Total Run Time</TableHeadCell>
-	</TableHead>
 	<TableBody>
 		<TableBodyRow>
+			<TableBodyCell>ID</TableBodyCell>
 			<TableBodyCell><A href="/pump/{data.ID}">{data.ID}</A></TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>Name</TableBodyCell>
 			<TableBodyCell>{data.Name}</TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>Loop</TableBodyCell>
 			<TableBodyCell><A href="/loop/{data.Loop}">{data.Loop}</A></TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>SystemMode</TableBodyCell>
 			<TableBodyCell>{sm(data.SystemMode)}</TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>Running</TableBodyCell>
 			<TableBodyCell>{data.Running}</TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>Current Start Time</TableBodyCell>
 			<TableBodyCell>{data.CurrentStartTime}</TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>Last Start Time</TableBodyCell>
 			<TableBodyCell>{data.LastStartTime}</TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>Last Stop Time</TableBodyCell>
 			<TableBodyCell>{data.LastStopTime}</TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>Total Run Time</TableBodyCell>
 			<TableBodyCell>{data.Runtime}</TableBodyCell>
 		</TableBodyRow>
 	</TableBody>
