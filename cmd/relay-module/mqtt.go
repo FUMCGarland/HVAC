@@ -9,13 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/stianeikeland/go-rpio/v4"
-
 	"github.com/eclipse/paho.golang/autopaho"
 	"github.com/eclipse/paho.golang/paho"
 
 	"github.com/FUMCGarland/hvac"
-	"github.com/FUMCGarland/hvac/log"
+	// "github.com/FUMCGarland/hvac/log"
 )
 
 var client *autopaho.ConnectionManager
@@ -30,12 +28,6 @@ func start(ctx context.Context, rc *RelayConf) {
 		panic(err)
 	}
 
-	if err := rpio.Open(); err != nil {
-		log.Error(err.Error())
-		// return
-	}
-	defer rpio.Close()
-
 	cliCfg := autopaho.ClientConfig{
 		ServerUrls:                    []*url.URL{u},
 		ConnectUsername:               rc.MQTTuser,
@@ -47,7 +39,7 @@ func start(ctx context.Context, rc *RelayConf) {
 			rc.Log.Info("mqtt connection up")
 			blowerTopic := fmt.Sprintf("%s/blowers/+/targetstate", rc.Root)
 			pumpTopic := fmt.Sprintf("%s/pumps/+/targetstate", rc.Root)
-			if _, err := cm.Subscribe(context.Background(), &paho.Subscribe{
+			if _, err := cm.Subscribe(ctx, &paho.Subscribe{
 				Subscriptions: []paho.SubscribeOptions{
 					{Topic: blowerTopic, QoS: 1},
 					{Topic: pumpTopic, QoS: 1},
@@ -70,6 +62,7 @@ func start(ctx context.Context, rc *RelayConf) {
 				} else {
 					rc.Log.Info("server requested disconnect", "reasons code", d.ReasonCode)
 				}
+				stopAllRunning(ctx)
 			},
 		},
 	}
@@ -83,6 +76,15 @@ func start(ctx context.Context, rc *RelayConf) {
 		panic(err)
 	}
 
+	rc.Log.Info("stopping all relays on restart")
+	for k := range rc.Relays {
+		setRelayState(rc.Relays[k].Pin, false)
+		sendUpdate(ctx, rc, &rc.Relays[k], &hvac.Response{
+			CurrentState: false,
+			RanTime:      0,
+		})
+	}
+
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
 	for {
@@ -92,15 +94,15 @@ func start(ctx context.Context, rc *RelayConf) {
 			// see if any running devices need to stop
 			for k := range rc.Relays {
 				if rc.Relays[k].StopTime.Equal(stoppedRunning) && rc.Relays[k].StopTime.Before(now) {
-					rc.Log.Info("duration expired", "relay", rc.Relays[k])
-					// pin := rpio.Pin(rc.Relays[k].Pin)
-					// pin.Low()
+					rt := now.Sub(rc.Relays[k].StartTime)
+					rc.Log.Info("duration expired", "relay", rc.Relays[k].Pin, "RanTime", rt.Minutes())
+					setRelayState(rc.Relays[k].Pin, false)
 					rc.Relays[k].Running = false
 					rc.Relays[k].RunTime += now.Sub(rc.Relays[k].StartTime)
 					rc.Relays[k].StopTime = stoppedRunning
-					sendUpdate(rc, &rc.Relays[k], &hvac.Response{
+					sendUpdate(ctx, rc, &rc.Relays[k], &hvac.Response{
 						CurrentState: false,
-						RanTime:      now.Sub(rc.Relays[k].StartTime),
+						RanTime:      rt,
 					})
 				}
 			}
@@ -109,8 +111,29 @@ func start(ctx context.Context, rc *RelayConf) {
 		}
 		break
 	}
+	// ctx has already ended
+	stopAllRunning(context.Background())
 
 	rc.Log.Info("Shutting down MQTT client")
+	client.Disconnect(context.Background()) // probably already stopped
+}
+
+func stopAllRunning(ctx context.Context) {
+	rc.Log.Info("Shutting down all relays")
+	now := time.Now()
+	for k := range rc.Relays {
+		if !rc.Relays[k].Running {
+			continue
+		}
+		setRelayState(rc.Relays[k].Pin, false)
+		rc.Relays[k].Running = false
+		rc.Relays[k].RunTime += now.Sub(rc.Relays[k].StartTime)
+		rc.Relays[k].StopTime = stoppedRunning
+		sendUpdate(ctx, rc, &rc.Relays[k], &hvac.Response{
+			CurrentState: false,
+			RanTime:      now.Sub(rc.Relays[k].StartTime),
+		})
+	}
 }
 
 func processIncoming(pr paho.PublishReceived) (bool, error) {
@@ -124,7 +147,7 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 	}
 	mode := t[len(t)-3]
 
-	rc.Log.Info("about", "mode", mode, "id", id)
+	// rc.Log.Info("processIncoming", "mode", mode, "id", id)
 
 	var cmd hvac.Command
 	if err := json.Unmarshal(pr.Packet.Payload, &cmd); err != nil {
@@ -145,50 +168,49 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 	}
 	if relay == nil {
 		// not for us, we are done
-		rc.Log.Info("request for another controller", "mode", mode, "id", id, "state", cmd.TargetState)
+		rc.Log.Debug("request for another controller", "mode", mode, "id", id, "state", cmd.TargetState)
 		return true, nil
 	}
 
-	rc.Log.Info("Toggling Relay", "pin", relay.Pin, "state", cmd.TargetState, "duration", cmd.RunTime)
-	// pin := rpio.Pin(relay.Pin)
+	rc.Log.Info("Toggling Relay", "pin", relay.Pin, "state", cmd.TargetState, "duration", cmd.RunTime.Minutes())
 	relay.Running = cmd.TargetState
 	if !cmd.TargetState {
+		setRelayState(relay.Pin, false)
 		cmd.RunTime = 0
 		relay.StartTime = stoppedRunning
 		relay.StopTime = stoppedRunning
-		// pin.Low()
 	} else {
 		relay.StartTime = time.Now()
 		relay.StopTime = time.Now().Add(time.Duration(cmd.RunTime))
 		if mode == "pumps" {
 			if cmd.RunTime < hvac.MinPumpRunTime {
 				err := fmt.Errorf("pump runtime too short")
-				rc.Log.Error(err.Error(), "requested", cmd.RunTime, "min", hvac.MinPumpRunTime)
+				rc.Log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "min", hvac.MinPumpRunTime.Minutes())
 				return false, err
 			}
 			if cmd.RunTime > hvac.MaxPumpRunTime {
 				err := fmt.Errorf("pump runtime too long")
-				rc.Log.Error(err.Error(), "requested", cmd.RunTime, "max", hvac.MaxPumpRunTime)
+				rc.Log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "max", hvac.MaxPumpRunTime.Minutes())
 				return false, err
 			}
 		} else {
 			if cmd.RunTime < hvac.MinBlowerRunTime {
 				err := fmt.Errorf("blower runtime too short")
-				rc.Log.Error(err.Error(), "requested", cmd.RunTime, "min", hvac.MinBlowerRunTime)
+				rc.Log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "min", hvac.MinBlowerRunTime.Minutes())
 				return false, err
 			}
 			if cmd.RunTime > hvac.MaxBlowerRunTime {
 				err := fmt.Errorf("blower runtime too long")
-				rc.Log.Error(err.Error(), "requested", cmd.RunTime, "max", hvac.MaxBlowerRunTime)
+				rc.Log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "max", hvac.MaxBlowerRunTime.Minutes())
 				return false, err
 			}
 		}
 
-		// pin.High()
+		setRelayState(relay.Pin, true)
 	}
 
 	// Send confirmation
-	if err := sendUpdate(rc, relay, &hvac.Response{
+	if err := sendUpdate(context.Background(), rc, relay, &hvac.Response{
 		CurrentState: cmd.TargetState,
 		RanTime:      0, // zero on confirmation
 	}); err != nil {
@@ -197,7 +219,7 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 	return true, nil
 }
 
-func sendUpdate(rc *RelayConf, relay *hvac.Relay, response *hvac.Response) error {
+func sendUpdate(ctx context.Context, rc *RelayConf, relay *hvac.Relay, response *hvac.Response) error {
 	mode := "pumps"
 	id := uint8(relay.PumpID)
 	if relay.PumpID == 0 {
@@ -207,11 +229,10 @@ func sendUpdate(rc *RelayConf, relay *hvac.Relay, response *hvac.Response) error
 	topic := fmt.Sprintf("%s/%s/%d/currentstate", rc.Root, mode, id)
 	payload, err := json.Marshal(response)
 	if err != nil {
-		rc.Log.Error("publish response failed", "err", err.Error())
+		rc.Log.Error("json marshal response failed", "err", err.Error())
 		return err
 	}
 
-	ctx := context.Background()
 	if _, err = client.Publish(ctx, &paho.Publish{
 		QoS:     1,
 		Topic:   topic,

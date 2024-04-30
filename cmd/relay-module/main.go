@@ -13,12 +13,12 @@ func main() {
 	defer stop()
 
 	// TODO: flag for debugging
-	// TODO: move to /etc/relay-module.json & allow cli flag to specify a different config
-	rc, err := load("/home/scot/HVAC/relay-module.json")
+	rc, err := load("/etc/relay-module.json")
 	if err != nil {
 		panic(err.Error())
 	}
 
+	setupGPIO()
 	var wg sync.WaitGroup
 
 	wg.Add(1)
@@ -30,4 +30,5 @@ func main() {
 
 	<-ctx.Done()
 	wg.Wait()
+	closeGPIO()
 }
