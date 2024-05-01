@@ -62,7 +62,10 @@
 								<div>
 									<Button
 										type="submit"
-										on:click={() => {
+										on:click={(x) => {
+											// console.log(x.srcElement);
+											x.srcElement.textContent = 'Processing...';
+											x.srcElement.disable = true;
 											blowerStop(blower.ID);
 										}}>Stop</Button
 									>
@@ -84,7 +87,10 @@
 									/>
 									<Button
 										type="submit"
-										on:click={() => {
+										on:click={(x) => {
+											// console.log(x.srcElement);
+											x.srcElement.textContent = 'Processing...';
+											x.srcElement.disable = true;
 											blowerStart(blower.ID, blower.newRunTime);
 										}}>Start</Button
 									>
@@ -121,7 +127,9 @@
 									<div>
 										<Button
 											type="submit"
-											on:click={() => {
+											on:click={(x) => {
+												x.srcElement.textContent = 'Processing...';
+												x.srcElement.disable = true;
 												pumpStop(pump.ID);
 											}}>Stop</Button
 										>
@@ -143,7 +151,9 @@
 										/>
 										<Button
 											type="submit"
-											on:click={() => {
+											on:click={(x) => {
+												x.srcElement.textContent = 'Processing...';
+												x.srcElement.disable = true;
 												pumpStart(pump.ID, pump.newRunTime);
 											}}>Start</Button
 										>
