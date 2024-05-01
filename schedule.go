@@ -59,6 +59,7 @@ func (s *ScheduleList) writeToStore() error {
 		log.Error(err.Error())
 		return err
 	}
+	log.Info("ScheduleList writeToStore", "s", *s)
 
 	j, err := json.Marshal(&s)
 	if err != nil {
@@ -101,10 +102,10 @@ func readScheduleFromStore() (*ScheduleList, error) {
 		sl.List = make([]ScheduleEntry, 0)
 	}
 
-	for _, v := range sl.List { // use copy, not live data, see if this fixes the Weekdays corruption
-		v.Weekdays = uniq(v.Weekdays)
-		log.Info("loading schedule entry", "entry", v)
-		if err := buildJob(&v); err != nil {
+	for k := range sl.List {
+		sl.List[k].Weekdays = uniq(sl.List[k].Weekdays)
+		log.Info("loading schedule entry", "entry", sl.List[k])
+		if err := buildJob(&sl.List[k]); err != nil {
 			log.Error(err.Error())
 			return &sl, err
 		}
@@ -209,11 +210,11 @@ func buildJob(e *ScheduleEntry) error {
 			func() {
 				log.Info("starting scheduled entry", "e", e)
 				for _, blower := range e.Blowers {
-					log.Info("starting blower", "blower", blower, "duration", e.RunTime)
+					log.Info("starting blower", "blower", blower, "duration", e.RunTime.Minutes())
 					blower.Start(e.RunTime, "scheduled")
 				}
 				for _, pump := range e.Pumps {
-					log.Info("starting pump", "pump", pump, "duration", e.RunTime)
+					log.Info("starting pump", "pump", pump, "duration", e.RunTime.Minutes())
 					pump.Start(e.RunTime, "scheduled")
 				}
 			},

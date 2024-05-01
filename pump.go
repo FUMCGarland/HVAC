@@ -138,12 +138,12 @@ func (p PumpID) Start(duration time.Duration, source string) error {
 	}
 
 	if duration < MinPumpRunTime {
-		err := fmt.Errorf("duration shorter than minimum: requested %d min %d", duration, MinPumpRunTime)
+		err := fmt.Errorf("duration shorter than minimum: requested %.2f min %.2f", duration.Minutes(), MinPumpRunTime.Minutes())
 		return err
 	}
 
 	if duration > MaxPumpRunTime {
-		err := fmt.Errorf("duration longer than maximum: requested %d min %d", duration, MaxPumpRunTime)
+		err := fmt.Errorf("duration longer than maximum: requested %.2f min %.2f", duration.Minutes(), MaxPumpRunTime.Minutes())
 		return err
 	}
 

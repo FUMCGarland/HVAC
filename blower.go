@@ -108,12 +108,12 @@ func (b BlowerID) Start(duration time.Duration, source string) error {
 	}
 
 	if duration < MinBlowerRunTime {
-		err := fmt.Errorf("duration shorter than minimum: requested %d min %d", duration, MinBlowerRunTime)
+		err := fmt.Errorf("duration shorter than minimum: requested %.2f min %.2f", duration.Minutes(), MinBlowerRunTime.Minutes())
 		return err
 	}
 
 	if duration > MaxBlowerRunTime {
-		err := fmt.Errorf("duration longer than maximum: requested %d min %d", duration, MaxBlowerRunTime)
+		err := fmt.Errorf("duration longer than maximum: requested %.2f min %.2f", duration.Minutes(), MaxBlowerRunTime.Minutes())
 		return err
 	}
 

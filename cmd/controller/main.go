@@ -44,6 +44,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 		rest.Start(c, done)
+		log.Info("REST down")
 		done <- true
 	}()
 
@@ -51,6 +52,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 		hvacmqtt.Start(c.MQTT, done)
+		log.Info("MQTT down")
 		done <- true
 	}()
 

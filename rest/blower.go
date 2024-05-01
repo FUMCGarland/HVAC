@@ -38,12 +38,14 @@ func putBlower(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	if bc.TargetState {
+		log.Info("starting blower manually", "id", id, "cmd", bc)
 		if err := id.Start(bc.RunTime, "manual"); err != nil {
 			log.Error(err.Error())
 			http.Error(w, jsonError(err), http.StatusNotAcceptable)
 			return
 		}
 	} else {
+		log.Info("stopping blower manually", "id", id, "cmd", bc)
 		if id.Stop("manual"); err != nil {
 			log.Error(err.Error())
 			http.Error(w, jsonError(err), http.StatusNotAcceptable)
