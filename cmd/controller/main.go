@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 	"os/signal"
@@ -11,6 +12,7 @@ import (
 	"github.com/FUMCGarland/hvac/log"
 	"github.com/FUMCGarland/hvac/mqtt"
 	"github.com/FUMCGarland/hvac/rest"
+	"github.com/FUMCGarland/hvac/dnssd"
 )
 
 func main() {
@@ -38,6 +40,8 @@ func main() {
 		return
 	}
 
+	ctx, cancel := context.WithCancel(context.Background());
+
 	var wg sync.WaitGroup
 
 	wg.Add(1)
@@ -56,13 +60,23 @@ func main() {
 		done <- true
 	}()
 
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		hvacdnssd.Start(ctx, c)
+		log.Info("DNSSD down")
+		cancel()
+	}()
+
 	select {
 	case <-done: // something called for a shutdown, wait until the rest come down too
 		log.Info("Waiting for shutdown")
+		cancel()
 		wg.Wait()
 	case sig := <-sigch:
 		log.Info("shutdown requested by signal", "signal", sig)
 		done <- true
+		cancel()
 		wg.Wait()
 	}
 
