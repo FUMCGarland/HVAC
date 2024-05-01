@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { durationMult, postSchedule } from '$lib/hvac';
+	import { postSchedule } from '$lib/hvac';
 	import {
 		Table,
 		TableBody,
@@ -117,7 +117,7 @@
 					<TableBodyCell>{modeString(sched.Mode)}</TableBodyCell>
 					<TableBodyCell>{parseWeekdays(sched.Weekdays)}</TableBodyCell>
 					<TableBodyCell>{sched.StartTime}</TableBodyCell>
-					<TableBodyCell>{sched.RunTime / durationMult}</TableBodyCell>
+					<TableBodyCell>{sched.RunTime}</TableBodyCell>
 					<TableBodyCell>{parsePumps(sched.Pumps)}</TableBodyCell>
 					<TableBodyCell>{parseBlowers(sched.Blowers)}</TableBodyCell>
 				</TableBodyRow>

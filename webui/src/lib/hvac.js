@@ -60,7 +60,7 @@ export async function setSystemMode(m) {
 // these can be consolidated into one with small wrappers, but that's work for later
 export async function blowerStart(id, minutes = 60, source = 'manual') {
 	if (minutes > 600 || minutes < 5) minutes = 60; // cap runs at 10 hours
-	const goduration = minutes * 120000000000;
+	const goduration = minutes * durationMult;
 
 	const cmd = `{ "TargetState": true, "RunTime": ${goduration}, "Source": "${source}" }`;
 	const request = {
@@ -113,7 +113,7 @@ export async function blowerStop(id, source = 'manual') {
 
 export async function pumpStart(id, minutes = 60, source = 'manual') {
 	if (minutes > 600 || minutes < 5) minutes = 60; // cap runs at 10 hours
-	const goduration = minutes * 120000000000;
+	const goduration = minutes * durationMult;
 
 	const cmd = `{ "TargetState": true, "RunTime": ${goduration}, "Source": "${source}" }`;
 	const request = {

@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import {
+		Badge,
 		Table,
 		TableBody,
 		TableBodyCell,
@@ -54,7 +55,12 @@
 				<TableBodyCell><A href="/loop/{blower.HotLoop}">{blower.HotLoop}</A></TableBodyCell>
 				<TableBodyCell><A href="/loop/{blower.ColdLoop}">{blower.ColdLoop}</A></TableBodyCell>
 				<TableBodyCell><A href="/zone/{blower.Zone}">{blower.Zone}</A></TableBodyCell>
-				<TableBodyCell>{blower.Running}</TableBodyCell>
+				{#if blower.Running}
+					<TableBodyCell><Badge color="green">Running</Badge></TableBodyCell>
+				{/if}
+				{#if !blower.Running}
+					<TableBodyCell><Badge color="red">Stopped</Badge></TableBodyCell>
+				{/if}
 				<TableBodyCell>
 					{#if blower.Running}
 						<form>
@@ -119,7 +125,12 @@
 					<TableBodyCell><A href="/pump/{pump.ID}">{pump.ID}</A></TableBodyCell>
 					<TableBodyCell>{pump.Name}</TableBodyCell>
 					<TableBodyCell><A href="/loop/{pump.Loop}">{pump.Loop}</A></TableBodyCell>
-					<TableBodyCell>{pump.Running}</TableBodyCell>
+					{#if pump.Running}
+						<TableBodyCell><Badge color="green">Running</Badge></TableBodyCell>
+					{/if}
+					{#if !pump.Running}
+						<TableBodyCell><Badge color="red">Stopped</Badge></TableBodyCell>
+					{/if}
 					<TableBodyCell>
 						{#if pump.Running}
 							<form>
