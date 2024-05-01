@@ -20,10 +20,10 @@ type RelayConf struct {
 }
 
 var relaydefaults *RelayConf = &RelayConf{
-	Root:         "fumcg",
+	Root:         "hvac",
 	MQTTuser:     "relay1",
 	MQTTpass:     "relay1",
-	MQTTaddr:     "mqtt://127.0.0.1",
+	MQTTaddr:     "", // mqtt://127.0.0.1",
 	MQTTclientID: "relay-module-1",
 	Relays:       []hvac.Relay{},
 }
