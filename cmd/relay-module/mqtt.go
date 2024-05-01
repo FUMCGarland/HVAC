@@ -86,6 +86,7 @@ func start(ctx context.Context, rc *RelayConf) {
 	}
 
 	ticker := time.NewTicker(time.Minute)
+	curTick := 0
 	defer ticker.Stop()
 	for {
 		select {
@@ -105,7 +106,14 @@ func start(ctx context.Context, rc *RelayConf) {
 						RanTime:      rt,
 					})
 				}
+				if curTick%10 == 0 { // send a check-in every 10 minutes
+					sendUpdate(ctx, rc, &rc.Relays[k], &hvac.Response{
+						CurrentState: rc.Relays[k].Running,
+						RanTime:      0,
+					})
+				}
 			}
+			curTick++
 			continue
 		case <-ctx.Done():
 		}
