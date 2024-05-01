@@ -2,6 +2,8 @@ package hvacdnssd
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -18,23 +20,24 @@ func Start(ctx context.Context, c *hvac.Config) {
 		panic(err.Error())
 	}
 
+	hostname, err := os.Hostname()
+	if err != nil {
+		panic(err.Error())
+	}
+
 	svhttp, err := dnssd.NewService(dnssd.Config{
-		Name:   "HVAC Controller",
-		Type:   "_http._tcp",
-		Ifaces: []string{"eth0"},
-		Domain: "local",
-		Port:   int(port),
+		Name: fmt.Sprintf("HVAC Controller - %s (rest)", hostname),
+		Type: "_http._tcp",
+		Port: int(port),
 	})
 	if err != nil {
 		panic(err.Error())
 	}
 
 	svmqtt, err := dnssd.NewService(dnssd.Config{
-		Name:   "HVAC Controller",
-		Type:   "_mqtt._tcp",
-		Ifaces: []string{"eth0"},
-		Domain: "local",
-		Port:   1883,
+		Name: fmt.Sprintf("HVAC Controller - %s (mqtt)", hostname),
+		Type: "_mqtt._tcp",
+		Port: 1883,
 	})
 	if err != nil {
 		panic(err.Error())
@@ -45,15 +48,17 @@ func Start(ctx context.Context, c *hvac.Config) {
 		panic(err.Error())
 	}
 
-	_, err = rp.Add(svhttp)
+	h, err := rp.Add(svhttp)
 	if err != nil {
 		panic(err.Error())
 	}
+	h.UpdateText(map[string]string{"JOSH": "Joyous Online Scheduler for HVAC"}, rp)
 
-	_, err = rp.Add(svmqtt)
+	h, err = rp.Add(svmqtt)
 	if err != nil {
 		panic(err.Error())
 	}
+	h.UpdateText(map[string]string{"api_proto": "mqtt", "destination_port": "1883"}, rp)
 
 	log.Info("starting DNSSD")
 	rp.Respond(ctx)
