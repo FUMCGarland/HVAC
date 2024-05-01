@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log/slog"
 	"os"
 
 	"github.com/FUMCGarland/hvac"
@@ -18,7 +17,6 @@ type RelayConf struct {
 	MQTTaddr     string
 	MQTTclientID string
 	Relays       []hvac.Relay
-	Log          *slog.Logger
 }
 
 var relaydefaults *RelayConf = &RelayConf{
@@ -42,11 +40,11 @@ func load(filename string) (*RelayConf, error) {
 		panic(err.Error())
 	}
 
-	in.Log = log.Start()
+	log.Start()
 	rc = in
 
 	if err := relayvalidate(); err != nil {
-		rc.Log.Info("config", "config", rc)
+		log.Info("config", "config", rc)
 		panic(err.Error())
 	}
 
