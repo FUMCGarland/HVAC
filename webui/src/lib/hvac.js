@@ -190,7 +190,7 @@ export async function updateZoneTargets(id, cmd) {
 }
 
 export async function postSchedule(cmd) {
-	cmd.RunTime = cmd.RunTime * durationMult;
+	cmd.Runtime = cmd.Runtime * durationMult;
 
 	const request = {
 		method: 'POST',
@@ -203,6 +203,7 @@ export async function postSchedule(cmd) {
 		},
 		body: cmd
 	};
+	console.log(cmd);
 
 	const response = await fetch(`${hvaccontroller}/api/v1/schedule`, request);
 	const payload = await response.json();
@@ -238,7 +239,7 @@ export async function deleteSchedule(id) {
 }
 
 export async function putSchedule(cmd) {
-	cmd.RunTime = cmd.RunTime * durationMult;
+	cmd.Runtime = cmd.Runtime * durationMult;
 
 	const request = {
 		method: 'PUT',
@@ -251,6 +252,7 @@ export async function putSchedule(cmd) {
 		},
 		body: JSON.stringify(cmd)
 	};
+	console.log(cmd);
 
 	const response = await fetch(`${hvaccontroller}/api/v1/sched/${cmd.ID}`, request);
 	const payload = await response.json();
