@@ -9,10 +9,10 @@ import (
 	"syscall"
 
 	"github.com/FUMCGarland/hvac"
+	"github.com/FUMCGarland/hvac/dnssd"
 	"github.com/FUMCGarland/hvac/log"
 	"github.com/FUMCGarland/hvac/mqtt"
 	"github.com/FUMCGarland/hvac/rest"
-	"github.com/FUMCGarland/hvac/dnssd"
 )
 
 func main() {
@@ -40,7 +40,7 @@ func main() {
 		return
 	}
 
-	ctx, cancel := context.WithCancel(context.Background());
+	ctx, cancel := context.WithCancel(context.Background())
 
 	var wg sync.WaitGroup
 

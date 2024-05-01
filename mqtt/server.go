@@ -58,11 +58,6 @@ func Start(c *hvac.MQTTConfig, done <-chan bool) {
 
 	inline = server
 
-	/* go func() {
-		time.Sleep(1 * time.Second)
-		_ = SetAllOff(c)
-	}() */
-
 	for {
 		select {
 		case cmd := <-cmdChan:
