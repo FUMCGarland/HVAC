@@ -13,6 +13,7 @@ import (
 	"github.com/go-co-op/gocron/v2"
 )
 
+// ScheduleList is just a wrapper so we can hang methods on it
 type ScheduleList struct {
 	List []ScheduleEntry
 }
@@ -20,6 +21,7 @@ type ScheduleList struct {
 var schedule ScheduleList
 var sz gocron.Scheduler
 
+// ScheduleEntry is the definition of a job to be run at specified times
 type ScheduleEntry struct {
 	ID        uint8
 	Name      string
@@ -39,6 +41,7 @@ func init() {
 	}
 }
 
+// GetSchedule returns the live schedule
 func (c *Config) GetSchedule() (*ScheduleList, error) {
 	if len(schedule.List) == 0 {
 		s, err := readScheduleFromStore()
@@ -103,7 +106,6 @@ func readScheduleFromStore() (*ScheduleList, error) {
 	}
 
 	for k := range sl.List {
-		// sl.List[k].Weekdays = uniq(sl.List[k].Weekdays)
 		log.Info("loading schedule entry", "entry", sl.List[k])
 		if err := buildJob(&sl.List[k]); err != nil {
 			log.Error(err.Error())
@@ -114,20 +116,7 @@ func readScheduleFromStore() (*ScheduleList, error) {
 	return &sl, nil
 }
 
-func uniq(s []time.Weekday) []time.Weekday {
-	seen := make(map[time.Weekday]struct{}, len(s))
-	j := 0
-	for _, v := range s {
-		if _, ok := seen[time.Weekday(v)]; ok {
-			continue
-		}
-		seen[v] = struct{}{}
-		s[j] = v
-		j++
-	}
-	return s[:j]
-}
-
+// GetEntry returns an entry in the ScheduleList by ID
 func (s *ScheduleList) GetEntry(id uint8) *ScheduleEntry {
 	for k := range s.List {
 		if s.List[k].ID == id {
@@ -137,6 +126,7 @@ func (s *ScheduleList) GetEntry(id uint8) *ScheduleEntry {
 	return nil
 }
 
+// AddEntry adds a new entry to the list of jobs to run
 func (s *ScheduleList) AddEntry(e *ScheduleEntry) error {
 	log.Info("adding entry", "e", e)
 
@@ -178,12 +168,13 @@ func (s *ScheduleList) AddEntry(e *ScheduleEntry) error {
 	return nil
 }
 
+// buildJob processes a ScheduleEntry and loads it into gocron
 func buildJob(e *ScheduleEntry) error {
 	attimes := make([]gocron.AtTime, 0)
 
 	times := strings.Split(e.StartTime, ";")
 	for _, v := range times {
-		log.Info("time", "time", v)
+		log.Debug("time", "time", v)
 		units := strings.Split(v, ":")
 		hour, err := strconv.ParseInt(units[0], 10, 8)
 		if err != nil {
@@ -200,18 +191,11 @@ func buildJob(e *ScheduleEntry) error {
 		attimes = append(attimes, gocron.NewAtTime(uint(hour), uint(minute), 0))
 	}
 
-	// this is the definition of a bad API, if you use the obvious way it trashes the incoming data
-	gocronKludge := func(e *ScheduleEntry) gocron.Weekdays {
-		return func() []time.Weekday {
-			return e.Weekdays
-		}
-	}
-
 	_, err := sz.NewJob(
 		gocron.WeeklyJob(
 			1,
-			gocronKludge(e),
-			gocron.NewAtTimes(attimes[0], attimes[1:]...),
+			func() []time.Weekday { return e.Weekdays },
+			func() []gocron.AtTime { return attimes },
 		),
 		gocron.NewTask(
 			func() {
@@ -233,6 +217,7 @@ func buildJob(e *ScheduleEntry) error {
 	return err
 }
 
+// RemoveEntry removes a ScheduleEntry from the list by ID
 func (s *ScheduleList) RemoveEntry(id uint8) {
 	index := -1
 	for k := range schedule.List {
@@ -252,6 +237,7 @@ func (s *ScheduleList) RemoveEntry(id uint8) {
 	_ = s.writeToStore()
 }
 
+// EditEntry updates an entry in the ScheduleList, keyed based on e.ID
 func (s *ScheduleList) EditEntry(e *ScheduleEntry) error {
 	index := -1
 	for k := range schedule.List {
