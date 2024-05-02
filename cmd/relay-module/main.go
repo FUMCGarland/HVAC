@@ -38,7 +38,7 @@ func main() {
 
 			// stop after first one
 			cancel()
-			rc.MQTTaddr = fmt.Sprintf("%s:%s", e.IPs[0], e.Port)
+			rc.MQTTaddr = fmt.Sprintf("mqtt://%s:%d", e.IPs[0], e.Port)
 		}
 
 		err := dnssd.LookupType(cto, "_mqtt._tcp.local.", addFn, func(dnssd.BrowseEntry) {})
