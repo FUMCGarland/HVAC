@@ -1,7 +1,7 @@
 import { invalidateAll } from '$app/navigation';
 import { toast } from '@zerodevx/svelte-toast';
 
-export const hvaccontroller = `http://192.168.12.136:8080`;
+export const hvaccontroller = ``;
 export const durationMult = 60000000000;
 
 // TODO: these are inconsistent, pass in object{} and JSON.stringify() in the body:
