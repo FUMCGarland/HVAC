@@ -120,7 +120,7 @@ func validateBlower() error {
 				break
 			}
 		}
-		if !found {
+		if !found && blower.HotLoop != 0 {
 			return (fmt.Errorf("blower %d set to invalid hot loop %d", blower.ID, blower.HotLoop))
 		}
 		found = false
