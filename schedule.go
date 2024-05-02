@@ -61,7 +61,7 @@ func (s *ScheduleList) writeToStore() error {
 	}
 	log.Info("ScheduleList writeToStore", "s", *s)
 
-	j, err := json.Marshal(&s)
+	j, err := json.Marshal(s)
 	if err != nil {
 		log.Error(err.Error())
 		return err
@@ -83,7 +83,7 @@ func (s *ScheduleList) writeToStore() error {
 
 func readScheduleFromStore() (*ScheduleList, error) {
 	sl := ScheduleList{}
-	sl.List = make([]ScheduleEntry, 0)
+	sl.List = []ScheduleEntry{}
 
 	path := path.Join(c.StateStore, "schedule.json")
 
