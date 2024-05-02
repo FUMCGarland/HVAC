@@ -2,11 +2,11 @@ import { invalidateAll } from '$app/navigation';
 import { toast } from '@zerodevx/svelte-toast';
 
 export const hvaccontroller = `http://192.168.12.5:8080`;
+// export const _hvaccontroller = window.location.hostname + ":" + window.location.port;
 export const durationMult = 60000000000;
 
 // TODO: these are inconsistent, pass in object{} and JSON.stringify() in the body:
 // as in the putSchedule
-
 export async function setSystemControlMode(m) {
 	const cmd = `{ "ControlMode": ${m} }`;
 	const request = {
@@ -59,7 +59,10 @@ export async function setSystemMode(m) {
 
 // these can be consolidated into one with small wrappers, but that's work for later
 export async function blowerStart(id, minutes = 60, source = 'manual') {
-	if (minutes > 600 || minutes < 5) minutes = 60; // cap runs at 10 hours
+	if (minutes > 600 || minutes < 30) {
+		toast.push('Blower runtime out-of-range (min 30, max 600)');
+		return;
+	}
 	const goduration = minutes * durationMult;
 
 	const cmd = `{ "TargetState": true, "RunTime": ${goduration}, "Source": "${source}" }`;
@@ -79,7 +82,7 @@ export async function blowerStart(id, minutes = 60, source = 'manual') {
 	const payload = await response.json();
 
 	if (response.status != 200) {
-		console.log('server returned ', response.status);
+		console.log('server returned ', response.status, payload.error);
 		toast.push('Server Responded with: ' + response.status + ': ' + payload.error);
 		return;
 	}
@@ -112,7 +115,10 @@ export async function blowerStop(id, source = 'manual') {
 }
 
 export async function pumpStart(id, minutes = 60, source = 'manual') {
-	if (minutes > 600 || minutes < 5) minutes = 60; // cap runs at 10 hours
+	if (minutes > 600 || minutes < 30) {
+		toast.push('Pump runtime out-of-range (min 30, max 600)');
+		return;
+	}
 	const goduration = minutes * durationMult;
 
 	const cmd = `{ "TargetState": true, "RunTime": ${goduration}, "Source": "${source}" }`;

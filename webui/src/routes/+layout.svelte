@@ -11,8 +11,9 @@
 		A
 	} from 'flowbite-svelte';
 	import { SvelteToast } from '@zerodevx/svelte-toast';
-	import { slide } from 'svelte/transition';
 	import '../app.pcss';
+
+	// export const hvaccontroller = window.location.hostname + ":" + window.location.port;
 </script>
 
 <svelte:window />
