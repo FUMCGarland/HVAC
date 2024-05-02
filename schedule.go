@@ -103,7 +103,7 @@ func readScheduleFromStore() (*ScheduleList, error) {
 	}
 
 	for k := range sl.List {
-		sl.List[k].Weekdays = uniq(sl.List[k].Weekdays)
+		// sl.List[k].Weekdays = uniq(sl.List[k].Weekdays)
 		log.Info("loading schedule entry", "entry", sl.List[k])
 		if err := buildJob(&sl.List[k]); err != nil {
 			log.Error(err.Error())
@@ -200,10 +200,17 @@ func buildJob(e *ScheduleEntry) error {
 		attimes = append(attimes, gocron.NewAtTime(uint(hour), uint(minute), 0))
 	}
 
+	// this is the definition of a bad API, if you use the obvious way it trashes the incoming data
+	gocronKludge := func(e *ScheduleEntry) gocron.Weekdays {
+		return func() []time.Weekday {
+			return e.Weekdays
+		}
+	}
+
 	_, err := sz.NewJob(
 		gocron.WeeklyJob(
 			1,
-			gocron.NewWeekdays(e.Weekdays[0], e.Weekdays[1:]...),
+			gocronKludge(e),
 			gocron.NewAtTimes(attimes[0], attimes[1:]...),
 		),
 		gocron.NewTask(
