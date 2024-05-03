@@ -47,7 +47,7 @@ func main() {
 		}
 	}
 
-	setupGPIO()
+	rc.setupGPIO()
 	var wg sync.WaitGroup
 
 	wg.Add(1)

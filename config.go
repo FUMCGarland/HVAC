@@ -28,6 +28,7 @@ type Config struct {
 	// the file that contains the HTTP authentication creds
 	HTTPAuthData string
 	Blowers      []Blower
+	Chillers     []Chiller
 	Dampers      []Damper
 	Loops        []Loop
 	Pumps        []Pump

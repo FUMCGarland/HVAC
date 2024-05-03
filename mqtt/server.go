@@ -69,6 +69,9 @@ func Start(c *hvac.MQTTConfig, done <-chan bool) {
 			case hvac.BlowerID:
 				cc := hvac.BlowerCommand(cmd.Command)
 				SendBlowerTargetState(cmd.Device.(hvac.BlowerID), &cc)
+			case hvac.ChillerID:
+				cc := hvac.ChillerCommand(cmd.Command)
+				SendChillerTargetState(cmd.Device.(hvac.ChillerID), &cc)
 			default:
 				log.Error("unknown command device type")
 			}

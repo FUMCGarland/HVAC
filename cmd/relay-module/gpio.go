@@ -7,26 +7,24 @@ import (
 )
 
 // relay board channel : gpio pin
-var pins = []uint8{5, 6, 13, 16, 19, 20, 21, 26}
+var pins = []int{5, 6, 13, 16, 19, 20, 21, 26}
 
-const chipname = "gpiochip0"
+const chipname = "gpiochip4"
 
 var gpiochip *gpiocdev.Chip
 var gpiorunning bool
 
-func setupGPIO() {
+func (c *RelayConf) setupGPIO() {
 	var err error
 	gpiochip, err = gpiocdev.NewChip(chipname, gpiocdev.WithConsumer("relay-module"))
 	if err != nil {
 		log.Error("unable to open GPIO chip, not a raspberry pi?", "err", err.Error())
-		//panic(err.Error())
 		return
 	}
 
-	// initialize -- this just displays info and tests our ability to read from the pins
-	for k, v := range pins {
-		log.Info("initializing relay", "relay", k, "pin", v)
-		l, err := gpiochip.RequestLine(int(v), gpiocdev.AsOutput(0))
+	for k := range c.Relays {
+		log.Info("initializing relay", "pin", c.Relays[k].Pin)
+		l, err := gpiochip.RequestLine(int(c.Relays[k].Pin), gpiocdev.AsOutput(), gpiocdev.AsActiveLow)
 		if err != nil {
 			log.Error(err.Error())
 			continue
@@ -38,7 +36,11 @@ func setupGPIO() {
 			log.Error(err.Error())
 			continue
 		}
-		log.Info("result", "value", value, "relay", k, "pin", v)
+		log.Info("result", "value", value, "pin", c.Relays[k].Pin)
+		if err = l.SetValue(1); err != nil {
+			log.Error(err.Error())
+			continue
+		}
 	}
 	gpiorunning = true
 }
@@ -56,13 +58,14 @@ func setRelayState(pin uint8, state bool) error {
 		return nil
 	}
 
-	value := 0
+	// active low
+	value := 1
 	if state {
-		value = 1
+		value = 0
 	}
 
 	log.Info("setting relay state", "pin", pin)
-	l, err := gpiochip.RequestLine(int(pin), gpiocdev.AsOutput(0))
+	l, err := gpiochip.RequestLine(int(pin), gpiocdev.AsOutput(0), gpiocdev.AsActiveLow)
 	if err != nil {
 		log.Error(err.Error())
 		return err

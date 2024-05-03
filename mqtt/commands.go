@@ -10,10 +10,43 @@ import (
 
 // SendPumpTargetState sends a command to a pump
 func SendPumpTargetState(p hvac.PumpID, cmd *hvac.PumpCommand) error {
+	c := hvac.GetConfig()
 	if cmd.TargetState {
 		if err := p.CanEnable(); err != nil {
 			log.Error("cannot enable pump", "id", p, "cmd", cmd, "err", err.Error())
 			return err
+		}
+	} else {
+		// TODO: this logic needs to be moved to hvac.BlowerID.Stop()
+		// if we are the last active blower on the loop, ensure that the pump is shut down
+		last := true
+		pump := p.Get()
+		for k := range c.Pumps {
+			// if heating no need to stop chiller
+			if c.SystemMode == hvac.SystemModeHeat {
+				last = false
+				break
+			}
+
+			// skip self
+			if c.Pumps[k].ID == p {
+				continue
+			}
+
+			// something else is running, we aren't last
+			if c.Pumps[k].Running {
+				last = false
+				break
+			}
+		}
+
+		if last {
+			cl := hvac.ChillerID(0)
+			cl = c.GetChillerFromLoop(pump.Loop)
+			chiller := cl.Get()
+			if chiller.Running {
+				chiller.ID.Stop("internal")
+			}
 		}
 	}
 
@@ -81,6 +114,27 @@ func SendBlowerTargetState(b hvac.BlowerID, cmd *hvac.BlowerCommand) error {
 	}
 
 	log.Info("Blower TargetState", "blower", b, "target", cmd.TargetState, "topic", topic)
+
+	return inline.Publish(topic, jcmd, false, 0)
+}
+
+// SendChillerTargetState sends a command to a pump
+func SendChillerTargetState(ch hvac.ChillerID, cmd *hvac.ChillerCommand) error {
+	if cmd.TargetState {
+		if err := ch.CanEnable(); err != nil {
+			log.Error("cannot enable ch", "id", ch, "cmd", cmd, "err", err.Error())
+			return err
+		}
+	}
+
+	topic := fmt.Sprintf("%s/chillers/%d/targetstate", root, ch)
+	jcmd, err := json.Marshal(cmd)
+	if err != nil {
+		log.Error("unable to marshal command", "cmd", cmd, "topic", topic)
+		return err
+	}
+
+	log.Info("Chiller TargetState", "chiller", ch, "target", cmd.TargetState, "topic", topic)
 
 	return inline.Publish(topic, jcmd, false, 0)
 }

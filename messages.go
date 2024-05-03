@@ -20,8 +20,10 @@ type Response struct {
 // types to make sure we aren't sending blower commands to a pump even though they look the same
 type PumpCommand Command
 type BlowerCommand Command
+type ChillerCommand Command
 type PumpResponse Response
 type BlowerResponse Response
+type ChillerResponse Response
 
 type DeviceID interface {
 	CanEnable() error
