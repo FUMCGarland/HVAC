@@ -60,11 +60,11 @@ func setRelayState(pin uint8, state bool) error {
 
 	// active low
 	value := 1
-	if state {
+	if !state {
 		value = 0
 	}
 
-	log.Info("setting relay state", "pin", pin)
+	log.Info("setting relay state", "pin", pin, "value", value)
 	l, err := gpiochip.RequestLine(int(pin), gpiocdev.AsOutput(0), gpiocdev.AsActiveLow)
 	if err != nil {
 		log.Error(err.Error())
@@ -72,8 +72,7 @@ func setRelayState(pin uint8, state bool) error {
 	}
 	defer l.Close()
 	log.Debug("result", "lineinfo", l)
-	err = l.SetValue(value)
-	if err != nil {
+	if err := l.SetValue(value); err != nil {
 		log.Error(err.Error())
 		return err
 	}
