@@ -16,6 +16,7 @@
 	} from 'flowbite-svelte';
 
 	export let data;
+	console.log(data);
 
 	onMount(() => {
 		const interval = setInterval(() => {
@@ -105,3 +106,28 @@
 		{/each}
 	</TableBody>
 </Table>
+{#if data.SystemMode == 1}
+	<Hr />
+	<Heading tag="h2">Chillers</Heading>
+	<Table>
+		<TableHead>
+			<TableHeadCell>ID</TableHeadCell>
+			<TableHeadCell>Name</TableHeadCell>
+			<TableHeadCell>Running</TableHeadCell>
+		</TableHead>
+		<TableBody>
+			{#each data.Chillers as chiller}
+				<TableBodyRow>
+					<TableBodyCell><A href="/chiller/{chiller.ID}">{chiller.ID}</A></TableBodyCell>
+					<TableBodyCell>{chiller.Name}</TableBodyCell>
+					{#if chiller.Running}
+						<TableBodyCell><Badge color="green">Running</Badge></TableBodyCell>
+					{/if}
+					{#if !chiller.Running}
+						<TableBodyCell><Badge color="red">Stopped</Badge></TableBodyCell>
+					{/if}
+				</TableBodyRow>
+			{/each}
+		</TableBody>
+	</Table>
+{/if}
