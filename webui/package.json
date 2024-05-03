@@ -3,9 +3,9 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"dev": "vite dev --host 192.168.12.5",
+		"dev": "vite dev --host 0.0.0.0",
 		"build": "vite build",
-		"preview": "vite preview --host 192.168.12.5",
+		"preview": "vite preview --host 0.0.0.0",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"package": "svelte-package"
