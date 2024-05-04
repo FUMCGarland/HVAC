@@ -29,8 +29,7 @@ type ScheduleEntry struct {
 	StartTime string // "10:30" "18:00;22:30;24:00""
 	Weekdays  []time.Weekday
 	RunTime   time.Duration
-	Pumps     []PumpID
-	Blowers   []BlowerID
+	Zones     []ZoneID
 }
 
 func init() {
@@ -136,8 +135,8 @@ func (s *ScheduleList) AddEntry(e *ScheduleEntry) error {
 		return err
 	}
 
-	if len(e.Blowers) == 0 && len(e.Pumps) == 0 {
-		err := fmt.Errorf("cannot schedule an entry without any pumps or blowers")
+	if len(e.Zones) == 0 {
+		err := fmt.Errorf("cannot schedule an entry without any zones")
 		log.Error(err.Error(), "entry", e)
 		return err
 	}
@@ -200,13 +199,9 @@ func buildJob(e *ScheduleEntry) error {
 		gocron.NewTask(
 			func() {
 				log.Info("starting scheduled entry", "e", e)
-				for _, blower := range e.Blowers {
-					log.Info("starting blower", "blower", blower, "duration", e.RunTime.Minutes())
-					blower.Start(e.RunTime, "scheduled")
-				}
-				for _, pump := range e.Pumps {
-					log.Info("starting pump", "pump", pump, "duration", e.RunTime.Minutes())
-					pump.Start(e.RunTime, "scheduled")
+				for _, zone := range e.Zones {
+					log.Info("starting zone", "zone", zone, "duration", e.RunTime.Minutes())
+					zone.Start(e.RunTime, "scheduled")
 				}
 			},
 		),
@@ -258,8 +253,8 @@ func (s *ScheduleList) EditEntry(e *ScheduleEntry) error {
 		return err
 	}
 
-	if len(e.Blowers) == 0 && len(e.Pumps) == 0 {
-		err := fmt.Errorf("cannot schedule an entry without any pumps or blowers")
+	if len(e.Zones) == 0 {
+		err := fmt.Errorf("cannot schedule an entry without any zones")
 		log.Error(err.Error(), "entry", e)
 		return err
 	}

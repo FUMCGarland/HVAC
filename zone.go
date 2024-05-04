@@ -115,7 +115,7 @@ func (z *Zone) readFromStore() error {
 }
 
 func (z ZoneID) Stop(msg string) {
-	// stop the blowers the pumps/chiller will cascade if necessary
+	// stop the blowers & pumps/chiller will cascade if necessary
 	for k := range c.Blowers {
 		if c.Blowers[k].Zone == z && c.Blowers[k].Running {
 			c.Blowers[k].ID.Stop(msg)

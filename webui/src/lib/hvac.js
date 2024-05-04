@@ -206,9 +206,8 @@ export async function postSchedule(cmd) {
 		headers: {
 			'Content-Type': 'application/json'
 		},
-		body: cmd
+		body: JSON.stringify(cmd)
 	};
-	console.log(cmd);
 
 	const response = await fetch(`${hvaccontroller}/api/v1/schedule`, request);
 	const payload = await response.json();
@@ -257,7 +256,7 @@ export async function putSchedule(cmd) {
 		},
 		body: JSON.stringify(cmd)
 	};
-	console.log(cmd);
+	console.log('request built', request, cmd);
 
 	const response = await fetch(`${hvaccontroller}/api/v1/sched/${cmd.ID}`, request);
 	const payload = await response.json();

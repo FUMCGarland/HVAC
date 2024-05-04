@@ -27,7 +27,7 @@
 		z.selected = false;
 	});
 
-	let id = data.Schedule.length; // get highest number and increment
+	let id = data.Schedule.length + 1; // get highest number and increment
 	let name = 'not set';
 	$: mode = 0;
 	let starttime = '05:00';
@@ -42,12 +42,14 @@
 		return w.map((p) => weekdays[p]);
 	}
 
+	// shoot me, I've become one of those obnoxious js devs who do stuff in non-obvious one-liners
 	function parseZones(z) {
-		return 'TODO';
+		const u = new TextEncoder().encode(atob(z));
+		return data.Zones.filter((z) => u.includes(z.ID)).map((s) => s.Name);
 	}
 
 	async function doAdd() {
-		const c = {
+		let c = {
 			ID: Number(id),
 			Name: name,
 			Mode: Number(mode),
@@ -62,13 +64,9 @@
 				}),
 			Starttime: starttime,
 			Runtime: Number(runtime),
-			Zones: data.Zones.filter((z) => {
-				z.selected;
-			})
+			Zones: data.Zones.filter((z) => z.selected).map((z) => z.ID)
 		};
-		const st = JSON.stringify(c);
-		console.log(st);
-		await postSchedule(st);
+		await postSchedule(c);
 	}
 </script>
 
@@ -76,8 +74,7 @@
 <form>
 	<Table>
 		<TableHead>
-			<TableHeadCell>ID</TableHeadCell>
-			<TableHeadCell>Name</TableHeadCell>
+			<TableHeadCell colspan="2">Name</TableHeadCell>
 			<TableHeadCell>System Mode</TableHeadCell>
 			<TableHeadCell>Weekdays</TableHeadCell>
 			<TableHeadCell>Start Time(s)</TableHeadCell>
@@ -87,13 +84,14 @@
 		<TableBody>
 			{#each data.Schedule as sched}
 				<TableBodyRow>
-					<TableBodyCell><A href="/schedule/{sched.ID}">{sched.ID}</A></TableBodyCell>
-					<TableBodyCell>{sched.Name}</TableBodyCell>
+					<TableBodyCell colspan="2"
+						><A href="/schedule/{sched.ID}">{sched.ID}: {sched.Name}</A></TableBodyCell
+					>
 					<TableBodyCell>{modeString(sched.Mode)}</TableBodyCell>
 					<TableBodyCell>{parseWeekdays(sched.Weekdays)}</TableBodyCell>
 					<TableBodyCell>{sched.StartTime}</TableBodyCell>
 					<TableBodyCell>{sched.RunTime}</TableBodyCell>
-					<TableBodyCell>{parseZones(data.Zones)}</TableBodyCell>
+					<TableBodyCell>{parseZones(sched.Zones)}</TableBodyCell>
 				</TableBodyRow>
 			{/each}
 			<TableBodyRow>
