@@ -52,7 +52,8 @@
 
 	function loopName(loopID) {
 		const l = data.Loops.filter((l) => l.ID == loopID);
-		return l[0].Name;
+		if (l.length > 0) return l[0].Name;
+		return 'Not Used';
 	}
 </script>
 
@@ -79,9 +80,14 @@
 				{/if}
 				<TableBodyCell><A href="/zone/{blower.Zone}">{zoneName(blower.Zone)}</A></TableBodyCell>
 				{#if data.SystemMode == 0}
-					<TableBodyCell
-						><A href="/loop/{blower.HotLoop}">{loopName(blower.HotLoop)}</A></TableBodyCell
-					>
+					{#if blower.HotLoop > 0}
+						<TableBodyCell
+							><A href="/loop/{blower.HotLoop}">{loopName(blower.HotLoop)}</A></TableBodyCell
+						>
+					{/if}
+					{#if blower.HotLoop == 0}
+						<TableBodyCell></TableBodyCell>
+					{/if}
 				{/if}
 				{#if data.SystemMode == 1}
 					<TableBodyCell

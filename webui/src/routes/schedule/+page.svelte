@@ -23,20 +23,15 @@
 	const selectedwd = weekdays.map(() => false);
 
 	export let data;
+	data.Zones.forEach((z) => {
+		z.selected = false;
+	});
+
 	let id = data.Schedule.length; // get highest number and increment
 	let name = 'not set';
 	$: mode = 0;
 	let starttime = '05:00';
 	let runtime = 60;
-	$: visiblepumps = data.Pumps.filter((p) => {
-		return mode == p.SystemMode;
-	});
-	$: activeloops = visiblepumps.map((p) => {
-		if (p.selected === true) return p.Loop;
-	});
-	$: visibleblowers = data.Blowers.filter((b) => {
-		if (activeloops.includes(b.HotLoop) || activeloops.includes(b.ColdLoop)) return b;
-	});
 
 	function modeString(mode) {
 		if (mode == 0) return 'heating';
@@ -47,22 +42,8 @@
 		return w.map((p) => weekdays[p]);
 	}
 
-	// comes across as a byte string of UTF8...
-	function parsePumps(p) {
-		const e = new TextEncoder();
-		const u = e.encode(atob(p));
-		const sel = data.Pumps.filter((p) => u.includes(p.ID));
-		const names = sel.map((s) => s.Name);
-		return names;
-	}
-
-	// comes across as a byte string of UTF8...
-	function parseBlowers(b) {
-		let e = new TextEncoder();
-		let u = e.encode(atob(b));
-		const sel = data.Blowers.filter((b) => u.includes(b.ID));
-		const names = sel.map((s) => s.Name);
-		return names;
+	function parseZones(z) {
+		return 'TODO';
 	}
 
 	async function doAdd() {
@@ -81,18 +62,13 @@
 				}),
 			Starttime: starttime,
 			Runtime: Number(runtime),
-			Pumps: visiblepumps
-				.filter((p) => {
-					if (p.selected === true) return p;
-				})
-				.map((p) => p.ID),
-			Blowers: visibleblowers
-				.filter((b) => {
-					if (b.selected === true) return b;
-				})
-				.map((b) => b.ID)
+			Zones: data.Zones.filter((z) => {
+				z.selected;
+			})
 		};
-		await postSchedule(JSON.stringify(c));
+		const st = JSON.stringify(c);
+		console.log(st);
+		await postSchedule(st);
 	}
 </script>
 
@@ -106,8 +82,7 @@
 			<TableHeadCell>Weekdays</TableHeadCell>
 			<TableHeadCell>Start Time(s)</TableHeadCell>
 			<TableHeadCell>Run Duration</TableHeadCell>
-			<TableHeadCell>Pumps</TableHeadCell>
-			<TableHeadCell>Blowers</TableHeadCell>
+			<TableHeadCell>Zones</TableHeadCell>
 		</TableHead>
 		<TableBody>
 			{#each data.Schedule as sched}
@@ -118,8 +93,7 @@
 					<TableBodyCell>{parseWeekdays(sched.Weekdays)}</TableBodyCell>
 					<TableBodyCell>{sched.StartTime}</TableBodyCell>
 					<TableBodyCell>{sched.RunTime}</TableBodyCell>
-					<TableBodyCell>{parsePumps(sched.Pumps)}</TableBodyCell>
-					<TableBodyCell>{parseBlowers(sched.Blowers)}</TableBodyCell>
+					<TableBodyCell>{parseZones(data.Zones)}</TableBodyCell>
 				</TableBodyRow>
 			{/each}
 			<TableBodyRow>
@@ -148,31 +122,19 @@
 				<TableBodyCell><Input type="text" bind:value={runtime} /></TableBodyCell>
 				<TableBodyCell>
 					<Button
-						>Pumps<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button
+						>Zones<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button
 					>
 					<Dropdown class="w-44 space-y-3 p-3 text-sm">
-						{#each visiblepumps as pump, index}
+						{#each data.Zones as z}
 							<li>
-								<Checkbox value={pump.ID} bind:checked={pump.selected}>{pump.Name}</Checkbox>
-							</li>
-						{/each}
-					</Dropdown>
-				</TableBodyCell>
-				<TableBodyCell>
-					<Button
-						>Blowers<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button
-					>
-					<Dropdown class="w-44 space-y-3 p-3 text-sm">
-						{#each visibleblowers as blower, index}
-							<li>
-								<Checkbox value={blower.ID} bind:checked={blower.selected}>{blower.Name}</Checkbox>
+								<Checkbox value={z.ID} bind:checked={z.selected}>{z.Name}</Checkbox>
 							</li>
 						{/each}
 					</Dropdown>
 				</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell colspan="7">&nbsp;</TableBodyCell>
+				<TableBodyCell colspan="6">&nbsp;</TableBodyCell>
 				<TableBodyCell><Button on:click={doAdd}>Add</Button></TableBodyCell>
 			</TableBodyRow>
 		</TableBody>

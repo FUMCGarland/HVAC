@@ -1,33 +1,21 @@
 <script>
-	import { onMount } from 'svelte';
-	import { invalidateAll } from '$app/navigation';
 	import {
 		Table,
 		TableBody,
 		TableBodyCell,
 		TableBodyRow,
 		TableHead,
-		TableHeadCell
+		TableHeadCell,
+		Heading,
+		P,
+		A
 	} from 'flowbite-svelte';
-	import { Heading, P, A } from 'flowbite-svelte';
-
 	export let data;
-
-	onMount(() => {
-		const interval = setInterval(() => {
-			invalidateAll();
-		}, 30000);
-
-		return () => {
-			clearInterval(interval);
-		};
-	});
 </script>
 
 <Heading tag="h2">Zones</Heading>
 <Table>
 	<TableHead>
-		<TableHeadCell>ID</TableHeadCell>
 		<TableHeadCell>Name</TableHeadCell>
 		<TableHeadCell>Heating Unoccupied Temp</TableHeadCell>
 		<TableHeadCell>Heating Occupied Temp</TableHeadCell>
@@ -37,8 +25,7 @@
 	<TableBody>
 		{#each data.Zones as zone}
 			<TableBodyRow>
-				<TableBodyCell><A href="/zone/{zone.ID}">{zone.ID}</A></TableBodyCell>
-				<TableBodyCell>{zone.Name}</TableBodyCell>
+				<TableBodyCell><A href="/zone/{zone.ID}">{zone.Name}</A></TableBodyCell>
 				<TableBodyCell>{zone.Targets.HeatingUnoccupiedTemp}</TableBodyCell>
 				<TableBodyCell>{zone.Targets.HeatingOccupiedTemp}</TableBodyCell>
 				<TableBodyCell>{zone.Targets.CoolingUnoccupiedTemp}</TableBodyCell>

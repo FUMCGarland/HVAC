@@ -4,19 +4,19 @@
 	import { setSystemControlMode } from '$lib/hvac.js';
 
 	export let data;
-	let scmstring = systemControlModeLabel(data.SystemControlMode);
+	let cmstring = controlModeLabel(data.ControlMode);
 	export let dropdownOpen = false;
 
-	function systemControlModeLabel(scm) {
-		if (scm == 0) return 'manual';
-		if (scm == 1) return 'schedule';
-		if (scm == 2) return 'temp';
-		if (scm == 3) return 'off';
-		return 'manual';
+	function controlModeLabel(cm) {
+		if (cm == 0) return 'manual';
+		if (cm == 1) return 'schedule';
+		if (cm == 2) return 'temp';
+		if (cm == 3) return 'off';
+		return 'unknown';
 	}
 
-	async function setSCM(mode) {
-		scmstring = systemControlModeLabel(mode);
+	async function setCM(mode) {
+		cmstring = controlModeLabel(mode);
 		await setSystemControlMode(mode);
 	}
 </script>
@@ -31,39 +31,39 @@
 		<Li>Schedule is "schedule mode" - the system will run based on the scheduled entries.</Li>
 		<Li
 			>Temperature - the system will run when sensors in the rooms indicate an out-of-range
-			temperature.</Li
+			temperature. (NOT BUILT YET)</Li
 		>
 		<Li
-			>Off - nothing will run, this setting is only used when changing the system from heating to
+			>Off - nothing will run. This setting is only used when changing the system from heating to
 			cooling.</Li
 		>
 	</List>
 </P>
 
-<Button>{scmstring}</Button>
-<Dropdown scmstring>
+<Button>{cmstring}</Button>
+<Dropdown cmstring>
 	<DropdownItem
 		on:click={() => {
 			dropdownOpen = false;
-			setSCM(0);
+			setCM(0);
 		}}>Manual</DropdownItem
 	>
 	<DropdownItem
 		on:click={() => {
 			dropdownOpen = false;
-			setSCM(1);
+			setCM(1);
 		}}>Schedule</DropdownItem
 	>
 	<DropdownItem
 		on:click={() => {
 			dropdownOpen = false;
-			setSCM(2);
+			setCM(2);
 		}}>Temperature Based</DropdownItem
 	>
 	<DropdownItem
 		on:click={() => {
 			dropdownOpen = false;
-			setSCM(3);
+			setCM(3);
 		}}>Off</DropdownItem
 	>
 </Dropdown>
