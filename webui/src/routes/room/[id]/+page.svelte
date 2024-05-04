@@ -1,32 +1,33 @@
 <script>
-	import { onMount } from 'svelte';
-	import { invalidateAll } from '$app/navigation';
 	import {
 		Table,
 		TableBody,
 		TableBodyCell,
 		TableBodyRow,
 		TableHead,
-		TableHeadCell
+		TableHeadCell,
+		Heading,
+		P,
+		A,
+		Hr
 	} from 'flowbite-svelte';
-	import { Heading, P, A, Hr } from 'flowbite-svelte';
 
 	export let data;
 </script>
 
 <Heading tag="h2">{data.Name}</Heading>
 <Table>
-	<TableHead>
-		<TableHeadCell>ID</TableHeadCell>
-		<TableHeadCell>Name</TableHeadCell>
-		<TableHeadCell>Zone</TableHeadCell>
-		<TableHeadCell>Temp</TableHeadCell>
-	</TableHead>
 	<TableBody>
 		<TableBodyRow>
-			<TableBodyCell><A href="/room/{data.ID}">{data.ID}</A></TableBodyCell>
-			<TableBodyCell>{data.Name}</TableBodyCell>
+			<TableBodyCell>Room</TableBodyCell>
+			<TableBodyCell><A href="/room/{data.ID}">{data.Name}</A></TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>Zone</TableBodyCell>
 			<TableBodyCell><A href="/zone/{data.Zone}">{data.Zone}</A></TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>Temp</TableBodyCell>
 			<TableBodyCell>{data.Temperature}</TableBodyCell>
 		</TableBodyRow>
 	</TableBody>

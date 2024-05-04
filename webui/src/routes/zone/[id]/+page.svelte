@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import {
+		Badge,
 		Table,
 		TableBody,
 		TableBodyCell,
@@ -75,15 +76,13 @@
 <Heading tag="h3">Rooms in Zone {data.ID}: {data.Name}</Heading>
 <Table>
 	<TableHead>
-		<TableHeadCell>ID</TableHeadCell>
 		<TableHeadCell>Name</TableHeadCell>
 		<TableHeadCell>Current Temperature</TableHeadCell>
 	</TableHead>
 	<TableBody>
 		{#each data.Rooms as room}
 			<TableBodyRow>
-				<TableBodyCell><A href="/room/{room.ID}">{room.ID}</A></TableBodyCell>
-				<TableBodyCell>{room.Name}</TableBodyCell>
+				<TableBodyCell><A href="/room/{room.ID}">{room.Name}</A></TableBodyCell>
 				<TableBodyCell>{room.Temperature}</TableBodyCell>
 			</TableBodyRow>
 		{/each}
@@ -93,7 +92,6 @@
 <Heading tag="h3">Blowers for Zone {data.ID}: {data.Name}</Heading>
 <Table>
 	<TableHead>
-		<TableHeadCell>ID</TableHeadCell>
 		<TableHeadCell>Name</TableHeadCell>
 		<TableHeadCell>Hot Loop</TableHeadCell>
 		<TableHeadCell>Cold Loop</TableHeadCell>
@@ -102,11 +100,15 @@
 	<TableBody>
 		{#each data.Blowers as blower}
 			<TableBodyRow>
-				<TableBodyCell><A href="/blower/{blower.ID}">{blower.ID}</A></TableBodyCell>
-				<TableBodyCell>{blower.Name}</TableBodyCell>
+				<TableBodyCell><A href="/blower/{blower.ID}">{blower.Name}</A></TableBodyCell>
 				<TableBodyCell><A href="/loop/{blower.HotLoop}">{blower.HotLoop}</A></TableBodyCell>
 				<TableBodyCell><A href="/loop/{blower.ColdLoop}">{blower.ColdLoop}</A></TableBodyCell>
-				<TableBodyCell>{blower.Running}</TableBodyCell>
+				{#if blower.Running}
+					<TableBodyCell><Badge color="green">Running</Badge></TableBodyCell>
+				{/if}
+				{#if !blower.Running}
+					<TableBodyCell><Badge color="red">Stopped</Badge></TableBodyCell>
+				{/if}
 			</TableBodyRow>
 		{/each}
 	</TableBody>

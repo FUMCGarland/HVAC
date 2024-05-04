@@ -14,6 +14,8 @@ import (
 )
 
 func blowerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
+	log.Info("blowerCallbackFn", "data", pk.Payload)
+
 	ts := strings.Split(pk.TopicName, "/")
 	bn, err := strconv.ParseInt(ts[2], 10, 8)
 	if err != nil {
@@ -70,6 +72,8 @@ func blowerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 }
 
 func pumpCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
+	log.Info("pumpCallbackFn", "data", pk.Payload)
+
 	ts := strings.Split(pk.TopicName, "/")
 	pn, err := strconv.ParseInt(ts[2], 10, 8)
 	if err != nil {
@@ -108,7 +112,50 @@ func pumpCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet
 	}
 }
 
+func chillerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
+	log.Info("chillerCallbackFn", "data", pk.Payload)
+
+	ts := strings.Split(pk.TopicName, "/")
+	cn, err := strconv.ParseInt(ts[2], 10, 8)
+	if err != nil {
+		log.Error("invalid chiller number", "topic", pk.TopicName, "parsed", cn, "error", err.Error())
+		return
+	}
+
+	chiller := (hvac.PumpID(cn)).Get()
+	if chiller == nil {
+		log.Error("unknown chiller", "chiller", cn)
+		return
+	}
+
+	response := hvac.PumpResponse{}
+	if err := json.Unmarshal(pk.Payload, &response); err != nil {
+		log.Error("bad response", "chiller", cn, "res", pk.Payload, "err", err.Error())
+		return
+	}
+
+	// ignore the routine check-ins if no change
+	if response.CurrentState != chiller.Running {
+		log.Info("chiller state change", "chiller", cn, "state", response.CurrentState)
+		chiller.Running = response.CurrentState
+		if !response.CurrentState && response.RanTime > 0 {
+			chiller.Runtime += response.RanTime
+		}
+
+		if response.CurrentState {
+			// now running, log start time
+			chiller.CurrentStartTime = time.Now()
+		} else {
+			// now stopped, log stop time
+			chiller.LastStopTime = time.Now()
+			chiller.LastStartTime = chiller.CurrentStartTime
+		}
+	}
+}
+
 func tempCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
+	log.Info("tempCallbackFn", "data", pk.Payload)
+
 	ts := strings.Split(pk.TopicName, "/")
 	rn, err := strconv.ParseInt(ts[2], 10, 16)
 	if err != nil {

@@ -160,6 +160,7 @@ func (p PumpID) Start(duration time.Duration, source string) error {
 }
 
 func (p PumpID) Stop(source string) {
+	log.Info("stopping pump", "pumpID", p)
 	cc := MQTTRequest{
 		Device: p,
 		Command: Command{

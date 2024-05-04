@@ -53,6 +53,9 @@ func Start(c *hvac.MQTTConfig, done <-chan bool) {
 	sub = fmt.Sprintf("%s/blowers/+/currentstate", root)
 	server.Subscribe(sub, 1, blowerCallbackFn)
 
+	sub = fmt.Sprintf("%s/chillers/+/currentstate", root)
+	server.Subscribe(sub, 1, blowerCallbackFn)
+
 	sub = fmt.Sprintf("%s/rooms/+/temp", root)
 	server.Subscribe(sub, 1, tempCallbackFn)
 
@@ -61,7 +64,7 @@ func Start(c *hvac.MQTTConfig, done <-chan bool) {
 	for {
 		select {
 		case cmd := <-cmdChan:
-			log.Info("got command", "cmd", cmd)
+			log.Info("mqtt got command", "cmd", cmd)
 			switch cmd.Device.(type) {
 			case hvac.PumpID:
 				cc := hvac.PumpCommand(cmd.Command)

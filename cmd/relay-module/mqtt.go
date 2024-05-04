@@ -62,7 +62,6 @@ func start(ctx context.Context, rc *RelayConf) {
 				} else {
 					log.Info("server requested disconnect", "reasons code", d.ReasonCode)
 				}
-				// stopAllRunning(ctx) // not necessary with periodic updates, let them run
 			},
 		},
 	}
@@ -83,8 +82,9 @@ func start(ctx context.Context, rc *RelayConf) {
 			continue
 		}
 		sendUpdate(ctx, rc, &rc.Relays[k], &hvac.Response{
-			CurrentState: false,
-			RanTime:      0,
+			CurrentState:  false,
+			RanTime:       0,
+			TimeRemaining: 0,
 		})
 	}
 
@@ -112,15 +112,21 @@ func start(ctx context.Context, rc *RelayConf) {
 						rc.Relays[k].RunTime += rt
 						rc.Relays[k].StopTime = stoppedRunning
 						sendUpdate(ctx, rc, &rc.Relays[k], &hvac.Response{
-							CurrentState: false,
-							RanTime:      rt,
+							CurrentState:  false,
+							RanTime:       rt,
+							TimeRemaining: 0,
 						})
 					}
 				}
 				if curTick%10 == 0 { // send a periodic check-in every 10 minutes
+					var tr time.Duration
+					if rc.Relays[k].Running { // if rc.Relays[k].StopTime > 0 {
+						tr = rc.Relays[k].StopTime.Sub(now)
+					}
 					sendUpdate(ctx, rc, &rc.Relays[k], &hvac.Response{
-						CurrentState: rc.Relays[k].Running,
-						RanTime:      0,
+						CurrentState:  rc.Relays[k].Running,
+						RanTime:       0,
+						TimeRemaining: tr,
 					})
 				}
 			}
@@ -152,8 +158,9 @@ func stopAllRunning(ctx context.Context) {
 		rc.Relays[k].RunTime += now.Sub(rc.Relays[k].StartTime)
 		rc.Relays[k].StopTime = stoppedRunning
 		sendUpdate(ctx, rc, &rc.Relays[k], &hvac.Response{
-			CurrentState: false,
-			RanTime:      now.Sub(rc.Relays[k].StartTime),
+			CurrentState:  false,
+			RanTime:       now.Sub(rc.Relays[k].StartTime),
+			TimeRemaining: 0,
 		})
 	}
 }
@@ -169,7 +176,7 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 	}
 	mode := t[len(t)-3]
 
-	// log.Info("processIncoming", "mode", mode, "id", id)
+	log.Info("processIncoming", "mode", mode, "id", id)
 
 	var cmd hvac.Command
 	if err := json.Unmarshal(pr.Packet.Payload, &cmd); err != nil {
@@ -199,48 +206,71 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 	if !cmd.TargetState {
 		if err := setRelayState(relay.Pin, false); err != nil {
 			log.Error(err.Error())
-			return false, err
+			return true, err
 		}
 		cmd.RunTime = 0
 		relay.StartTime = stoppedRunning
 		relay.StopTime = stoppedRunning
 	} else {
-		if mode == "pumps" {
+		switch mode {
+		case "pumps":
 			if cmd.RunTime < hvac.MinPumpRunTime {
 				err := fmt.Errorf("pump runtime too short")
 				log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "min", hvac.MinPumpRunTime.Minutes())
-				return false, err
+				return true, err
 			}
 			if cmd.RunTime > hvac.MaxPumpRunTime {
 				err := fmt.Errorf("pump runtime too long")
 				log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "max", hvac.MaxPumpRunTime.Minutes())
-				return false, err
+				return true, err
 			}
-		} else {
+		case "blowers":
 			if cmd.RunTime < hvac.MinBlowerRunTime {
 				err := fmt.Errorf("blower runtime too short")
 				log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "min", hvac.MinBlowerRunTime.Minutes())
-				return false, err
+				return true, err
 			}
 			if cmd.RunTime > hvac.MaxBlowerRunTime {
 				err := fmt.Errorf("blower runtime too long")
 				log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "max", hvac.MaxBlowerRunTime.Minutes())
-				return false, err
+				return true, err
+			}
+		case "chillers":
+			if cmd.RunTime < hvac.MinChillerRunTime {
+				err := fmt.Errorf("chiller runtime too short")
+				log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "min", hvac.MinChillerRunTime.Minutes())
+				return true, err
+			}
+			if cmd.RunTime > hvac.MaxChillerRunTime {
+				err := fmt.Errorf("chiller runtime too long")
+				log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "max", hvac.MaxChillerRunTime.Minutes())
+				return true, err
 			}
 		}
 
-		if err := setRelayState(relay.Pin, true); err != nil {
-			log.Error(err.Error())
-			return false, err
+		if relay.Running {
+			// if currently running, adjust to the stop time that is further out
+			newStopTime := time.Now().Add(time.Duration(cmd.RunTime))
+			if newStopTime.After(relay.StopTime) {
+				log.Info("adjusting stop time", "relay", relay.Pin, "new", newStopTime)
+				relay.StopTime = newStopTime
+			}
+		} else {
+			// if not running, record start time and start the relay
+			relay.StartTime = time.Now()
+			if err := setRelayState(relay.Pin, true); err != nil {
+				log.Error(err.Error())
+				return true, err
+			}
+			relay.StopTime = time.Now().Add(time.Duration(cmd.RunTime))
 		}
-		relay.StartTime = time.Now()
-		relay.StopTime = time.Now().Add(time.Duration(cmd.RunTime))
 	}
 
 	// Send confirmation
 	if err := sendUpdate(context.Background(), rc, relay, &hvac.Response{
-		CurrentState: cmd.TargetState,
-		RanTime:      0, // zero on confirmation
+		CurrentState:  cmd.TargetState,
+		RanTime:       0, // zero on confirmation
+		TimeRemaining: relay.StopTime.Sub(time.Now()),
 	}); err != nil {
 		log.Error(err.Error())
 		return false, err
@@ -248,6 +278,7 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 	return true, nil
 }
 
+// TODO: add TimeRemaining
 func sendUpdate(ctx context.Context, rc *RelayConf, relay *hvac.Relay, response *hvac.Response) error {
 	mode := "pumps"
 	id := uint8(relay.PumpID)

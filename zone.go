@@ -156,13 +156,13 @@ func (z ZoneID) Start(d time.Duration, msg string) error {
 				enabled = append(enabled, pumpid)
 			}
 
-			chillerid := pumpid.getChiller() 
+			chillerid := pumpid.getChiller()
 			if chillerid != 0 {
 				time.Sleep(1 * time.Second) // let pump start before attempting to start chiller
 				if err := chillerid.Start(d, msg); err != nil {
 					stopAll(enabled)
 					return err
-				}	
+				}
 				enabled = append(enabled, chillerid)
 			}
 		}

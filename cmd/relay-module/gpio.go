@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/FUMCGarland/hvac/log"
+	"context"
 
+	"github.com/FUMCGarland/hvac/log"
 	"github.com/warthog618/go-gpiocdev"
+	"golang.org/x/time/rate"
 )
 
 // relay board channel : gpio pin
@@ -13,8 +15,11 @@ const chipname = "gpiochip4"
 
 var gpiochip *gpiocdev.Chip
 var gpiorunning bool
+var rl *rate.Limiter
 
 func (c *RelayConf) setupGPIO() {
+	rl = rate.NewLimiter(2, 0)
+
 	var err error
 	gpiochip, err = gpiocdev.NewChip(chipname, gpiocdev.WithConsumer("relay-module"))
 	if err != nil {
@@ -37,7 +42,7 @@ func (c *RelayConf) setupGPIO() {
 			continue
 		}
 		log.Info("result", "value", value, "pin", c.Relays[k].Pin)
-		if err = l.SetValue(1); err != nil {
+		if err = l.SetValue(0); err != nil {
 			log.Error(err.Error())
 			continue
 		}
@@ -63,6 +68,8 @@ func setRelayState(pin uint8, state bool) error {
 	if !state {
 		value = 0
 	}
+
+	rl.Wait(context.Background())
 
 	log.Info("setting relay state", "pin", pin, "value", value)
 	l, err := gpiochip.RequestLine(int(pin), gpiocdev.AsOutput(0), gpiocdev.AsActiveLow)

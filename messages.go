@@ -13,8 +13,9 @@ type Command struct {
 
 // Response is what the Relay Controller sends to the MQTT server
 type Response struct {
-	CurrentState bool
-	RanTime      time.Duration // time actually ran
+	CurrentState  bool
+	RanTime       time.Duration // time actually ran
+	TimeRemaining time.Duration
 }
 
 // types to make sure we aren't sending blower commands to a pump even though they look the same
