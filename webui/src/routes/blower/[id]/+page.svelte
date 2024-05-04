@@ -1,5 +1,7 @@
 <script>
 	import {
+		Badge,
+		Button,
 		Table,
 		TableBody,
 		TableBodyRow,
@@ -9,6 +11,7 @@
 		A,
 		Hr
 	} from 'flowbite-svelte';
+	import { blowerStop } from '$lib/hvac.js';
 
 	export let data;
 	function parseTime(t) {
@@ -59,7 +62,18 @@
 		</TableBodyRow>
 		<TableBodyRow>
 			<TableBodyCell>Running</TableBodyCell>
-			<TableBodyCell>{data.Running}</TableBodyCell>
+			{#if data.Running}
+				<TableBodyCell
+					><Button
+						on:click={() => {
+							blowerStop(data.ID);
+						}}>Stop</Button
+					></TableBodyCell
+				>
+			{/if}
+			{#if !data.Running}
+				<TableBodyCell><Badge color="red">Stopped</Badge></TableBodyCell>
+			{/if}
 		</TableBodyRow>
 		<TableBodyRow>
 			<TableBodyCell>Current Start Time</TableBodyCell>

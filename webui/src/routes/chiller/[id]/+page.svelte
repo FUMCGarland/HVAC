@@ -1,5 +1,7 @@
 <script>
 	import {
+		Badge,
+		Button,
 		Table,
 		TableBodyRow,
 		TableBody,
@@ -9,6 +11,7 @@
 		A,
 		Hr
 	} from 'flowbite-svelte';
+	import { chillerStop } from '$lib/hvac.js';
 
 	export let data;
 	const e = new TextEncoder();
@@ -34,7 +37,18 @@
 		{/each}
 		<TableBodyRow>
 			<TableBodyCell>Running</TableBodyCell>
-			<TableBodyCell>{data.Running}</TableBodyCell>
+			{#if data.Running}
+				<TableBodyCell
+					><Button
+						on:click={() => {
+							chillerStop(data.ID);
+						}}>Stop</Button
+					></TableBodyCell
+				>
+			{/if}
+			{#if !data.Running}
+				<TableBodyCell><Badge color="red">Stopped</Badge></TableBodyCell>
+			{/if}
 		</TableBodyRow>
 		<TableBodyRow>
 			<TableBodyCell>Current Start Time</TableBodyCell>

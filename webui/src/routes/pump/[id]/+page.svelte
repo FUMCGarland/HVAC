@@ -1,7 +1,7 @@
 <script>
-	import { onMount } from 'svelte';
-	import { invalidateAll } from '$app/navigation';
 	import {
+		Badge,
+		Button,
 		Table,
 		TableBodyRow,
 		TableBody,
@@ -11,18 +11,9 @@
 		A,
 		Hr
 	} from 'flowbite-svelte';
+	import { pumpStop } from '$lib/hvac';
 
 	export let data;
-
-	onMount(() => {
-		const interval = setInterval(() => {
-			invalidateAll();
-		}, 30000);
-
-		return () => {
-			clearInterval(interval);
-		};
-	});
 
 	function sm(s) {
 		if (sm == 0) return 'heating';
@@ -51,7 +42,18 @@
 		</TableBodyRow>
 		<TableBodyRow>
 			<TableBodyCell>Running</TableBodyCell>
-			<TableBodyCell>{data.Running}</TableBodyCell>
+			{#if data.Running}
+				<TableBodyCell
+					><Button
+						on:click={() => {
+							pumpStop(data.ID);
+						}}>Stop</Button
+					></TableBodyCell
+				>
+			{/if}
+			{#if !data.Running}
+				<TableBodyCell><Badge color="red">Stopped</Badge></TableBodyCell>
+			{/if}
 		</TableBodyRow>
 		<TableBodyRow>
 			<TableBodyCell>Current Start Time</TableBodyCell>
