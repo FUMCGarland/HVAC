@@ -16,8 +16,8 @@
 	} from 'flowbite-svelte';
 
 	export let data;
-	console.log(data);
 
+	// refresh every 30 seconds
 	onMount(() => {
 		const interval = setInterval(() => {
 			invalidateAll();
@@ -44,6 +44,16 @@
 	function inMode(pump) {
 		return data.SystemMode == pump.SystemMode;
 	}
+
+	function zoneName(zoneID) {
+		const z = data.Zones.filter((z) => z.ID == zoneID);
+		return z[0].Name;
+	}
+
+	function loopName(loopID) {
+		const l = data.Loops.filter((l) => l.ID == loopID);
+		return l[0].Name;
+	}
 </script>
 
 <P><A href="/systemmode">System Mode</A> {systemModeLabel(data.SystemMode)}</P>
@@ -52,26 +62,31 @@
 <Heading tag="h2">Blowers</Heading>
 <Table>
 	<TableHead>
-		<TableHeadCell>ID</TableHeadCell>
 		<TableHeadCell>Name</TableHeadCell>
-		<TableHeadCell>Hot Loop</TableHeadCell>
-		<TableHeadCell>Cold Loop</TableHeadCell>
-		<TableHeadCell>Zone</TableHeadCell>
 		<TableHeadCell>Running</TableHeadCell>
+		<TableHeadCell>Zone</TableHeadCell>
+		<TableHeadCell>Loop</TableHeadCell>
 	</TableHead>
 	<TableBody>
 		{#each data.Blowers as blower}
 			<TableBodyRow>
-				<TableBodyCell><A href="/blower/{blower.ID}">{blower.ID}</A></TableBodyCell>
-				<TableBodyCell>{blower.Name}</TableBodyCell>
-				<TableBodyCell><A href="/loop/{blower.HotLoop}">{blower.HotLoop}</A></TableBodyCell>
-				<TableBodyCell><A href="/loop/{blower.ColdLoop}">{blower.ColdLoop}</A></TableBodyCell>
-				<TableBodyCell><A href="/zone/{blower.Zone}">{blower.Zone}</A></TableBodyCell>
+				<TableBodyCell><A href="/blower/{blower.ID}">{blower.Name}</A></TableBodyCell>
 				{#if blower.Running}
 					<TableBodyCell><Badge color="green">Running</Badge></TableBodyCell>
 				{/if}
 				{#if !blower.Running}
 					<TableBodyCell><Badge color="red">Stopped</Badge></TableBodyCell>
+				{/if}
+				<TableBodyCell><A href="/zone/{blower.Zone}">{zoneName(blower.Zone)}</A></TableBodyCell>
+				{#if data.SystemMode == 0}
+					<TableBodyCell
+						><A href="/loop/{blower.HotLoop}">{loopName(blower.HotLoop)}</A></TableBodyCell
+					>
+				{/if}
+				{#if data.SystemMode == 1}
+					<TableBodyCell
+						><A href="/loop/{blower.ColdLoop}">{loopName(blower.ColdLoop)}</A></TableBodyCell
+					>
 				{/if}
 			</TableBodyRow>
 		{/each}
@@ -81,26 +96,22 @@
 <Heading tag="h2">Pumps ({systemModeLabel(data.SystemMode)})</Heading>
 <Table>
 	<TableHead>
-		<TableHeadCell>ID</TableHeadCell>
 		<TableHeadCell>Name</TableHeadCell>
-		<TableHeadCell>Loop</TableHeadCell>
-		<TableHeadCell>System Mode</TableHeadCell>
 		<TableHeadCell>Running</TableHeadCell>
+		<TableHeadCell>Loop</TableHeadCell>
 	</TableHead>
 	<TableBody>
 		{#each data.Pumps as pump}
 			{#if inMode(pump)}
 				<TableBodyRow>
-					<TableBodyCell><A href="/pump/{pump.ID}">{pump.ID}</A></TableBodyCell>
-					<TableBodyCell>{pump.Name}</TableBodyCell>
-					<TableBodyCell><A href="/loop/{pump.Loop}">{pump.Loop}</A></TableBodyCell>
-					<TableBodyCell>{systemModeLabel(pump.SystemMode)}</TableBodyCell>
+					<TableBodyCell><A href="/pump/{pump.ID}">{pump.Name}</A></TableBodyCell>
 					{#if pump.Running}
 						<TableBodyCell><Badge color="green">Running</Badge></TableBodyCell>
 					{/if}
 					{#if !pump.Running}
 						<TableBodyCell><Badge color="red">Stopped</Badge></TableBodyCell>
 					{/if}
+					<TableBodyCell><A href="/loop/{pump.Loop}">{loopName(pump.Loop)}</A></TableBodyCell>
 				</TableBodyRow>
 			{/if}
 		{/each}
@@ -111,15 +122,13 @@
 	<Heading tag="h2">Chillers</Heading>
 	<Table>
 		<TableHead>
-			<TableHeadCell>ID</TableHeadCell>
 			<TableHeadCell>Name</TableHeadCell>
 			<TableHeadCell>Running</TableHeadCell>
 		</TableHead>
 		<TableBody>
 			{#each data.Chillers as chiller}
 				<TableBodyRow>
-					<TableBodyCell><A href="/chiller/{chiller.ID}">{chiller.ID}</A></TableBodyCell>
-					<TableBodyCell>{chiller.Name}</TableBodyCell>
+					<TableBodyCell><A href="/chiller/{chiller.ID}">{chiller.Name}</A></TableBodyCell>
 					{#if chiller.Running}
 						<TableBodyCell><Badge color="green">Running</Badge></TableBodyCell>
 					{/if}

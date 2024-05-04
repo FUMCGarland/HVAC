@@ -8,16 +8,25 @@
 		TableBodyCell,
 		TableBodyRow,
 		TableHead,
-		TableHeadCell
+		TableHeadCell,
+		Heading,
+		P,
+		A,
+		Input,
+		Label,
+		Helper,
+		Button
 	} from 'flowbite-svelte';
-	import { Heading, P, A, Input, Label, Helper, Button } from 'flowbite-svelte';
 	import { zoneStart, zoneStop } from '$lib/hvac.js';
 
 	export let data;
+
+	// add a private value for to track display state
 	data.Zones.forEach((z) => {
 		z.newRunTime = 0;
 	});
 
+	// refresh every 30 seconds
 	onMount(() => {
 		const interval = setInterval(() => {
 			invalidateAll();
@@ -28,15 +37,19 @@
 		};
 	});
 
+	// a zone is running if all the blowers/radiant loops in the zone are running
+	// TODO: check radiant heat loops
+	// ignore pumps and chillers (?)
 	function zoneRunning(zone) {
-		return false;
+		const blowers = data.Blowers.filter((b) => b.Zone == zone);
+		const running = blowers.filter((b) => b.Running);
+		return blowers.length == running.length && blowers.length != 0;
 	}
 </script>
 
 <Heading tag="h2">Zones</Heading>
 <Table>
 	<TableHead>
-		<TableHeadCell>ID</TableHeadCell>
 		<TableHeadCell>Name</TableHeadCell>
 		<TableHeadCell>Running</TableHeadCell>
 		<TableHeadCell>Command</TableHeadCell>
@@ -44,8 +57,7 @@
 	<TableBody>
 		{#each data.Zones as zone}
 			<TableBodyRow>
-				<TableBodyCell><A href="/zone/{zone.ID}">{zone.ID}</A></TableBodyCell>
-				<TableBodyCell>{zone.Name}</TableBodyCell>
+				<TableBodyCell><A href="/zone/{zone.ID}">{zone.Name}</A></TableBodyCell>
 				{#if zoneRunning(zone.ID)}
 					<TableBodyCell><Badge color="green">Running</Badge></TableBodyCell>
 				{/if}

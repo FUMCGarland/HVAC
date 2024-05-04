@@ -1,7 +1,7 @@
 import { invalidateAll } from '$app/navigation';
 import { toast } from '@zerodevx/svelte-toast';
 
-export const hvaccontroller = ``;
+export const hvaccontroller = `http://192.168.12.136:8080`;
 export const durationMult = 60000000000;
 
 // TODO: these are inconsistent, pass in object{} and JSON.stringify() in the body:
@@ -182,7 +182,7 @@ export async function updateZoneTargets(id, cmd) {
 		body: cmd
 	};
 
-	const response = await fetch(`${hvaccontroller}/api/v1/zone/${id}/targets`, request);
+	const response = await fetch(`${hvaccontroller}/api/v1/zone/${id}/temps`, request);
 	const payload = await response.json();
 
 	if (response.status != 200) {
@@ -264,6 +264,87 @@ export async function putSchedule(cmd) {
 
 	if (response.status != 200) {
 		console.log(payload);
+		console.log('server returned ', response.status);
+		toast.push('Server Responded with: ' + response.status + ': ' + payload.error);
+		return;
+	}
+	invalidateAll();
+}
+
+export async function zoneStart(id, minutes = 60, source = 'manual') {
+	if (minutes > 600 || minutes < 30) {
+		toast.push('runtime out-of-range (min 30, max 600)');
+		return;
+	}
+	const goduration = minutes * durationMult;
+
+	const cmd = `{ "TargetState": true, "RunTime": ${goduration}, "Source": "${source}" }`;
+	const request = {
+		method: 'PUT',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: cmd
+	};
+
+	const response = await fetch(`${hvaccontroller}/api/v1/zone/${id}/target`, request);
+	const payload = await response.json();
+
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		toast.push('Server Responded with: ' + response.status + ': ' + payload.error);
+		return;
+	}
+	invalidateAll();
+}
+
+export async function zoneStop(id, source = 'manual') {
+	const cmd = `{ "TargetState": false, "RunTime": 0, "Source": "${source}" }`;
+	const request = {
+		method: 'PUT',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: cmd
+	};
+
+	const response = await fetch(`${hvaccontroller}/api/v1/zone/${id}/target`, request);
+	const payload = await response.json();
+
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		toast.push('Server Responded with: ' + response.status + ': ' + payload.error);
+		return;
+	}
+	invalidateAll();
+}
+
+export async function chillerStop(id, source = 'manual') {
+	const cmd = `{ "TargetState": false, "RunTime": 0, "Source": "${source}" }`;
+	const request = {
+		method: 'PUT',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: cmd
+	};
+
+	const response = await fetch(`${hvaccontroller}/api/v1/chiller/${id}/target`, request);
+	const payload = await response.json();
+
+	if (response.status != 200) {
 		console.log('server returned ', response.status);
 		toast.push('Server Responded with: ' + response.status + ': ' + payload.error);
 		return;
