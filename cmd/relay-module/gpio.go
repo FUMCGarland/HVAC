@@ -28,7 +28,7 @@ func (c *RelayConf) setupGPIO() {
 	}
 
 	for k := range c.Relays {
-		log.Info("initializing relay", "pin", c.Relays[k].Pin)
+		log.Debug("initializing relay", "pin", c.Relays[k].Pin)
 		l, err := gpiochip.RequestLine(int(c.Relays[k].Pin), gpiocdev.AsOutput(), gpiocdev.AsActiveLow)
 		if err != nil {
 			log.Error(err.Error())
@@ -41,7 +41,7 @@ func (c *RelayConf) setupGPIO() {
 			log.Error(err.Error())
 			continue
 		}
-		log.Info("result", "value", value, "pin", c.Relays[k].Pin)
+		log.Debug("result", "value", value, "pin", c.Relays[k].Pin)
 		if err = l.SetValue(0); err != nil {
 			log.Error(err.Error())
 			continue
@@ -71,7 +71,7 @@ func setRelayState(pin uint8, state bool) error {
 
 	rl.Wait(context.Background())
 
-	log.Info("setting relay state", "pin", pin, "value", value)
+	log.Info("gpio setting relay state", "pin", pin, "value", value)
 	l, err := gpiochip.RequestLine(int(pin), gpiocdev.AsOutput(0), gpiocdev.AsActiveLow)
 	if err != nil {
 		log.Error(err.Error())
