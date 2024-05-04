@@ -186,23 +186,20 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 
 	var relay *hvac.Relay
 	for k := range rc.Relays {
-		if mode == "pumps" && hvac.PumpID(id) == rc.Relays[k].PumpID {
+		switch {
+		case mode == "pumps" && hvac.PumpID(id) == rc.Relays[k].PumpID:
 			relay = &rc.Relays[k]
-			break
-		}
-		if mode == "blowers" && hvac.BlowerID(id) == rc.Relays[k].BlowerID {
+		case mode == "blowers" && hvac.BlowerID(id) == rc.Relays[k].BlowerID:
 			relay = &rc.Relays[k]
-			break
+		case mode == "chillers" && hvac.ChillerID(id) == rc.Relays[k].ChillerID:
+			relay = &rc.Relays[k]
+		default:
+			log.Debug("request for another controller", "mode", mode, "id", id, "state", cmd.TargetState)
+			return true, nil
 		}
-	}
-	if relay == nil {
-		// not for us, we are done
-		log.Debug("request for another controller", "mode", mode, "id", id, "state", cmd.TargetState)
-		return true, nil
 	}
 
 	log.Info("Toggling Relay", "pin", relay.Pin, "state", cmd.TargetState, "duration", cmd.RunTime.Minutes())
-	relay.Running = cmd.TargetState
 	if !cmd.TargetState {
 		if err := setRelayState(relay.Pin, false); err != nil {
 			log.Error(err.Error())
@@ -265,6 +262,9 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 			relay.StopTime = time.Now().Add(time.Duration(cmd.RunTime))
 		}
 	}
+
+	// now record the running state
+	relay.Running = cmd.TargetState
 
 	// Send confirmation
 	if err := sendUpdate(context.Background(), rc, relay, &hvac.Response{
