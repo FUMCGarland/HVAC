@@ -21,9 +21,12 @@ type Response struct {
 type PumpCommand Command
 type BlowerCommand Command
 type ChillerCommand Command
+type ZoneCommand Command
+
 type PumpResponse Response
 type BlowerResponse Response
 type ChillerResponse Response
+type ZoneResponse Response
 
 type DeviceID interface {
 	CanEnable() error

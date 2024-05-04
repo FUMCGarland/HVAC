@@ -11,7 +11,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func putZone(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func putZoneTemps(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	c := hvac.GetConfig()
 	headers(w, r)
 
@@ -40,6 +40,47 @@ func putZone(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		log.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
+	}
+
+	fmt.Fprint(w, jsonStatusOK)
+}
+
+func putZoneStart(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	headers(w, r)
+
+	inid, err := strconv.ParseInt(ps.ByName("id"), 10, 8)
+	if err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	id := hvac.ZoneID(inid)
+	z := id.Get()
+	if z == nil {
+		err := fmt.Errorf("unknown zone %d", id)
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	zc := hvac.ZoneCommand{}
+	if err := json.NewDecoder(r.Body).Decode(&zc); err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	if zc.TargetState {
+		log.Info("starting zone manually", "id", id, "cmd", zc)
+		if err := id.Start(zc.RunTime, "manual"); err != nil {
+			log.Error(err.Error())
+			http.Error(w, jsonError(err), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		log.Info("stopping zone manually", "id", id, "cmd", zc)
+		id.Stop("manual")
 	}
 
 	fmt.Fprint(w, jsonStatusOK)

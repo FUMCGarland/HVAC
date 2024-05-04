@@ -170,3 +170,19 @@ func (p PumpID) Stop(source string) {
 	}
 	cmdChan <- cc
 }
+
+func (p PumpID) getChiller() ChillerID {
+	pump := p.Get()
+	return pump.getChiller()
+}
+
+func (p *Pump) getChiller() ChillerID {
+	for k := range c.Chillers {
+		for _, l := range c.Chillers[k].Loops {
+			if l == p.Loop {
+				return c.Chillers[k].ID
+			}
+		}
+	}
+	return ChillerID(0)
+}

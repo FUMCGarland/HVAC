@@ -140,3 +140,22 @@ func (b BlowerID) Stop(source string) {
 	}
 	cmdChan <- cc
 }
+
+func (b BlowerID) getPump(sm SystemModeT) PumpID {
+	blower := b.Get()
+	return blower.getPump(sm)
+}
+
+func (b *Blower) getPump(sm SystemModeT) PumpID {
+	loopID := b.HotLoop
+	if sm == SystemModeCool {
+		loopID = b.ColdLoop
+	}
+	for k := range c.Pumps {
+		if c.Pumps[k].Loop == loopID {
+			return c.Pumps[k].ID
+		}
+	}
+	log.Info("unknown pump for blower", "blowerID", b.ID)
+	return PumpID(0)
+}

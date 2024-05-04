@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"time"
 
 	"github.com/FUMCGarland/hvac/log"
 )
@@ -111,4 +112,73 @@ func (z *Zone) readFromStore() error {
 	z.Targets.CoolingOccupiedTemp = in.Targets.CoolingOccupiedTemp
 
 	return nil
+}
+
+func (z ZoneID) Stop(msg string) {
+	// stop the blowers the pumps/chiller will cascade if necessary
+	for k := range c.Blowers {
+		if c.Blowers[k].Zone == z && c.Blowers[k].Running {
+			c.Blowers[k].ID.Stop(msg)
+		}
+	}
+
+	if c.SystemMode == SystemModeHeat {
+		// shut down the radiant loops for the zone
+		for k := range c.Loops {
+			if c.Loops[k].RadiantZone == z {
+				pump := c.GetPumpFromLoop(c.Loops[k].ID)
+				if pump.Get().Running {
+					pump.Stop(msg)
+				}
+			}
+		}
+	}
+}
+
+func (z ZoneID) Start(d time.Duration, msg string) error {
+	enabled := make([]DeviceID, 0)
+
+	for k := range c.Blowers {
+		if c.Blowers[k].Zone == z {
+			if err := c.Blowers[k].ID.Start(d, msg); err != nil {
+				stopAll(enabled)
+				return err
+			}
+			enabled = append(enabled, c.Blowers[k].ID)
+
+			pumpid := c.Blowers[k].getPump(c.SystemMode)
+			if pumpid != 0 {
+				time.Sleep(1 * time.Second) // let blower start before attempting to start pump
+				if err := pumpid.Start(d, msg); err != nil {
+					stopAll(enabled)
+					return err
+				}
+				enabled = append(enabled, pumpid)
+			}
+
+			chillerid := pumpid.getChiller() 
+			if chillerid != 0 {
+				time.Sleep(1 * time.Second) // let pump start before attempting to start chiller
+				if err := chillerid.Start(d, msg); err != nil {
+					stopAll(enabled)
+					return err
+				}	
+				enabled = append(enabled, chillerid)
+			}
+		}
+	}
+	return nil
+}
+
+func stopAll(enabled []DeviceID) {
+	for _, dev := range enabled {
+		switch dev.(type) {
+		case BlowerID:
+			dev.(BlowerID).Stop("internal")
+		case ChillerID:
+			dev.(ChillerID).Stop("internal")
+		case PumpID:
+			dev.(PumpID).Stop("internal")
+		}
+	}
 }
