@@ -14,7 +14,7 @@ import (
 )
 
 func blowerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
-	log.Info("blowerCallbackFn", "data", pk.Payload)
+	log.Debug("blowerCallbackFn", "data", pk.Payload)
 
 	ts := strings.Split(pk.TopicName, "/")
 	bn, err := strconv.ParseInt(ts[2], 10, 8)
@@ -72,7 +72,7 @@ func blowerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 }
 
 func pumpCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
-	log.Info("pumpCallbackFn", "data", pk.Payload)
+	log.Debug("pumpCallbackFn", "data", pk.Payload)
 
 	ts := strings.Split(pk.TopicName, "/")
 	pn, err := strconv.ParseInt(ts[2], 10, 8)
@@ -113,7 +113,7 @@ func pumpCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet
 }
 
 func chillerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
-	log.Info("chillerCallbackFn", "data", pk.Payload)
+	log.Debug("chillerCallbackFn", "data", pk.Payload)
 
 	ts := strings.Split(pk.TopicName, "/")
 	cn, err := strconv.ParseInt(ts[2], 10, 8)
