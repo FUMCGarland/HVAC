@@ -8,9 +8,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// relay board channel : gpio pin
-var pins = []int{5, 6, 13, 16, 19, 20, 21, 26}
-
+// var pins = []int{5, 6, 13, 16, 19, 20, 21, 26}
 const chipname = "gpiochip4"
 
 var gpiochip *gpiocdev.Chip

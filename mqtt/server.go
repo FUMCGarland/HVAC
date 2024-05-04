@@ -54,7 +54,7 @@ func Start(c *hvac.MQTTConfig, done <-chan bool) {
 	server.Subscribe(sub, 1, blowerCallbackFn)
 
 	sub = fmt.Sprintf("%s/chillers/+/currentstate", root)
-	server.Subscribe(sub, 1, blowerCallbackFn)
+	server.Subscribe(sub, 1, chillerCallbackFn)
 
 	sub = fmt.Sprintf("%s/rooms/+/temp", root)
 	server.Subscribe(sub, 1, tempCallbackFn)

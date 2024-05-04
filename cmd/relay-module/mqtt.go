@@ -99,8 +99,7 @@ func start(ctx context.Context, rc *RelayConf) {
 			// see if any running devices need to stop
 			for k := range rc.Relays {
 				if rc.Relays[k].Running {
-					// Debug
-					log.Info("running", "relay", rc.Relays[k].Pin, "StopTime", rc.Relays[k].StopTime, "remaining", rc.Relays[k].StopTime.Sub(now).Minutes())
+					log.Debug("running", "relay", rc.Relays[k].Pin, "StopTime", rc.Relays[k].StopTime, "remaining", rc.Relays[k].StopTime.Sub(now).Minutes())
 				}
 				if rc.Relays[k].Running && rc.Relays[k].StopTime.Before(now) {
 					rt := now.Sub(rc.Relays[k].StartTime)
@@ -133,12 +132,14 @@ func start(ctx context.Context, rc *RelayConf) {
 				}
 			}
 			curTick++
-			continue
+			continue // skips the break below
 		case <-ctx.Done():
+			// trigger the break below
 		}
 		break
 	}
-	// ctx has already ended
+
+	// ctx has already ended, use a new one
 	stopAllRunning(context.Background())
 
 	log.Info("Shutting down MQTT client")
@@ -189,8 +190,7 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 	}
 	mode := t[len(t)-3]
 
-	// Debug
-	log.Info("processIncoming", "topic", pr.Packet.Topic, "data", pr.Packet.Payload)
+	log.Debug("processIncoming", "topic", pr.Packet.Topic, "data", pr.Packet.Payload)
 
 	var cmd hvac.Command
 	if err := json.Unmarshal(pr.Packet.Payload, &cmd); err != nil {
@@ -207,19 +207,22 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 			relay = &rc.Relays[k]
 		case mode == "chillers" && hvac.ChillerID(id) == rc.Relays[k].ChillerID:
 			relay = &rc.Relays[k]
-		default:
-			// Debug
-			log.Info("request for another controller", "mode", mode, "id", id, "state", cmd.TargetState)
-			return true, nil
 		}
 	}
 
-	log.Info("Toggling Relay", "pin", relay.Pin, "state", cmd.TargetState, "duration", cmd.RunTime.Minutes())
+	if relay == nil {
+		log.Debug("request for another controller", "mode", mode, "id", id, "state", cmd.TargetState)
+		return true, nil
+	}
+
+	log.Debug("Toggling Relay", "pin", relay.Pin, "state", cmd.TargetState, "duration", cmd.RunTime.Minutes())
 	if !cmd.TargetState {
 		stopRelay(context.Background(), relay)
 		return true, nil
 	}
 
+	// all of this is already processed in the controller, do we need to double-check it here?
+	// paranoia says yes, if someone is sending commands directly via mqtt instead of through the controller's API
 	switch mode {
 	case "pumps":
 		if cmd.RunTime < hvac.MinPumpRunTime {
@@ -258,6 +261,7 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 
 	if relay.Running {
 		// if currently running, adjust to the stop time that is further out
+		// do we need to enforce the max runtimes here? or is the risk of shutting down the chiller whil still running the pumps greater?
 		newStopTime := time.Now().Add(time.Duration(cmd.RunTime))
 		if newStopTime.After(relay.StopTime) {
 			log.Info("adjusting stop time", "relay", relay.Pin, "new", newStopTime)
@@ -280,7 +284,7 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 	if err := sendUpdate(context.Background(), rc, relay, &hvac.Response{
 		CurrentState:  true,
 		RanTime:       0, // zero on confirmation
-		TimeRemaining: relay.StopTime.Sub(time.Now()),
+		TimeRemaining: time.Until(relay.StopTime),
 	}); err != nil {
 		log.Error(err.Error())
 		return false, err
