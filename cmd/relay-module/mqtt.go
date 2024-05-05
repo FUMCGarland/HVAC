@@ -39,10 +39,12 @@ func start(ctx context.Context, rc *RelayConf) {
 			log.Info("mqtt connection up")
 			blowerTopic := fmt.Sprintf("%s/blowers/+/targetstate", rc.Root)
 			pumpTopic := fmt.Sprintf("%s/pumps/+/targetstate", rc.Root)
+			chillerTopic := fmt.Sprintf("%s/chillers/+/targetstate", rc.Root)
 			if _, err := cm.Subscribe(ctx, &paho.Subscribe{
 				Subscriptions: []paho.SubscribeOptions{
-					{Topic: blowerTopic, QoS: 1},
-					{Topic: pumpTopic, QoS: 1},
+					{Topic: blowerTopic, QoS: 0},
+					{Topic: pumpTopic, QoS: 0},
+					{Topic: chillerTopic, QoS: 0},
 				},
 			}); err != nil {
 				log.Info("failed to subscribe. This is likely to mean no messages will be received.", "err", err.Error())
