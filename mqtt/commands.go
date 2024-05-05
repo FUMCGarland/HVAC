@@ -41,10 +41,9 @@ func SendPumpTargetState(p hvac.PumpID, cmd *hvac.PumpCommand) error {
 		}
 
 		if last {
-			cl := hvac.ChillerID(0)
-			cl = c.GetChillerFromLoop(pump.Loop)
-			chiller := cl.Get()
-			if chiller.Running {
+			cid := c.GetChillerFromLoop(pump.Loop)
+			chiller := cid.Get()
+			if cid != 0 && chiller.Running {
 				chiller.ID.Stop("internal")
 			}
 		}
