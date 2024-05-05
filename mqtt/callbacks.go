@@ -154,7 +154,7 @@ func chillerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pac
 }
 
 func tempCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
-	log.Info("tempCallbackFn", "data", pk.Payload)
+	log.Debug("tempCallbackFn", "data", pk.Payload)
 
 	ts := strings.Split(pk.TopicName, "/")
 	rn, err := strconv.ParseInt(ts[2], 10, 16)
@@ -173,6 +173,6 @@ func tempCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet
 		log.Error("unknown room number", "room", rn)
 		return
 	}
-	log.Info("recording temp", "room", rn, "temp", temp)
+	log.Debug("recording temp", "room", rn, "temp", temp)
 	room.Temperature = uint8(temp)
 }

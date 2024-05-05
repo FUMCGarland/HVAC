@@ -79,7 +79,7 @@ func LoadConfig(filename string) (*Config, error) {
 	c = in
 
 	if err := validate(); err != nil {
-		log.Info("config", "config", c)
+		log.Error("config", "config", c)
 		panic(err.Error())
 	}
 

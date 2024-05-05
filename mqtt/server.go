@@ -64,7 +64,7 @@ func Start(c *hvac.MQTTConfig, done <-chan bool) {
 	for {
 		select {
 		case cmd := <-cmdChan:
-			log.Info("mqtt got command", "cmd", cmd)
+			log.Debug("mqtt got command", "cmd", cmd)
 			switch cmd.Device.(type) {
 			case hvac.PumpID:
 				cc := hvac.PumpCommand(cmd.Command)

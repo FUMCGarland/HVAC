@@ -61,7 +61,6 @@ func (s *ScheduleList) writeToStore() error {
 		log.Error(err.Error())
 		return err
 	}
-	log.Info("ScheduleList writeToStore", "s", *s)
 
 	j, err := json.Marshal(s)
 	if err != nil {
@@ -69,7 +68,6 @@ func (s *ScheduleList) writeToStore() error {
 		return err
 	}
 
-	log.Info("writing", "e", s, "json", j)
 	if _, err := fd.Write(j); err != nil {
 		log.Error(err.Error())
 		return err
@@ -127,7 +125,7 @@ func (s *ScheduleList) GetEntry(id uint8) *ScheduleEntry {
 
 // AddEntry adds a new entry to the list of jobs to run
 func (s *ScheduleList) AddEntry(e *ScheduleEntry) error {
-	log.Info("adding entry", "e", e)
+	log.Debug("adding entry", "e", e)
 
 	if len(e.Weekdays) == 0 {
 		err := fmt.Errorf("cannot schedule an entry not on any days")
@@ -198,7 +196,7 @@ func buildJob(e *ScheduleEntry) error {
 		),
 		gocron.NewTask(
 			func() {
-				log.Info("starting scheduled entry", "e", e)
+				log.Debug("starting scheduled entry", "e", e)
 				for _, zone := range e.Zones {
 					log.Info("starting zone", "zone", zone, "duration", e.RunTime.Minutes())
 					zone.Start(e.RunTime, "scheduled")
@@ -228,7 +226,7 @@ func (s *ScheduleList) RemoveEntry(id uint8) {
 	log.Info("removing job from schedule", "id", id)
 	sz.RemoveByTags(fmt.Sprintf("%d", id))
 	s.List = append(s.List[:index], s.List[index+1:]...)
-	log.Info("new schedule", "s", s.List)
+	log.Debug("new schedule", "s", s.List)
 	_ = s.writeToStore()
 }
 
