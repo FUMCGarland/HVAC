@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -16,11 +17,20 @@ import (
 )
 
 func main() {
+	filename := flag.String("f", "/etc/relay-module.json", "Path to the config file")
+	debug := flag.Bool("d", false, "Verbose logging")
+
+	flag.Parse()
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGHUP, os.Interrupt)
 	defer stop()
 
-	// TODO: flag for debugging
-	rc, err := load("/etc/relay-module.json")
+	log.Start()
+	if *debug {
+		log.EnableDebug()
+	}
+
+	rc, err := load(*filename)
 	if err != nil {
 		panic(err.Error())
 	}

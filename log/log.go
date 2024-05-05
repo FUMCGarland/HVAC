@@ -15,7 +15,6 @@ func Start() *slog.Logger {
 	// create a log destination on MQTT?
 
 	l = log
-
 	return log
 }
 
@@ -42,4 +41,9 @@ func Warn(title string, args ...interface{}) {
 func Fatal(title string, args ...interface{}) {
 	l.Error(title, args...)
 	panic(title)
+}
+
+func EnableDebug() {
+	l.Info("Verbose Logging Enabled")
+	slog.SetLogLoggerLevel(slog.LevelDebug)
 }

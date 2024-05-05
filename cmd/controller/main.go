@@ -23,7 +23,13 @@ func main() {
 	configPathPtr := flag.String("f", "/etc/hvac.json", "Path to the config file")
 	dump := flag.Bool("c", false, "Print the parsed config and exist")
 	help := flag.Bool("h", false, "Print the help screen and exit")
+	debug := flag.Bool("d", false, "Verbose logging")
+
 	flag.Parse()
+
+	if *debug {
+		log.EnableDebug()
+	}
 
 	if *help {
 		flag.PrintDefaults()
