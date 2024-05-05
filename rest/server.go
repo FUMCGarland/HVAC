@@ -42,7 +42,7 @@ func Start(c *hvac.Config, done <-chan bool) {
 	<-done
 	log.Info("Shutting down REST server")
 	if err := srv.Shutdown(context.Background()); err != nil {
-		log.Info(err.Error())
+		log.Error(err.Error())
 	}
 }
 
