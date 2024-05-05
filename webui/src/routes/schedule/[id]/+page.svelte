@@ -18,21 +18,19 @@
 	import { redirect } from '@sveltejs/kit';
 
 	export let data;
-	data.RunTime = data.RunTime;
+
 	const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	const selectedwd = weekdays.map(() => false);
 	data.Weekdays.forEach((d) => {
 		selectedwd[d] = true;
 	});
-
-	$: visiblepumps = data.System.Pumps.filter((p) => {
-		return data.Mode == p.SystemMode;
+	data.System.Zones.forEach((z) => {
+		z.selected = false;
 	});
-	$: activeloops = visiblepumps.map((p) => {
-		if (p.selected === true) return p.Loop;
-	});
-	$: visibleblowers = data.System.Blowers.filter((b) => {
-		if (activeloops.includes(b.HotLoop) || activeloops.includes(b.ColdLoop)) return b;
+	parseZones(data.Zones).forEach((zid) => {
+		data.System.Zones.forEach((z) => {
+			if (zid == z.ID) z.selected = true;
+		});
 	});
 
 	function modeString(mode) {
@@ -45,16 +43,9 @@
 	}
 
 	// comes across as a byte string of UTF8...
-	function parsePumps(p) {
+	function parseZones(p) {
 		const e = new TextEncoder();
 		const u = e.encode(atob(p));
-		return u;
-	}
-
-	// comes across as a byte string of UTF8...
-	function parseBlowers(b) {
-		let e = new TextEncoder();
-		let u = e.encode(atob(b));
 		return u;
 	}
 
@@ -74,16 +65,7 @@
 				}),
 			Starttime: data.StartTime,
 			Runtime: Number(data.RunTime),
-			Pumps: visiblepumps
-				.filter((p) => {
-					if (p.selected === true) return p;
-				})
-				.map((p) => p.ID),
-			Blowers: visibleblowers
-				.filter((b) => {
-					if (b.selected === true) return b;
-				})
-				.map((b) => b.ID)
+			Zones: data.System.Zones.filter((z) => z.selected).map((z) => z.ID)
 		};
 		await putSchedule(c);
 		data.RunTime = data.RunTime;
@@ -120,7 +102,6 @@
 		<TableBodyRow>
 			<TableBodyCell>Weekdays</TableBodyCell>
 			<TableBodyCell>
-				{parseWeekdays(data.Weekdays)}<br />
 				<Button
 					>Weekdays<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button
 				>
@@ -132,30 +113,13 @@
 			</TableBodyCell>
 		</TableBodyRow>
 		<TableBodyRow>
-			<TableBodyCell>Pumps</TableBodyCell>
-			<TableBodyCell
-				>{parsePumps(data.Pumps)}<br />
-				<Button>Pumps<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button>
+			<TableBodyCell>Zones</TableBodyCell>
+			<TableBodyCell>
+				<Button>Zones<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button>
 				<Dropdown class="w-44 space-y-3 p-3 text-sm">
-					{#each visiblepumps as pump, index}
+					{#each data.System.Zones as z}
 						<li>
-							<Checkbox value={pump.ID} bind:checked={pump.selected}>{pump.Name}</Checkbox>
-						</li>
-					{/each}
-				</Dropdown>
-			</TableBodyCell>
-		</TableBodyRow>
-		<TableBodyRow>
-			<TableBodyCell>Blowers</TableBodyCell>
-			<TableBodyCell
-				>{parseBlowers(data.Blowers)}<br />
-				<Button
-					>Blowers<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button
-				>
-				<Dropdown class="w-44 space-y-3 p-3 text-sm">
-					{#each visibleblowers as blower, index}
-						<li>
-							<Checkbox value={blower.ID} bind:checked={blower.selected}>{blower.Name}</Checkbox>
+							<Checkbox value={z.ID} bind:checked={z.selected}>{z.Name}</Checkbox>
 						</li>
 					{/each}
 				</Dropdown>

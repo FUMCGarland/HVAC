@@ -256,7 +256,6 @@ export async function putSchedule(cmd) {
 		},
 		body: JSON.stringify(cmd)
 	};
-	console.log('request built', request, cmd);
 
 	const response = await fetch(`${hvaccontroller}/api/v1/sched/${cmd.ID}`, request);
 	const payload = await response.json();
