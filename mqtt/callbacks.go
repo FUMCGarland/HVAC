@@ -53,6 +53,7 @@ func blowerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 
 		c := hvac.GetConfig()
 		if c.SystemMode == hvac.SystemModeCool {
+			// TODO need pump.BlowersRunning()
 			blowerRunning := false
 			for k := range c.Blowers {
 				if blower.ColdLoop == c.Blowers[k].ColdLoop && c.Blowers[k].Running {
@@ -108,6 +109,13 @@ func pumpCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet
 			// now stopped, log stop time
 			pump.LastStopTime = time.Now()
 			pump.LastStartTime = pump.CurrentStartTime
+
+			// shut down the chiller if no other pumps are running for it
+			c := hvac.GetConfig()
+			chid := c.GetChillerFromLoop(pump.Loop)
+			if !chid.PumpsRunning() {
+				chid.Stop("internal")
+			}
 		}
 	}
 }
@@ -122,13 +130,13 @@ func chillerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pac
 		return
 	}
 
-	chiller := (hvac.PumpID(cn)).Get()
+	chiller := (hvac.ChillerID(cn)).Get()
 	if chiller == nil {
 		log.Error("unknown chiller", "chiller", cn)
 		return
 	}
 
-	response := hvac.PumpResponse{}
+	response := hvac.ChillerResponse{}
 	if err := json.Unmarshal(pk.Payload, &response); err != nil {
 		log.Error("bad response", "chiller", cn, "res", pk.Payload, "err", err.Error())
 		return

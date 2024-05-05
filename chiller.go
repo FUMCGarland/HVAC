@@ -167,3 +167,15 @@ func (c *Config) GetChillerFromLoop(id LoopID) ChillerID {
 	}
 	return ChillerID(0)
 }
+
+func (ch ChillerID) PumpsRunning() bool {
+	chiller := ch.Get()
+	for _, l := range chiller.Loops {
+		p := c.GetPumpFromLoop(l)
+		pump := p.Get()
+		if pump.Running {
+			return true
+		}
+	}
+	return false
+}
