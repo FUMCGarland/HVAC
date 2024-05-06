@@ -115,9 +115,11 @@ func (z *Zone) readFromStore() error {
 }
 
 func (z ZoneID) Stop(msg string) {
-	// stop the blowers & pumps/chiller will cascade if necessary
+	log.Debug("stopping zone", "ID", z, "msg", msg)
+
 	for k := range c.Blowers {
 		if c.Blowers[k].Zone == z && c.Blowers[k].Running {
+			log.Info("stopping blower on zone", "zone", c.Blowers[k].ID)
 			c.Blowers[k].ID.Stop(msg)
 		}
 	}
@@ -126,7 +128,7 @@ func (z ZoneID) Stop(msg string) {
 		// shut down the radiant loops for the zone
 		for k := range c.Loops {
 			if c.Loops[k].RadiantZone == z {
-				pump := c.GetPumpFromLoop(c.Loops[k].ID)
+				pump := c.getPumpFromLoop(c.Loops[k].ID)
 				if pump.Get().Running {
 					pump.Stop(msg)
 				}

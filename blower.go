@@ -35,7 +35,7 @@ func (b BlowerID) Get() *Blower {
 	return nil
 }
 
-func (b BlowerID) CanEnable() error {
+func (b BlowerID) canEnable() error {
 	if c.ControlMode == ControlOff {
 		err := fmt.Errorf("system off, not starting blower")
 		return err
@@ -103,7 +103,8 @@ func (b *Blower) readFromStore() error {
 }
 
 func (b BlowerID) Start(duration time.Duration, source string) error {
-	if err := b.CanEnable(); err != nil {
+	if err := b.canEnable(); err != nil {
+		log.Error("cannot enable blower", "id", b, "err", err.Error())
 		return err
 	}
 
@@ -130,6 +131,41 @@ func (b BlowerID) Start(duration time.Duration, source string) error {
 }
 
 func (b BlowerID) Stop(source string) {
+	// if we are the last active blower on the loop, ensure that the pump is shut down
+	last := true
+	blower := b.Get()
+	for k := range c.Blowers {
+		// skip self
+		if c.Blowers[k].ID == b {
+			continue
+		}
+		// if anything else on the same hot loop is running, skip
+		if c.SystemMode == SystemModeHeat && c.Blowers[k].HotLoop == blower.HotLoop && c.Blowers[k].Running {
+			last = false
+			break
+		}
+		// if anything else on the same cold loop is running, skip
+		if c.SystemMode == SystemModeCool && c.Blowers[k].ColdLoop == blower.ColdLoop && c.Blowers[k].Running {
+			last = false
+			break
+		}
+	}
+
+	if last {
+		log.Info("last running blower on loop, getting pump")
+		pl := PumpID(0)
+		if c.SystemMode == SystemModeHeat {
+			pl = c.getPumpFromLoop(blower.HotLoop)
+		} else {
+			pl = c.getPumpFromLoop(blower.ColdLoop)
+		}
+		pump := pl.Get()
+		log.Info("pump", "id", pl, "pump", pump)
+		if pump.Running {
+			pump.ID.Stop("internal")
+		}
+	}
+
 	cc := MQTTRequest{
 		Device: b,
 		Command: Command{

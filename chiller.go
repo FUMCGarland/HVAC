@@ -32,11 +32,11 @@ func (p ChillerID) Get() *Chiller {
 	return nil
 }
 
-// CanEnable
+// canEnable
 // (1) the SystemMode must be cooling
 // (2) a cool pump must be running (which implies a blower running)
 // (3) don't fast-cycle the chillers, if you stop it, leave it stopped for at least 5(?) minutes
-func (ch ChillerID) CanEnable() error {
+func (ch ChillerID) canEnable() error {
 	if c.ControlMode == ControlOff {
 		err := fmt.Errorf("system off, not starting chiller")
 		return err
@@ -119,7 +119,8 @@ func (ch *Chiller) readFromStore() error {
 }
 
 func (ch ChillerID) Start(duration time.Duration, source string) error {
-	if err := ch.CanEnable(); err != nil {
+	if err := ch.canEnable(); err != nil {
+		log.Error("cannot enable ch", "id", ch, "err", err.Error())
 		return err
 	}
 
@@ -157,7 +158,7 @@ func (ch ChillerID) Stop(source string) {
 	cmdChan <- cc
 }
 
-func (c *Config) GetChillerFromLoop(id LoopID) ChillerID {
+func (c *Config) getChillerFromLoop(id LoopID) ChillerID {
 	for k := range c.Chillers {
 		for j := range c.Chillers[k].Loops {
 			if c.Chillers[k].Loops[j] == id {
@@ -171,7 +172,7 @@ func (c *Config) GetChillerFromLoop(id LoopID) ChillerID {
 func (ch ChillerID) PumpsRunning() bool {
 	chiller := ch.Get()
 	for _, l := range chiller.Loops {
-		p := c.GetPumpFromLoop(l)
+		p := c.getPumpFromLoop(l)
 		pump := p.Get()
 		if pump.Running {
 			return true

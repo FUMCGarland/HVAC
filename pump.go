@@ -33,11 +33,11 @@ func (p PumpID) Get() *Pump {
 	return nil
 }
 
-// CanEnable
+// canEnable
 // (1) the loop SystemMode must match the current SystemMode -- no running Hot loops in cooling mode
 // (2) at least one blower on the loop must be running in cool mode lest the system freeze over
 // (3) don't fast-cycle the pumps, if you stop it, leave it stopped for at least 5(?) minutes
-func (p PumpID) CanEnable() error {
+func (p PumpID) canEnable() error {
 	if c.ControlMode == ControlOff {
 		err := fmt.Errorf("system off, not starting pump")
 		return err
@@ -72,7 +72,7 @@ func (p PumpID) CanEnable() error {
 	return nil
 }
 
-func (c *Config) GetPumpFromLoop(id LoopID) PumpID {
+func (c *Config) getPumpFromLoop(id LoopID) PumpID {
 	for k := range c.Pumps {
 		if c.Pumps[k].Loop == id {
 			return c.Pumps[k].ID
@@ -133,7 +133,8 @@ func (p *Pump) readFromStore() error {
 }
 
 func (p PumpID) Start(duration time.Duration, source string) error {
-	if err := p.CanEnable(); err != nil {
+	if err := p.canEnable(); err != nil {
+		log.Error("cannot enable pump", "id", p, "err", err.Error())
 		return err
 	}
 
@@ -160,6 +161,36 @@ func (p PumpID) Start(duration time.Duration, source string) error {
 }
 
 func (p PumpID) Stop(source string) {
+	// if we are the last active blower on the loop, ensure that the pump is shut down
+	last := true
+	pump := p.Get()
+	for k := range c.Pumps {
+		// if heating no need to stop chiller
+		if c.SystemMode == SystemModeHeat {
+			last = false
+			break
+		}
+
+		// skip self
+		if c.Pumps[k].ID == p {
+			continue
+		}
+
+		// something else is running, we aren't last
+		if c.Pumps[k].Running {
+			last = false
+			break
+		}
+	}
+
+	if last {
+		cid := c.getChillerFromLoop(pump.Loop)
+		chiller := cid.Get()
+		if cid != 0 && chiller.Running {
+			chiller.ID.Stop("internal")
+		}
+	}
+
 	log.Info("stopping pump", "pumpID", p)
 	cc := MQTTRequest{
 		Device: p,

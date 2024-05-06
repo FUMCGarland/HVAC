@@ -30,7 +30,7 @@ type ChillerResponse Response
 type ZoneResponse Response
 
 type DeviceID interface {
-	CanEnable() error
+	canEnable() error
 	// Get() device
 	Start(time.Duration, string) error
 	Stop(string)
