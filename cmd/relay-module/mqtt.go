@@ -213,11 +213,11 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 	}
 
 	if relay == nil {
-		log.Debug("request for another controller", "mode", mode, "id", id, "state", cmd.TargetState)
+		log.Debug("request for another relay-module", "mode", mode, "id", id, "state", cmd.TargetState)
 		return true, nil
 	}
 
-	log.Debug("Toggling Relay", "pin", relay.Pin, "state", cmd.TargetState, "duration", cmd.RunTime.Minutes())
+	log.Debug("Relay-Module: Toggling Relay", "pin", relay.Pin, "state", cmd.TargetState, "duration", cmd.RunTime.Minutes())
 	if !cmd.TargetState {
 		stopRelay(context.Background(), relay)
 		return true, nil
@@ -271,20 +271,21 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 		}
 	} else {
 		// if not running, record start time and start the relay
+		log.Debug("starting relay")
 		relay.StartTime = time.Now()
 		if err := setRelayState(relay.Pin, true); err != nil {
 			log.Error(err.Error())
 			return true, nil
 		}
 		relay.StopTime = time.Now().Add(time.Duration(cmd.RunTime))
-	}
 
-	// now record the running state
-	relay.Running = true
+		// now record the running state
+		relay.Running = true
+	}
 
 	// Send confirmation
 	if err := sendUpdate(context.Background(), rc, relay, &hvac.Response{
-		CurrentState:  true,
+		CurrentState:  relay.Running,
 		RanTime:       0, // zero on confirmation
 		TimeRemaining: time.Until(relay.StopTime),
 	}); err != nil {
@@ -319,6 +320,7 @@ func sendUpdate(ctx context.Context, rc *RelayConf, relay *hvac.Relay, response 
 		log.Error("json marshal response failed", "err", err.Error())
 		return err
 	}
+	log.Debug("sendUpdate", "topic", topic, "payload", payload)
 
 	if _, err = client.Publish(ctx, &paho.Publish{
 		QoS:     0,
