@@ -5,7 +5,7 @@ go 1.21.6
 require (
 	github.com/brutella/dnssd v1.2.10
 	github.com/eclipse/paho.golang v0.21.0
-	github.com/go-co-op/gocron/v2 v2.4.0
+	github.com/go-co-op/gocron/v2 v2.4.1
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/mochi-mqtt/server/v2 v2.6.3
 	github.com/warthog618/go-gpiocdev v0.9.0
