@@ -158,7 +158,7 @@ func (ch ChillerID) Stop(source string) {
 	cmdChan <- cc
 }
 
-func (c *Config) getChillerFromLoop(id LoopID) ChillerID {
+func (c *Config) GetChillerFromLoop(id LoopID) ChillerID {
 	for k := range c.Chillers {
 		for j := range c.Chillers[k].Loops {
 			if c.Chillers[k].Loops[j] == id {

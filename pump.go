@@ -184,7 +184,7 @@ func (p PumpID) Stop(source string) {
 	}
 
 	if last {
-		cid := c.getChillerFromLoop(pump.Loop)
+		cid := c.GetChillerFromLoop(pump.Loop)
 		chiller := cid.Get()
 		if cid != 0 && chiller.Running {
 			chiller.ID.Stop("internal")
