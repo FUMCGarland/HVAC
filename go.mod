@@ -1,6 +1,6 @@
 module github.com/FUMCGarland/hvac
 
-go 1.21.6
+go 1.22.0
 
 require (
 	github.com/brutella/dnssd v1.2.10
