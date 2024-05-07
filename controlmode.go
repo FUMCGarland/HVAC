@@ -7,6 +7,7 @@ import (
 	"path"
 )
 
+// ControlModeT is the real ControlMode type, used everywhere except the REST request; just simplify the REST...
 type ControlModeT uint8
 
 const (
@@ -18,6 +19,7 @@ const (
 
 var systemControlModeStrings = []string{"manual", "schedule", "temp", "off"}
 
+// ControlMode is the JSON wireformat for the REST request, dumbly named, probably unnecessary
 type ControlMode struct {
 	ControlMode ControlModeT
 }

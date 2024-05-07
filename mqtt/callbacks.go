@@ -182,5 +182,29 @@ func tempCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet
 		return
 	}
 	log.Debug("recording temp", "room", rn, "temp", temp)
-	room.Temperature = uint8(temp)
+	room.SetTemp(uint8(temp))
+}
+
+func humidityCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
+	log.Debug("humidityCallbackFn", "data", pk.Payload)
+
+	ts := strings.Split(pk.TopicName, "/")
+	rn, err := strconv.ParseInt(ts[2], 10, 16)
+	if err != nil {
+		log.Error("invalid room number", "topic", pk.TopicName, "parsed", rn, "error", err.Error())
+		return
+	}
+	humidity, err := strconv.ParseInt(string(pk.Payload), 10, 8)
+	if err != nil {
+		log.Error("invalid humidity", "topic", pk.TopicName, "raw", pk.Payload, "parsed", humidity, "error", err.Error())
+		return
+	}
+
+	room := (hvac.RoomID(rn)).Get()
+	if room == nil {
+		log.Error("unknown room number", "room", rn)
+		return
+	}
+	log.Debug("recording humidity", "room", rn, "humidity", humidity)
+	room.SetHumidity(uint8(humidity))
 }

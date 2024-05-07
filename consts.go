@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+const defaultRunDuration time.Duration = (1 * time.Hour)
+
 // TODO: implement this
 const MaxPumpRunTime time.Duration = (6 * time.Hour)
 const MinPumpRunTime time.Duration = (30 * time.Minute)
