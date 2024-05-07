@@ -32,9 +32,10 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 	m.PUT("/api/v1/system/control", authMW(putControl, AuthLevelAdmin)) // manual, schedule, or temp-sensor
 
 	// manual control
-	m.PUT("/api/v1/pump/:id/target", authMW(putPump, AuthLevelControl))      // manually start/stop a pump
-	m.PUT("/api/v1/blower/:id/target", authMW(putBlower, AuthLevelControl))  // manually start/stop a blower
-	m.PUT("/api/v1/zone/:id/target", authMW(putZoneStart, AuthLevelControl)) // manually start/stop an entire zone
+	m.PUT("/api/v1/pump/:id/target", authMW(putPump, AuthLevelControl))       // manually start/stop a pump
+	m.PUT("/api/v1/blower/:id/target", authMW(putBlower, AuthLevelControl))   // manually start/stop a blower
+	m.PUT("/api/v1/blower/:id/filter", authMW(resetFilter, AuthLevelControl)) // reset the filter time
+	m.PUT("/api/v1/zone/:id/target", authMW(putZoneStart, AuthLevelControl))  // manually start/stop an entire zone
 
 	// manual system scheduling
 	m.GET("/api/v1/schedule", authMW(getSchedule, AuthLevelView))           // get entire schedule

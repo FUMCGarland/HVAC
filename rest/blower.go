@@ -55,3 +55,25 @@ func putBlower(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	fmt.Fprint(w, jsonStatusOK)
 }
+
+func resetFilter(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	headers(w, r)
+
+	inid, err := strconv.ParseInt(ps.ByName("id"), 10, 8)
+	if err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+	id := hvac.BlowerID(inid)
+	p := id.Get()
+	if p == nil {
+		err := fmt.Errorf("unknown blower %d", id)
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+	p.FilterTime = 0
+
+	fmt.Fprint(w, jsonStatusOK)
+}
