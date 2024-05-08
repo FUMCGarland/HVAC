@@ -25,6 +25,7 @@
 		<TableHeadCell>Name</TableHeadCell>
 		<TableHeadCell>Zone</TableHeadCell>
 		<TableHeadCell>Temperature</TableHeadCell>
+		<TableHeadCell>Humidity</TableHeadCell>
 	</TableHead>
 	<TableBody>
 		{#each data.Rooms as room}
@@ -32,6 +33,7 @@
 				<TableBodyCell><A href="/room/{room.ID}">{room.Name}</A></TableBodyCell>
 				<TableBodyCell><A href="/zone/{room.Zone}">{zoneName(room.Zone)}</A></TableBodyCell>
 				<TableBodyCell>{room.Temperature}</TableBodyCell>
+				<TableBodyCell>{room.Humidity}</TableBodyCell>
 			</TableBodyRow>
 		{/each}
 	</TableBody>
