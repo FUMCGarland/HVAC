@@ -1,9 +1,9 @@
 package hvac
 
 import (
-    "time"
+	"time"
 
-    "github.com/FUMCGarland/hvac/log"
+	"github.com/FUMCGarland/hvac/log"
 )
 
 type RoomID uint16
@@ -36,8 +36,10 @@ func (r *Room) SetTemp(temp uint8) {
 		var avgCnt uint8
 		var avgTot uint8
 		var avg uint8
+		hourAgo := time.Now().Add(0 - time.Hour)
 		for k := range c.Rooms {
-			if c.Rooms[k].Zone == zone.ID && c.Rooms[k].Temperature != 0 { // & LastUpdate ...
+			// in the zone, and not zero, and more recent than an hour ago
+			if c.Rooms[k].Zone == zone.ID && c.Rooms[k].Temperature != 0 && c.Rooms[k].LastUpdate.After(hourAgo) {
 				avgCnt++
 				avgTot += c.Rooms[k].Temperature
 			}
@@ -52,7 +54,7 @@ func (r *Room) SetTemp(temp uint8) {
 		// return // we are just logging now...
 	}
 
-    log.Info("room temp update", "room", r.Name, "room temp", r.Temperature, "zone avg", temp);
+	log.Info("room temp update", "room", r.Name, "room temp", r.Temperature, "zone avg", temp)
 
 	switch c.SystemMode {
 	case SystemModeHeat:
