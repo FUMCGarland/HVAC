@@ -1,5 +1,11 @@
 package hvac
 
+import (
+    "time"
+
+    "github.com/FUMCGarland/hvac/log"
+)
+
 type RoomID uint16
 
 type Room struct {
@@ -8,6 +14,7 @@ type Room struct {
 	Zone        ZoneID
 	Temperature uint8
 	Humidity    uint8
+	LastUpdate  time.Time
 	Occupied    bool
 }
 
@@ -22,39 +29,50 @@ func (r RoomID) Get() *Room {
 
 func (r *Room) SetTemp(temp uint8) {
 	r.Temperature = temp
-
-	if c.ControlMode != ControlTemp {
-		return
-	}
-
-	// this is too naïve
-	// check all rooms in zone, exclude zeros, build avg?
-	// once a hour? set everything to zero to skip dead sensors
-
-	// we could get into a state where there is a legit 7 degree difference between two rooms and trigger a battle
-	// hold-down timers won't solve that
-	// also, finish the hold-down timer logic
+	r.LastUpdate = time.Now()
 
 	zone := r.Zone.Get()
+	{
+		var avgCnt uint8
+		var avgTot uint8
+		var avg uint8
+		for k := range c.Rooms {
+			if c.Rooms[k].Zone == zone.ID && c.Rooms[k].Temperature != 0 { // & LastUpdate ...
+				avgCnt++
+				avgTot += c.Rooms[k].Temperature
+			}
+			avg = avgTot / avgCnt
+		}
+		if avg != 0 {
+			temp = avg
+		}
+	}
+
+	if c.ControlMode != ControlTemp {
+		// return // we are just logging now...
+	}
+
+    log.Info("room temp update", "room", r.Name, "room temp", r.Temperature, "zone avg", temp);
+
 	switch c.SystemMode {
 	case SystemModeHeat:
-		// TODO deal with zone average first
-		if (r.Occupied && temp < zone.Targets.HeatingOccupiedTemp-3) || (!r.Occupied && temp < zone.Targets.HeatingUnoccupiedTemp-3) {
-			zone.ID.Start(defaultRunDuration, "temp")
+		if (r.Occupied && temp < zone.Targets.HeatingOccupiedTemp-zoneHysterisisRange) || (!r.Occupied && temp < zone.Targets.HeatingUnoccupiedTemp-zoneHysterisisRange) {
+			// zone.ID.Start(defaultRunDuration, "temp")
 			return
 		}
-		if (r.Occupied && temp > zone.Targets.HeatingOccupiedTemp+3) || (!r.Occupied && temp < zone.Targets.HeatingUnoccupiedTemp+3) {
-			zone.ID.Stop("temp")
+		if (r.Occupied && temp > zone.Targets.HeatingOccupiedTemp+zoneHysterisisRange) || (!r.Occupied && temp < zone.Targets.HeatingUnoccupiedTemp+zoneHysterisisRange) {
+			// zone.ID.Stop("temp")
 			return
 		}
 	case SystemModeCool:
-		// TODO deal with zone average first
-		if (r.Occupied && temp > zone.Targets.CoolingOccupiedTemp+3) || (!r.Occupied && temp > zone.Targets.CoolingUnoccupiedTemp+3) {
-			zone.ID.Start(defaultRunDuration, "temp")
+		if (r.Occupied && temp > zone.Targets.CoolingOccupiedTemp+zoneHysterisisRange) || (!r.Occupied && temp > zone.Targets.CoolingUnoccupiedTemp+zoneHysterisisRange) {
+			log.Info("would start zone if this were done")
+			// zone.ID.Start(defaultRunDuration, "temp")
 			return
 		}
-		if (r.Occupied && temp < zone.Targets.CoolingOccupiedTemp-3) || (!r.Occupied && temp > zone.Targets.CoolingUnoccupiedTemp-3) {
-			zone.ID.Stop("temp")
+		if (r.Occupied && temp < zone.Targets.CoolingOccupiedTemp-zoneHysterisisRange) || (!r.Occupied && temp > zone.Targets.CoolingUnoccupiedTemp-zoneHysterisisRange) {
+			log.Info("would stop zone if this were done")
+			// zone.ID.Stop("temp")
 			return
 		}
 	}
@@ -62,9 +80,5 @@ func (r *Room) SetTemp(temp uint8) {
 
 func (r *Room) SetHumidity(humidity uint8) {
 	r.Humidity = humidity
-
-	/* if c.ControlMode != ControlTemp {
-		return
-	} */
 	// nothing to do other than accept the update
 }
