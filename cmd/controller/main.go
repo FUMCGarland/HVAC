@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/FUMCGarland/hvac"
+	"github.com/FUMCGarland/hvac/datalogger"
 	"github.com/FUMCGarland/hvac/dnssd"
 	"github.com/FUMCGarland/hvac/log"
 	"github.com/FUMCGarland/hvac/mqtt"
@@ -71,6 +72,14 @@ func main() {
 		defer wg.Done()
 		hvacdnssd.Start(ctx, c)
 		log.Info("DNSSD down")
+		cancel()
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		datalogger.DataLogger(ctx)
+		log.Info("DataLogger down")
 		cancel()
 	}()
 
