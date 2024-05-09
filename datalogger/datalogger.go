@@ -41,7 +41,7 @@ func DataLogger(ctx context.Context) {
 		case <-ticker.C:
 			writeLine(c)
 		case <-ctx.Done():
-			break
+			return
 		}
 	}
 }
@@ -49,7 +49,7 @@ func DataLogger(ctx context.Context) {
 func writeHeader(c *hvac.Config) {
 	var b strings.Builder
 
-	b.WriteString("Date,OutsideTemp")
+	b.WriteString("Date,OutsideTemp,OusideHumidity")
 	for k := range c.Blowers {
 		b.WriteString(",")
 		b.WriteString(c.Blowers[k].Name)
@@ -87,8 +87,8 @@ func writeLine(c *hvac.Config) {
 	var b strings.Builder
 
 	b.WriteString(time.Now().String())
-	b.WriteString(",")
-	b.WriteString("0")
+	t, h := getOutsideTemp(c)
+	b.WriteString(fmt.Sprintf(",%.2f,%d", t, h))
 	for k := range c.Blowers {
 		b.WriteString(",")
 		b.WriteString(boolstr(c.Blowers[k].Running))

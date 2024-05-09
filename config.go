@@ -28,15 +28,17 @@ type Config struct {
 	// the file that contains the HTTP authentication creds
 	HTTPAuthData string
 	// the location of the datalog files
-	DataLogFile string
-	Blowers     []Blower
-	Chillers    []Chiller
-	Dampers     []Damper
-	Loops       []Loop
-	Pumps       []Pump
-	Rooms       []Room
-	Valves      []Valve
-	Zones       []Zone
+	DataLogFile       string
+	OpenWeatherMapKey string
+	OpenWeatherMapID  int
+	Blowers           []Blower
+	Chillers          []Chiller
+	Dampers           []Damper
+	Loops             []Loop
+	Pumps             []Pump
+	Rooms             []Room
+	Valves            []Valve
+	Zones             []Zone
 }
 
 type MQTTConfig struct {
@@ -54,10 +56,12 @@ var defaults *Config = &Config{
 		ID:         "fumcg",
 		ListenAddr: ":1883",
 	},
-	HTTPaddr:      ":8080",
-	HTTPStaticDir: "/usr/local/hvac",
-	HTTPAuthData:  "/etc/hvac-http-auth.json",
-	DataLogFile:   "/var/hvac/datalog.csv",
+	HTTPaddr:          ":8080",
+	HTTPStaticDir:     "/usr/local/hvac",
+	HTTPAuthData:      "/etc/hvac-http-auth.json",
+	DataLogFile:       "/var/hvac/datalog.csv",
+	OpenWeatherMapKey: "",
+	OpenWeatherMapID:  4693003,
 }
 
 func init() {
