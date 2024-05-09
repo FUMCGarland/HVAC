@@ -12,7 +12,7 @@ import (
 // it should fail-safe should the API key expire, or the service shutdown
 
 func getOutsideTemp(c *hvac.Config) (float64, int) {
-	if c.OpenWeatherMapKey == "" {
+	if err := owm.ValidAPIKey(c.OpenWeatherMapKey); err != nil {
 		return 0.0, 0
 	}
 
@@ -22,6 +22,9 @@ func getOutsideTemp(c *hvac.Config) (float64, int) {
 		return 0.0, 0
 	}
 
-	w.CurrentByID(c.OpenWeatherMapID)
+	if err:= w.CurrentByID(c.OpenWeatherMapID); err != nil {
+		log.Error(err.Error())
+		return 0.0, 0
+	}
 	return w.Main.Temp, w.Main.Humidity
 }
