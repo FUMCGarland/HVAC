@@ -22,7 +22,7 @@ func getOutsideTemp(c *hvac.Config) (float64, int) {
 		return 0.0, 0
 	}
 
-	if err:= w.CurrentByID(c.OpenWeatherMapID); err != nil {
+	if err := w.CurrentByID(c.OpenWeatherMapID); err != nil {
 		log.Error(err.Error())
 		return 0.0, 0
 	}

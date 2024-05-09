@@ -24,23 +24,28 @@ import (
 func DataLogger(ctx context.Context) {
 	c := hvac.GetConfig()
 
-	log.SetOutput(&lumberjack.Logger{
+	lj := &lumberjack.Logger{
 		Filename:   c.DataLogFile,
 		MaxSize:    100, // megabytes
 		MaxBackups: 30,
 		MaxAge:     28,   //days
 		Compress:   true, // disabled by default
-	})
+	}
+	log.SetOutput(lj)
 
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
 
+	flags := log.Flags()
+	log.SetFlags(0)
 	writeHeader(c)
+	log.SetFlags(flags)
 	for {
 		select {
 		case <-ticker.C:
 			writeLine(c)
 		case <-ctx.Done():
+			lj.Rotate() // start a new data file for each startup
 			return
 		}
 	}
@@ -49,7 +54,7 @@ func DataLogger(ctx context.Context) {
 func writeHeader(c *hvac.Config) {
 	var b strings.Builder
 
-	b.WriteString(",OutsideTemp,OutsideHumidity")
+	b.WriteString("Date,Outside Temp,Outside Humidity")
 	for k := range c.Blowers {
 		b.WriteString(",")
 		b.WriteString(c.Blowers[k].Name)
