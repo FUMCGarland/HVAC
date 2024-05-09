@@ -21,7 +21,7 @@ import (
 // log file format
 // date, outsideTemp, blower[n].Running, Pump[n].Running, Chiller[n].Running, Room[n].Temp, Room[n].Humidity, Room[n].Target(fromZone)
 
-func dataLogger(ctx context.Context, datadir string) {
+func DataLogger(ctx context.Context, datadir string) {
 	c := hvac.GetConfig()
 
 	log.SetOutput(&lumberjack.Logger{
