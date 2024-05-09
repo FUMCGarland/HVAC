@@ -27,14 +27,16 @@ type Config struct {
 	HTTPStaticDir string
 	// the file that contains the HTTP authentication creds
 	HTTPAuthData string
-	Blowers      []Blower
-	Chillers     []Chiller
-	Dampers      []Damper
-	Loops        []Loop
-	Pumps        []Pump
-	Rooms        []Room
-	Valves       []Valve
-	Zones        []Zone
+	// the location of the datalog files
+	DataLogFile string
+	Blowers     []Blower
+	Chillers    []Chiller
+	Dampers     []Damper
+	Loops       []Loop
+	Pumps       []Pump
+	Rooms       []Room
+	Valves      []Valve
+	Zones       []Zone
 }
 
 type MQTTConfig struct {
@@ -55,6 +57,7 @@ var defaults *Config = &Config{
 	HTTPaddr:      ":8080",
 	HTTPStaticDir: "/usr/local/hvac",
 	HTTPAuthData:  "/etc/hvac-http-auth.json",
+	DataLogFile:   "/var/hvac/datalog.csv",
 }
 
 func init() {
