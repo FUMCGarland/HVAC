@@ -49,7 +49,7 @@ func DataLogger(ctx context.Context) {
 func writeHeader(c *hvac.Config) {
 	var b strings.Builder
 
-	b.WriteString("Date,OutsideTemp,OusideHumidity")
+	b.WriteString(",OutsideTemp,OutsideHumidity")
 	for k := range c.Blowers {
 		b.WriteString(",")
 		b.WriteString(c.Blowers[k].Name)
@@ -86,7 +86,6 @@ func writeHeader(c *hvac.Config) {
 func writeLine(c *hvac.Config) {
 	var b strings.Builder
 
-	b.WriteString(time.Now().String())
 	t, h := getOutsideTemp(c)
 	b.WriteString(fmt.Sprintf(",%.2f,%d", t, h))
 	for k := range c.Blowers {
