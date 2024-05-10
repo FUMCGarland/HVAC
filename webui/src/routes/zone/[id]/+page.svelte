@@ -20,19 +20,18 @@
 	import { updateZoneTargets } from '$lib/hvac.js';
 
 	export let data;
-	let hu = data.HeatingUnoccupiedTemp;
-	let ho = data.HeatingOccupiedTemp;
-	let cu = data.CoolingUnoccupiedTemp;
-	let co = data.CoolingOccupiedTemp;
+	let hu = data.Targets.HeatingUnoccupiedTemp;
+	let ho = data.Targets.HeatingOccupiedTemp;
+	let cu = data.Targets.CoolingUnoccupiedTemp;
+	let co = data.Targets.CoolingOccupiedTemp;
 
 	function update() {
-		const c = {
+		const cmd = JSON.stringify({
 			HeatingUnoccupiedTemp: Number(hu),
 			HeatingOccupiedTemp: Number(ho),
 			CoolingUnoccupiedTemp: Number(cu),
 			CoolingOccupiedTemp: Number(co)
-		};
-		const cmd = JSON.stringify(c);
+		});
 		updateZoneTargets(data.ID, cmd);
 	}
 </script>
