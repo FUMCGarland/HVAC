@@ -123,7 +123,7 @@ func (s *OccupancySchedule) RemoveRecurringEntry(id uint8) {
 }
 
 // EditEntry updates an entry in the OccupancySchedule, keyed based on e.ID
-func (s *OccupancySchedule) EditRecuringEntry(e *OccupancyRecurringEntry) error {
+func (s *OccupancySchedule) EditRecurringEntry(e *OccupancyRecurringEntry) error {
 	index := -1
 	for k := range occupancy.Recurring {
 		if s.Recurring[k].ID == e.ID {
