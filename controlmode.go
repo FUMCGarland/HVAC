@@ -52,20 +52,27 @@ func (c *Config) SetControlMode(cm ControlModeT) error {
 
 	switch cm {
 	case ControlManual:
-		log.Info("stopping scheduler")
+		log.Info("stopping schedulers")
 		StopAll()
-		sz.StopJobs()
+		scheduler.StopJobs()
+		// occScheduler.StopJobs()
+		occScheduler.Start() // during development, won't hurt since the room's occupied flag is ignored if not in temp mode
 		log.Info("control mode manual")
 	case ControlSchedule:
+		// occScheduler.StopJobs()
+		occScheduler.Start() // during development, won't hurt since the room's occupied flag is ignored if not in temp mode
 		log.Info("starting scheduler")
-		sz.Start()
+		scheduler.Start()
 	case ControlTemp:
 		log.Info("stopping scheduler")
-		sz.StopJobs()
-		log.Info("temp mode is not yet written")
+		scheduler.StopJobs()
+		log.Info("starting temp mode")
+		occScheduler.Start()
 	case ControlOff:
-		log.Info("stopping scheduler")
-		sz.StopJobs()
+		log.Info("stopping schedulers")
+		scheduler.StopJobs()
+		// occScheduler.StopJobs()
+		occScheduler.Start() // during development, won't hurt since the room's occupied flag is ignored if not in temp mode
 		StopAll()
 		log.Info("control mode off")
 	}

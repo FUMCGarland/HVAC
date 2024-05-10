@@ -36,6 +36,7 @@ func (p ChillerID) Get() *Chiller {
 // (1) the SystemMode must be cooling
 // (2) a cool pump must be running (which implies a blower running)
 // (3) don't fast-cycle the chillers, if you stop it, leave it stopped for at least 5(?) minutes
+// (4) if anything is below 60degF, do not enable the chiller lest it freeze out
 func (ch ChillerID) canEnable() error {
 	if c.ControlMode == ControlOff {
 		err := fmt.Errorf("system off, not starting chiller")
@@ -62,6 +63,13 @@ func (ch ChillerID) canEnable() error {
 	if !chiller.LastStopTime.Before(time.Now().Add(chillerMinTimeBetweenRuns)) {
 		err := fmt.Errorf("chiller recently stopped, in hold-down state")
 		return err
+	}
+
+	for k := range c.Rooms {
+		if c.Rooms[k].Temperature != 0 && c.Rooms[k].Temperature < chillerLockoutTemp {
+			err := fmt.Errorf("room below %d degF, not enabling chiller: %s", chillerLockoutTemp, c.Rooms[k].Name)
+			return err
+		}
 	}
 
 	return nil

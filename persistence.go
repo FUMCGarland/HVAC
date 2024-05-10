@@ -64,7 +64,14 @@ func (c *Config) loadFromStore() error {
 		log.Error(err.Error())
 		return err
 	}
-	schedule = *s
+	schedule = *s // pointless?
+
+	o, err := readOccupancyFromStore()
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+	occupancy = *o // pointless?
 	return nil
 }
 

@@ -22,3 +22,4 @@ const maxZoneTemp = 85
 
 // this is the "I don't know what I'm doing" part of the project
 const zoneHysterisisRange uint8 = 3 // degF above and below the zone's configured ranges
+const chillerLockoutTemp uint8 = 60 // degF, if too cold, don't run chiller

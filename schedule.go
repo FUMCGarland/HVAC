@@ -19,7 +19,7 @@ type ScheduleList struct {
 }
 
 var schedule ScheduleList
-var sz gocron.Scheduler
+var scheduler gocron.Scheduler
 
 // ScheduleEntry is the definition of a job to be run at specified times
 type ScheduleEntry struct {
@@ -34,7 +34,7 @@ type ScheduleEntry struct {
 
 func init() {
 	var err error
-	sz, err = gocron.NewScheduler()
+	scheduler, err = gocron.NewScheduler()
 	if err != nil {
 		log.Error(err.Error())
 	}
@@ -188,7 +188,7 @@ func buildJob(e *ScheduleEntry) error {
 		attimes = append(attimes, gocron.NewAtTime(uint(hour), uint(minute), 0))
 	}
 
-	_, err := sz.NewJob(
+	_, err := scheduler.NewJob(
 		gocron.WeeklyJob(
 			1,
 			func() []time.Weekday { return e.Weekdays },
@@ -224,7 +224,7 @@ func (s *ScheduleList) RemoveEntry(id uint8) {
 		return
 	}
 	log.Info("removing job from schedule", "id", id)
-	sz.RemoveByTags(fmt.Sprintf("%d", id))
+	scheduler.RemoveByTags(fmt.Sprintf("%d", id))
 	s.List = append(s.List[:index], s.List[index+1:]...)
 	log.Debug("new schedule", "s", s.List)
 	_ = s.writeToStore()
@@ -274,7 +274,7 @@ func (s *ScheduleList) EditEntry(e *ScheduleEntry) error {
 	}
 
 	log.Info("removing job from schedule", "id", e.ID)
-	sz.RemoveByTags(fmt.Sprintf("%d", e.ID))
+	scheduler.RemoveByTags(fmt.Sprintf("%d", e.ID))
 
 	if err := buildJob(e); err != nil {
 		log.Error(err.Error())
