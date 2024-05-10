@@ -3,6 +3,7 @@ module github.com/FUMCGarland/hvac
 go 1.22.0
 
 require (
+	github.com/briandowns/openweathermap v0.19.0
 	github.com/brutella/dnssd v1.2.10
 	github.com/eclipse/paho.golang v0.21.0
 	github.com/go-co-op/gocron/v2 v2.5.0
@@ -15,7 +16,6 @@ require (
 )
 
 require (
-	github.com/briandowns/openweathermap v0.19.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.1 // indirect
 	github.com/jonboulle/clockwork v0.4.0 // indirect
