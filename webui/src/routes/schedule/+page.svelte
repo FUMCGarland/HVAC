@@ -15,10 +15,11 @@
 		Checkbox,
 		Radio,
 		Heading,
+		Hr,
 		A
 	} from 'flowbite-svelte';
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
-	const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+	const weekdays = ['Sun', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
 	const selectedwd = weekdays.map(() => false);
 
 	export let data;
@@ -93,9 +94,25 @@
 					<TableBodyCell>{parseZones(sched.Zones)}</TableBodyCell>
 				</TableBodyRow>
 			{/each}
+		</TableBody>
+	</Table>
+	<Hr />
+	<Table>
+		<TableHead>
+			<TableHeadCell>Name</TableHeadCell>
+			<TableHeadCell>Value</TableHeadCell>
+		</TableHead>
+		<TableBody>
 			<TableBodyRow>
+				<TableBodyCell>ID</TableBodyCell>
 				<TableBodyCell><Input type="text" bind:value={id} /></TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell>Name</TableBodyCell>
 				<TableBodyCell><Input type="text" bind:value={name} /></TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell>Mode</TableBodyCell>
 				<TableBodyCell>
 					<Button>
 						Mode<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" />
@@ -105,6 +122,9 @@
 						<li><Radio name="mode" bind:group={mode} value={1}>Cooling</Radio></li>
 					</Dropdown>
 				</TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell>Weekdays</TableBodyCell>
 				<TableBodyCell>
 					<Button
 						>Weekdays<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button
@@ -115,8 +135,17 @@
 						{/each}
 					</Dropdown>
 				</TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell>Start Time (24-hour hh:mm format)</TableBodyCell>
 				<TableBodyCell><Input type="text" bind:value={starttime} /></TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell>Run Time (minutes)</TableBodyCell>
 				<TableBodyCell><Input type="text" bind:value={runtime} /></TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell>Zones</TableBodyCell>
 				<TableBodyCell>
 					<Button
 						>Zones<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button
@@ -131,7 +160,7 @@
 				</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell colspan="6">&nbsp;</TableBodyCell>
+				<TableBodyCell>&nbsp;</TableBodyCell>
 				<TableBodyCell><Button on:click={doAdd}>Add</Button></TableBodyCell>
 			</TableBodyRow>
 		</TableBody>
