@@ -7,7 +7,6 @@
 		TableHead,
 		TableHeadCell,
 		Heading,
-		P,
 		A
 	} from 'flowbite-svelte';
 

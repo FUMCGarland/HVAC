@@ -15,7 +15,6 @@
 		Checkbox,
 		Radio,
 		Heading,
-		P,
 		A
 	} from 'flowbite-svelte';
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';

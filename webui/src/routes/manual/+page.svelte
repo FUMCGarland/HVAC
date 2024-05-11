@@ -10,11 +10,9 @@
 		TableHead,
 		TableHeadCell,
 		Heading,
-		P,
 		A,
 		Input,
 		Label,
-		Helper,
 		Button
 	} from 'flowbite-svelte';
 	import { zoneStart, zoneStop } from '$lib/hvac.js';

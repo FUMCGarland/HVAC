@@ -1,19 +1,7 @@
 <script>
-	import {
-		Navbar,
-		NavBrand,
-		NavLi,
-		NavUl,
-		NavHamburger,
-		Toast,
-		Heading,
-		P,
-		A
-	} from 'flowbite-svelte';
+	import { Navbar, NavBrand, NavLi, NavUl, NavHamburger, Toast } from 'flowbite-svelte';
 	import { SvelteToast } from '@zerodevx/svelte-toast';
 	import '../app.pcss';
-
-	// export const hvaccontroller = window.location.hostname + ":" + window.location.port;
 </script>
 
 <svelte:window />
@@ -27,10 +15,11 @@
 		</NavBrand>
 		<NavHamburger />
 		<NavUl>
-			<NavLi href="/manual">Manual</NavLi>
-			<NavLi href="/schedule">Schedule</NavLi>
+			<NavLi href="/occupancy">Occupancy</NavLi>
 			<NavLi href="/rooms">Rooms</NavLi>
 			<NavLi href="/zones">Zones</NavLi>
+			<NavLi href="/schedule">Schedule</NavLi>
+			<NavLi href="/manual">Manual</NavLi>
 		</NavUl>
 	</Navbar>
 	<SvelteToast />

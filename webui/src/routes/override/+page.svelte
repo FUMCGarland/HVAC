@@ -8,9 +8,13 @@
 		TableBodyCell,
 		TableBodyRow,
 		TableHead,
-		TableHeadCell
+		TableHeadCell,
+		Heading,
+		A,
+		Input,
+		Label,
+		Button
 	} from 'flowbite-svelte';
-	import { Heading, P, A, Input, Label, Helper, Button } from 'flowbite-svelte';
 	import { blowerStart, blowerStop, pumpStart, pumpStop } from '$lib/hvac.js';
 
 	export let data;

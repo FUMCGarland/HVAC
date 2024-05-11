@@ -1,6 +1,5 @@
 <script>
-	import { P, List, Li } from 'flowbite-svelte';
-	import { Button, Dropdown, DropdownItem } from 'flowbite-svelte';
+	import { P, List, Li, Button, Dropdown, DropdownItem } from 'flowbite-svelte';
 	import { setSystemControlMode } from '$lib/hvac.js';
 
 	export let data;
