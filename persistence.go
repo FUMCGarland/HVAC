@@ -122,5 +122,10 @@ func (c *Config) WriteToStore() error {
 		log.Error(err.Error())
 		return err
 	}
+
+	if err := (&occupancy).writeToStore(); err != nil {
+		log.Error(err.Error())
+		return err
+	}
 	return nil
 }

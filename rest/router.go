@@ -46,13 +46,13 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 	// temp/occupancy based scheduling: requires sensors)
 	m.PUT("/api/v1/zone/:id/temps", authMW(putZoneTemps, AuthLevelControl)) // set target temp range for zone
 
-	m.GET("/api/v1/occupancy/:id", authMW(getOccupancySchedule, AuthLevelView))                     // get entire schedule
+	m.GET("/api/v1/occupancy", authMW(getOccupancySchedule, AuthLevelView))                         // get entire schedule
 	m.POST("/api/v1/occupancy/recurring", authMW(postOccupancyRecurring, AuthLevelControl))         // add a new entry
-	m.PUT("/api/v1/occupancy/recurring/:id", authMW(putRecurring, AuthLevelControl))                // update an occupancy-expected entry
+	m.PUT("/api/v1/occupancy/recurring/:id", authMW(putOccupancyRecurring, AuthLevelControl))       // update an occupancy-expected entry
 	m.DELETE("/api/v1/occupancy/recurring/:id", authMW(deleteOccupancyRecurring, AuthLevelControl)) // update an occupancy-expected entry
 
 	m.POST("/api/v1/occupancy/onetime", authMW(postOccupancyOneTime, AuthLevelControl))         // add a new entry
-	m.PUT("/api/v1/occupancy/onetime/:id", authMW(putOneTime, AuthLevelControl))                // update an occupancy-expected entry
+	m.PUT("/api/v1/occupancy/onetime/:id", authMW(putOccupancyOneTime, AuthLevelControl))       // update an occupancy-expected entry
 	m.DELETE("/api/v1/occupancy/onetime/:id", authMW(deleteOccupancyOneTime, AuthLevelControl)) // update an occupancy-expected entry
 
 	return m

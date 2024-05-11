@@ -81,7 +81,7 @@ func deleteOccupancyRecurring(w http.ResponseWriter, r *http.Request, ps httprou
 	fmt.Fprint(w, jsonStatusOK)
 }
 
-func putRecurring(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func putOccupancyRecurring(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	c := hvac.GetConfig()
 	headers(w, r)
 
@@ -113,6 +113,98 @@ func putRecurring(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 	if err := o.EditRecurringEntry(&e); err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprint(w, jsonStatusOK)
+}
+
+func postOccupancyOneTime(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	c := hvac.GetConfig()
+	headers(w, r)
+
+	e := hvac.OccupancyOneTimeEntry{}
+	if err := json.NewDecoder(r.Body).Decode(&e); err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+	log.Info("adding occupancy entry", "e", e)
+
+	o, err := c.GetOccupancySchedule()
+	if err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	if err := o.AddOneTimeEntry(&e); err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		return
+	}
+
+	fmt.Fprint(w, jsonStatusOK)
+}
+
+func deleteOccupancyOneTime(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	c := hvac.GetConfig()
+	headers(w, r)
+
+	inid, err := strconv.ParseInt(ps.ByName("id"), 10, 8)
+	if err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+	log.Info("removing occupancy entry", "id", inid)
+
+	o, err := c.GetOccupancySchedule()
+	if err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	o.RemoveOneTimeEntry(uint8(inid))
+
+	fmt.Fprint(w, jsonStatusOK)
+}
+
+func putOccupancyOneTime(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	c := hvac.GetConfig()
+	headers(w, r)
+
+	inid, err := strconv.ParseInt(ps.ByName("id"), 10, 8)
+	if err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	e := hvac.OccupancyOneTimeEntry{}
+	if err := json.NewDecoder(r.Body).Decode(&e); err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+	if uint8(inid) != e.ID {
+		err := fmt.Errorf("url ID does not match incoming json")
+		log.Error(err.Error(), "id", inid, "e", e)
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	log.Info("updating occupancy entry", "id", inid, "e", e)
+	o, err := c.GetOccupancySchedule()
+	if err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+	if err := o.EditOneTimeEntry(&e); err != nil {
 		log.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
