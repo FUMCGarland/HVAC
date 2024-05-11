@@ -1,10 +1,8 @@
 import { invalidateAll } from '$app/navigation';
 import { toast } from '@zerodevx/svelte-toast';
 
-console.log('API URL', import.meta.env.VITE_API_URL);
-
-export const hvaccontroller = import.meta.env.VITE_API_URL; // `http://192.168.12.136:8080`;
-export const durationMult = 60000000000;
+export const hvaccontroller = import.meta.env.VITE_API_URL;
+export const durationMult = 60000000000; // TODO Josh wants hours not minutes
 
 // TODO: these are inconsistent, pass in object{} and JSON.stringify() in the body:
 // as in the putSchedule
