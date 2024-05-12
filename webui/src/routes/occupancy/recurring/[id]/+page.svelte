@@ -1,0 +1,114 @@
+<script>
+	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import { putRecurringOccupancy } from '$lib/occupancy';
+	import {
+		Table,
+		TableBody,
+		TableBodyCell,
+		TableBodyRow,
+		TableHead,
+		TableHeadCell,
+		Input,
+		Button,
+		Dropdown,
+		DropdownItem,
+		Checkbox,
+		Radio,
+		Heading,
+		Hr,
+		A
+	} from 'flowbite-svelte';
+	import { ChevronDownOutline } from 'flowbite-svelte-icons';
+	const weekdays = ['Sun', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
+	const selectedwd = weekdays.map(() => false);
+
+	export let data;
+	console.log(data);
+
+	data.SystemRooms.forEach((r) => {
+		r.selected = false;
+		if (data.Rooms.includes(r.ID)) r.selected = true;
+	});
+	data.Weekdays.forEach((d) => {
+		selectedwd[d] = true;
+	});
+
+	function parseRooms(r) {
+		const u = new TextEncoder().encode(atob(r));
+		return data.Rooms.filter((r) => u.includes(r.ID)).map((s) => s.Name);
+	}
+
+	async function doUpdateRecurring() {
+		let c = {
+			ID: Number(data.ID),
+			Name: data.Name,
+			Weekdays: selectedwd
+				.map((n, i) => {
+					if (n) {
+						return i;
+					}
+				})
+				.filter((o) => {
+					return o !== undefined;
+				}),
+			StartTime: data.StartTime,
+			EndTime: data.EndTime,
+			Rooms: data.SystemRooms.filter((r) => r.selected).map((r) => r.ID)
+		};
+		await putRecurringOccupancy(c);
+		goto('/occupancy');
+	}
+</script>
+
+<form>
+	<Table>
+		<TableHead>
+			<TableHeadCell>Name</TableHeadCell>
+			<TableHeadCell>Value</TableHeadCell>
+		</TableHead>
+		<TableBody>
+			<TableBodyRow>
+				<TableBodyCell>ID</TableBodyCell>
+				<TableBodyCell>{data.ID}</TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell>Name</TableBodyCell>
+				<TableBodyCell><Input type="text" bind:value={data.Name} /></TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell>Weekdays</TableBodyCell>
+				<TableBodyCell>
+					<Button
+						>Weekdays<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button
+					>
+					<Dropdown class="w-44 space-y-3 p-3 text-sm">
+						{#each weekdays as wd, index}
+							<li><Checkbox value={wd} bind:checked={selectedwd[index]}>{wd}</Checkbox></li>
+						{/each}
+					</Dropdown>
+				</TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell>Start Time (24-hour hh:mm format)</TableBodyCell>
+				<TableBodyCell><Input type="text" bind:value={data.StartTime} /></TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell>End Time (24-hour hh:mm format)</TableBodyCell>
+				<TableBodyCell><Input type="text" bind:value={data.EndTime} /></TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell>Rooms</TableBodyCell>
+				<TableBodyCell>
+					{#each data.SystemRooms as r}
+						<Checkbox value={r.ID} bind:checked={r.selected}>{r.Name}</Checkbox>
+					{/each}
+				</TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell>&nbsp;</TableBodyCell>
+				<TableBodyCell><Button on:click={() => doUpdateRecurring()}>Add</Button></TableBodyCell>
+			</TableBodyRow>
+		</TableBody>
+	</Table>
+</form>
