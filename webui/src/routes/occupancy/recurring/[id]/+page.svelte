@@ -1,7 +1,7 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import { putRecurringOccupancy } from '$lib/occupancy';
+	import { putRecurringOccupancy, deleteRecurringOccupancy } from '$lib/occupancy';
 	import {
 		Table,
 		TableBody,
@@ -38,6 +38,11 @@
 		const u = new TextEncoder().encode(atob(r));
 		return data.Rooms.filter((r) => u.includes(r.ID)).map((s) => s.Name);
 	}
+
+    async function doDeleteRecurring() {
+      await deleteRecurringOccupancy(data.ID);
+      goto("/occupancy");
+    }
 
 	async function doUpdateRecurring() {
 		let c = {
@@ -106,8 +111,8 @@
 				</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell>&nbsp;</TableBodyCell>
-				<TableBodyCell><Button on:click={() => doUpdateRecurring()}>Add</Button></TableBodyCell>
+				<TableBodyCell><Button on:click={() => doDeleteRecurring()}>Delete</Button></TableBodyCell>
+				<TableBodyCell><Button on:click={() => doUpdateRecurring()}>Update</Button></TableBodyCell>
 			</TableBodyRow>
 		</TableBody>
 	</Table>
