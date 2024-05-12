@@ -33,6 +33,9 @@ func (p PumpID) Get() *Pump {
 	return nil
 }
 
+// TODO: implement this
+var boilerLockout bool
+
 // canEnable
 // (1) the loop SystemMode must match the current SystemMode -- no running Hot loops in cooling mode
 // (2) at least one blower on the loop must be running in cool mode lest the system freeze over

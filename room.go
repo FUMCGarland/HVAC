@@ -58,6 +58,10 @@ func (r *Room) SetTemp(temp DegF) {
 
 	switch c.SystemMode {
 	case SystemModeHeat:
+		if temp > boilerLockoutTemp {
+			log.Info("locking out boiler, room temp too high")
+			boilerLockout = true
+		}
 		if (r.Occupied && temp < zone.Targets.HeatingOccupiedTemp-zoneHysterisisRange) || (!r.Occupied && temp < zone.Targets.HeatingUnoccupiedTemp-zoneHysterisisRange) {
 			// zone.ID.Start(defaultRunDuration, "temp")
 			return
@@ -67,6 +71,10 @@ func (r *Room) SetTemp(temp DegF) {
 			return
 		}
 	case SystemModeCool:
+		if temp < chillerLockoutTemp {
+			log.Info("locking out chiller, room temp too low")
+			chillerLockout = true
+		}
 		if (r.Occupied && temp > zone.Targets.CoolingOccupiedTemp+zoneHysterisisRange) || (!r.Occupied && temp > zone.Targets.CoolingUnoccupiedTemp+zoneHysterisisRange) {
 			log.Info("would start zone if this were done")
 			// zone.ID.Start(defaultRunDuration, "temp")
