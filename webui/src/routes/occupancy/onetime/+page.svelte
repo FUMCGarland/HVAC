@@ -72,8 +72,8 @@
 				.filter((o) => {
 					return o !== undefined;
 				}),
-			StartTime: starttime,
-			EndTime: endtime,
+			Start: start,
+			End: end,
 			Rooms: data.Rooms.filter((r) => r.selected).map((r) => r.ID)
 		};
 		await postRecurringOccupancy(c);
@@ -123,11 +123,11 @@
 			</TableBodyRow>
 			<TableBodyRow>
 				<TableBodyCell>Start Time (24-hour hh:mm format)</TableBodyCell>
-				<TableBodyCell><Input type="text" bind:value={starttime} /></TableBodyCell>
+				<TableBodyCell><Input type="text" bind:value={start} /></TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
 				<TableBodyCell>End Time (24-hour hh:mm format)</TableBodyCell>
-				<TableBodyCell><Input type="text" bind:value={endtime} /></TableBodyCell>
+				<TableBodyCell><Input type="text" bind:value={end} /></TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
 				<TableBodyCell>Rooms</TableBodyCell>
@@ -139,7 +139,7 @@
 			</TableBodyRow>
 			<TableBodyRow>
 				<TableBodyCell>&nbsp;</TableBodyCell>
-				<TableBodyCell><Button on:click={() => doAddRecurring()}>Add</Button></TableBodyCell>
+				<TableBodyCell><Button on:click={() => doAddOneTime()}>Add</Button></TableBodyCell>
 			</TableBodyRow>
 		</TableBody>
 	</Table>
