@@ -1,5 +1,7 @@
 <script>
 	import { goto } from '$app/navigation';
+	import Flatpickr from 'svelte-flatpickr';
+	import 'flatpickr/dist/flatpickr.css';
 	import { onMount } from 'svelte';
 	import { postRecurringOccupancy } from '$lib/occupancy';
 	import {
@@ -22,6 +24,9 @@
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
 	const weekdays = ['Sun', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
 	const selectedwd = weekdays.map(() => false);
+	const options = {
+		enableTime: true
+	};
 
 	export let data;
 	data.Rooms.forEach((r) => {
@@ -30,14 +35,8 @@
 
 	let id = data.Recurring.length + 1; // get highest number and increment
 	let name = 'not set';
-	$: mode = 0;
-	let start = '09:30';
-	let end = '16:30';
-
-	function modeString(mode) {
-		if (mode == 0) return 'heating';
-		return 'cooling';
-	}
+	let start;
+	let end;
 
 	function parseWeekdays(w) {
 		return w.map((p) => weekdays[p]);
@@ -56,29 +55,10 @@
 			End: end,
 			Rooms: data.Rooms.filter((r) => r.selected).map((r) => z.ID)
 		};
-		await postOccupancyOneTime(c);
+		// await postOccupancyOneTime(c);
+		// goto('/occupancy');
+		console.log(c);
 	}
-
-	/* async function doAddRecurring() {
-		let c = {
-			ID: Number(id),
-			Name: name,
-			Weekdays: selectedwd
-				.map((n, i) => {
-					if (n) {
-						return i;
-					}
-				})
-				.filter((o) => {
-					return o !== undefined;
-				}),
-			Start: start,
-			End: end,
-			Rooms: data.Rooms.filter((r) => r.selected).map((r) => r.ID)
-		};
-		await postRecurringOccupancy(c);
-		goto('/occupancy');
-	} */
 </script>
 
 <form>
@@ -97,37 +77,16 @@
 				<TableBodyCell><Input type="text" bind:value={name} /></TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell>Mode</TableBodyCell>
+				<TableBodyCell>Start</TableBodyCell>
 				<TableBodyCell>
-					<Button>
-						Mode<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" />
-					</Button>
-					<Dropdown class="w-44 space-y-3 p-3 text-sm">
-						<li><Radio name="mode" bind:group={mode} value={0}>Heating</Radio></li>
-						<li><Radio name="mode" bind:group={mode} value={1}>Cooling</Radio></li>
-					</Dropdown>
+					<Flatpickr {options} bind:start name="startdate" />
 				</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell>Weekdays</TableBodyCell>
+				<TableBodyCell>End</TableBodyCell>
 				<TableBodyCell>
-					<Button
-						>Weekdays<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button
-					>
-					<Dropdown class="w-44 space-y-3 p-3 text-sm">
-						{#each weekdays as wd, index}
-							<li><Checkbox value={wd} bind:checked={selectedwd[index]}>{wd}</Checkbox></li>
-						{/each}
-					</Dropdown>
+					<Flatpickr {options} bind:end name="enddate" />
 				</TableBodyCell>
-			</TableBodyRow>
-			<TableBodyRow>
-				<TableBodyCell>Start Time (24-hour hh:mm format)</TableBodyCell>
-				<TableBodyCell><Input type="text" bind:value={start} /></TableBodyCell>
-			</TableBodyRow>
-			<TableBodyRow>
-				<TableBodyCell>End Time (24-hour hh:mm format)</TableBodyCell>
-				<TableBodyCell><Input type="text" bind:value={end} /></TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
 				<TableBodyCell>Rooms</TableBodyCell>
