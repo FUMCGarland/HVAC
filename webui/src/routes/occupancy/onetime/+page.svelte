@@ -2,8 +2,7 @@
 	import { goto } from '$app/navigation';
 	import Flatpickr from 'svelte-flatpickr';
 	import 'flatpickr/dist/flatpickr.css';
-	import { onMount } from 'svelte';
-	import { postRecurringOccupancy } from '$lib/occupancy';
+	import { postOneTimeOccupancy } from '$lib/occupancy';
 	import {
 		Table,
 		TableBody,
@@ -13,30 +12,26 @@
 		TableHeadCell,
 		Input,
 		Button,
-		Dropdown,
-		DropdownItem,
-		Checkbox,
-		Radio,
-		Heading,
-		Hr,
-		A
+		Checkbox
 	} from 'flowbite-svelte';
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
-	const weekdays = ['Sun', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
-	const selectedwd = weekdays.map(() => false);
+
 	export let data;
+
 	data.Rooms.forEach((r) => {
 		r.selected = false;
 	});
 
 	let id = data.OneTime.length + 1; // TODO: find lowest unused
 	let name = 'not set';
-	let start = '2000-01-01 11:00';
-	let end = '2000-01-01 13:00';
+	let start = '2000-01-01 11:00'; // 2006-01-02T15:04:05.999999999 -0700
+	let end = '2000-01-01 13:00'; // 2006-01-02T15:04:05.999999999 -0700
 
 	const optionsStart = {
 		enableTime: true,
+		enableSeconds: true,
 		minDate: 'today',
+		dateFormat: 'Z',
 		onChange(selectedDates, dateStr) {
 			start = dateStr;
 			optionsEnd.enable = [dateStr.split(' ')[0]];
@@ -45,20 +40,13 @@
 
 	const optionsEnd = {
 		enableTime: true,
+		enableSeconds: true,
+		dateFormat: 'Z',
 		enable: [],
 		onChange(selectedDates, dateStr) {
 			end = dateStr;
 		}
 	};
-
-	function parseWeekdays(w) {
-		return w.map((p) => weekdays[p]);
-	}
-
-	function parseRooms(r) {
-		const u = new TextEncoder().encode(atob(r));
-		return data.Rooms.filter((r) => u.includes(r.ID)).map((s) => s.Name);
-	}
 
 	async function doAddOneTime() {
 		let c = {
@@ -68,9 +56,13 @@
 			End: end,
 			Rooms: data.Rooms.filter((r) => r.selected).map((r) => r.ID)
 		};
-		// await postOccupancyOneTime(c);
-		// goto('/occupancy');
 		console.log(c);
+		try {
+			await postOneTimeOccupancy(c);
+			goto('/occupancy');
+		} catch (e) {
+			console.log(e);
+		}
 	}
 </script>
 

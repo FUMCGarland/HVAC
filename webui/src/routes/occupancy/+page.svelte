@@ -14,10 +14,13 @@
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
 	const weekdays = ['Sun', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
 	export let data;
-	console.log(data);
 
 	function parseWeekdays(w) {
 		return w.map((p) => weekdays[p]);
+	}
+
+	function formatDate(d) {
+		return new Date(Date.parse(d)).toLocaleString();
 	}
 </script>
 
@@ -60,10 +63,10 @@
 	<TableBody>
 		{#each data.OneTime as o}
 			<TableBodyRow>
-				<TableBodyCell>{o.Name}</TableBodyCell>
+				<TableBodyCell><A href="/occupancy/onetime/{o.ID}">{o.Name}</A></TableBodyCell>
 				<TableBodyCell>{o.Rooms}</TableBodyCell>
-				<TableBodyCell>{o.Start}</TableBodyCell>
-				<TableBodyCell>{o.End}</TableBodyCell>
+				<TableBodyCell>{formatDate(o.Start)}</TableBodyCell>
+				<TableBodyCell>{formatDate(o.End)}</TableBodyCell>
 			</TableBodyRow>
 		{/each}
 		<TableBodyRow>
