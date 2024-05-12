@@ -24,19 +24,32 @@
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
 	const weekdays = ['Sun', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
 	const selectedwd = weekdays.map(() => false);
-	const options = {
-		enableTime: true
-	};
-
 	export let data;
 	data.Rooms.forEach((r) => {
 		r.selected = false;
 	});
 
-	let id = data.Recurring.length + 1; // get highest number and increment
+	let id = data.OneTime.length + 1; // TODO: find lowest unused
 	let name = 'not set';
-	let start;
-	let end;
+	let start = '2000-01-01 11:00';
+	let end = '2000-01-01 13:00';
+
+	const optionsStart = {
+		enableTime: true,
+		minDate: 'today',
+		onChange(selectedDates, dateStr) {
+			start = dateStr;
+			optionsEnd.enable = [dateStr.split(' ')[0]];
+		}
+	};
+
+	const optionsEnd = {
+		enableTime: true,
+		enable: [],
+		onChange(selectedDates, dateStr) {
+			end = dateStr;
+		}
+	};
 
 	function parseWeekdays(w) {
 		return w.map((p) => weekdays[p]);
@@ -53,7 +66,7 @@
 			Name: name,
 			Start: start,
 			End: end,
-			Rooms: data.Rooms.filter((r) => r.selected).map((r) => z.ID)
+			Rooms: data.Rooms.filter((r) => r.selected).map((r) => r.ID)
 		};
 		// await postOccupancyOneTime(c);
 		// goto('/occupancy');
@@ -79,13 +92,13 @@
 			<TableBodyRow>
 				<TableBodyCell>Start</TableBodyCell>
 				<TableBodyCell>
-					<Flatpickr {options} bind:start name="startdate" />
+					<Flatpickr options={optionsStart} name="startdate" />
 				</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
 				<TableBodyCell>End</TableBodyCell>
 				<TableBodyCell>
-					<Flatpickr {options} bind:end name="enddate" />
+					<Flatpickr options={optionsEnd} name="enddate" />
 				</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
