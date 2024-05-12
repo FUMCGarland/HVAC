@@ -13,22 +13,11 @@
 	} from 'flowbite-svelte';
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
 	const weekdays = ['Sun', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
-	const selectedwd = weekdays.map(() => false);
 	export let data;
+	console.log(data);
 
 	function parseWeekdays(w) {
 		return w.map((p) => weekdays[p]);
-	}
-
-	async function doAddOneTime() {
-		let c = {
-			ID: Number(id),
-			Name: name,
-			Start: start,
-			End: end,
-			Rooms: data.Rooms.filter((r) => r.selected).map((r) => z.ID)
-		};
-		await postOccupancyOneTime(c);
 	}
 </script>
 

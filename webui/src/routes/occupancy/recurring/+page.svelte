@@ -86,18 +86,6 @@
 				<TableBodyCell><Input type="text" bind:value={name} /></TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell>Mode</TableBodyCell>
-				<TableBodyCell>
-					<Button>
-						Mode<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" />
-					</Button>
-					<Dropdown class="w-44 space-y-3 p-3 text-sm">
-						<li><Radio name="mode" bind:group={mode} value={0}>Heating</Radio></li>
-						<li><Radio name="mode" bind:group={mode} value={1}>Cooling</Radio></li>
-					</Dropdown>
-				</TableBodyCell>
-			</TableBodyRow>
-			<TableBodyRow>
 				<TableBodyCell>Weekdays</TableBodyCell>
 				<TableBodyCell>
 					<Button
