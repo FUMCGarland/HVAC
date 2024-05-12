@@ -182,7 +182,7 @@ func tempCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet
 		return
 	}
 	log.Debug("recording temp", "room", rn, "temp", temp)
-	room.SetTemp(uint8(temp))
+	room.SetTemp(hvac.DegF(temp))
 }
 
 func humidityCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
