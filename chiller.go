@@ -12,6 +12,8 @@ import (
 
 type ChillerID uint8
 
+var chillerLockout bool
+
 type Chiller struct {
 	ID               ChillerID
 	Name             string
@@ -65,11 +67,28 @@ func (ch ChillerID) canEnable() error {
 		return err
 	}
 
+	chillerReset := true
 	for k := range c.Rooms {
 		if c.Rooms[k].Temperature != 0 && c.Rooms[k].Temperature < chillerLockoutTemp {
-			err := fmt.Errorf("room below %d degF, not enabling chiller: %s", chillerLockoutTemp, c.Rooms[k].Name)
+			err := fmt.Errorf("room below %d degF, locking out chiller: %s", chillerLockoutTemp, c.Rooms[k].Name)
+			chillerLockout = true
 			return err
 		}
+		if c.Rooms[k].Temperature != 0 && c.Rooms[k].Temperature < chillerRecoveryTemp {
+			// a room below the reset temp, do not reset
+			chillerReset = false
+		}
+	}
+
+	if chillerReset {
+		log.Info("all rooms above recovery temp, unlocking chiller")
+		chillerLockout = false
+	}
+
+	if chillerLockout {
+		err := fmt.Errorf("chiller locked out, not enabling")
+		log.Error(err.Error())
+		return err
 	}
 
 	return nil

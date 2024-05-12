@@ -12,7 +12,7 @@ type Room struct {
 	ID          RoomID
 	Name        string
 	Zone        ZoneID
-	Temperature uint8
+	Temperature DegF
 	Humidity    uint8
 	LastUpdate  time.Time
 	Occupied    bool
@@ -27,15 +27,15 @@ func (r RoomID) Get() *Room {
 	return nil
 }
 
-func (r *Room) SetTemp(temp uint8) {
+func (r *Room) SetTemp(temp DegF) {
 	r.Temperature = temp
 	r.LastUpdate = time.Now()
 
 	zone := r.Zone.Get()
 	{
-		var avgCnt uint8
-		var avgTot uint8
-		var avg uint8
+		var avgCnt DegF
+		var avgTot DegF
+		var avg DegF
 		hourAgo := time.Now().Add(0 - time.Hour)
 		for k := range c.Rooms {
 			// in the zone, and not zero, and more recent than an hour ago
