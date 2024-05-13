@@ -15,6 +15,7 @@
 		Checkbox
 	} from 'flowbite-svelte';
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
+	import { lowestFreeID } from '$lib/util';
 
 	export let data;
 
@@ -22,7 +23,7 @@
 		r.selected = false;
 	});
 
-	let id = data.OneTime.length + 1; // TODO: find lowest unused
+	let id = lowestFreeID(data.OneTime);
 	let name = 'not set';
 	let start = '2000-01-01 11:00'; // 2006-01-02T15:04:05.999999999 -0700
 	let end = '2000-01-01 13:00'; // 2006-01-02T15:04:05.999999999 -0700

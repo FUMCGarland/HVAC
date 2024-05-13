@@ -20,6 +20,8 @@
 		A
 	} from 'flowbite-svelte';
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
+	import { lowestFreeID } from '$lib/util';
+
 	const weekdays = ['Sun', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
 	const selectedwd = weekdays.map(() => false);
 
@@ -28,7 +30,7 @@
 		r.selected = false;
 	});
 
-	let id = data.Recurring.length + 1; // get highest number and increment
+	let id = lowestFreeID(data.Recurring);
 	let name = 'not set';
 	$: mode = 0;
 	let starttime = '09:30';

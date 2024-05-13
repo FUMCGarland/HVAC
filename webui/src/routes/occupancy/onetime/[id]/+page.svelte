@@ -1,7 +1,6 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
-	import { putRecurringOccupancy, deleteRecurringOccupancy } from '$lib/occupancy';
+	import { putOneTimeOccupancy, deleteOneTimeOccupancy } from '$lib/occupancy';
 	import {
 		Table,
 		TableBody,
@@ -20,8 +19,6 @@
 		A
 	} from 'flowbite-svelte';
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
-	const weekdays = ['Sun', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
-	const selectedwd = weekdays.map(() => false);
 
 	export let data;
 	console.log(data);
@@ -30,38 +27,26 @@
 		r.selected = false;
 		if (data.Rooms.includes(r.ID)) r.selected = true;
 	});
-	data.Weekdays.forEach((d) => {
-		selectedwd[d] = true;
-	});
 
 	function parseRooms(r) {
 		const u = new TextEncoder().encode(atob(r));
 		return data.Rooms.filter((r) => u.includes(r.ID)).map((s) => s.Name);
 	}
 
-	async function doDeleteRecurring() {
-		await deleteRecurringOccupancy(data.ID);
+	async function doDeleteOneTime() {
+		await deleteOneTimeOccupancy(data.ID);
 		goto('/occupancy');
 	}
 
-	async function doUpdateRecurring() {
+	async function doUpdateOneTime() {
 		let c = {
 			ID: Number(data.ID),
 			Name: data.Name,
-			Weekdays: selectedwd
-				.map((n, i) => {
-					if (n) {
-						return i;
-					}
-				})
-				.filter((o) => {
-					return o !== undefined;
-				}),
-			StartTime: data.StartTime,
-			EndTime: data.EndTime,
+			Start: data.Start,
+			End: data.End,
 			Rooms: data.SystemRooms.filter((r) => r.selected).map((r) => r.ID)
 		};
-		await putRecurringOccupancy(c);
+		await putOneTimeOccupancy(c);
 		goto('/occupancy');
 	}
 </script>
@@ -82,25 +67,12 @@
 				<TableBodyCell><Input type="text" bind:value={data.Name} /></TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell>Weekdays</TableBodyCell>
-				<TableBodyCell>
-					<Button
-						>Weekdays<ChevronDownOutline class="ms-2 h-6 w-6 text-white dark:text-white" /></Button
-					>
-					<Dropdown class="w-44 space-y-3 p-3 text-sm">
-						{#each weekdays as wd, index}
-							<li><Checkbox value={wd} bind:checked={selectedwd[index]}>{wd}</Checkbox></li>
-						{/each}
-					</Dropdown>
-				</TableBodyCell>
+				<TableBodyCell>Start</TableBodyCell>
+				<TableBodyCell><Input type="text" bind:value={data.Start} /></TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell>Start Time (24-hour hh:mm format)</TableBodyCell>
-				<TableBodyCell><Input type="text" bind:value={data.StartTime} /></TableBodyCell>
-			</TableBodyRow>
-			<TableBodyRow>
-				<TableBodyCell>End Time (24-hour hh:mm format)</TableBodyCell>
-				<TableBodyCell><Input type="text" bind:value={data.EndTime} /></TableBodyCell>
+				<TableBodyCell>End</TableBodyCell>
+				<TableBodyCell><Input type="text" bind:value={data.End} /></TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
 				<TableBodyCell>Rooms</TableBodyCell>
@@ -111,8 +83,8 @@
 				</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell><Button on:click={() => doDeleteRecurring()}>Delete</Button></TableBodyCell>
-				<TableBodyCell><Button on:click={() => doUpdateRecurring()}>Update</Button></TableBodyCell>
+				<TableBodyCell><Button on:click={() => doDeleteOneTime()}>Delete</Button></TableBodyCell>
+				<TableBodyCell><Button on:click={() => doUpdateOneTime()}>Update</Button></TableBodyCell>
 			</TableBodyRow>
 		</TableBody>
 	</Table>
