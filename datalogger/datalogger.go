@@ -140,7 +140,7 @@ func roomTarget(r hvac.Room, c *hvac.Config) string {
 				if r.Occupied {
 					return fmt.Sprintf("%d", c.Zones[k].Targets.CoolingOccupiedTemp)
 				} else {
-					return fmt.Sprintf("%d", c.Zones[k].Targets.CoolingOccupiedTemp)
+					return fmt.Sprintf("%d", c.Zones[k].Targets.CoolingUnoccupiedTemp)
 				}
 			}
 		}
