@@ -19,9 +19,12 @@ type OccupancySchedule struct {
 var occupancy OccupancySchedule
 var occScheduler gocron.Scheduler
 
+type OccupancyOneTimeID uint8
+type OccupancyRecurringID uint8
+
 // ScheduleEntry is the definition of a job to be run at specified times
 type OccupancyRecurringEntry struct {
-	ID        uint8
+	ID        OccupancyRecurringID
 	Name      string
 	StartTime string // "6:30"
 	EndTime   string // "15:30"
@@ -31,7 +34,7 @@ type OccupancyRecurringEntry struct {
 
 // ScheduleEntry is the definition of a job to be run at specified times
 type OccupancyOneTimeEntry struct {
-	ID    uint8
+	ID    OccupancyOneTimeID
 	Name  string
 	Start time.Time
 	End   time.Time

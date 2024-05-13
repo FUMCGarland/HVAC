@@ -57,7 +57,7 @@ func (r *Room) SetTemp(temp DegF) {
 			log.Info("locking out boiler, room temp too high")
 			boilerLockout = true
 			for k := range c.Pumps {
-				c.Pumps[k].Stop("lockout")
+				c.Pumps[k].ID.Stop("lockout")
 			}
 		}
 		if (r.Occupied && temp < zone.Targets.HeatingOccupiedTemp-zoneHysterisisRange) || (!r.Occupied && temp < zone.Targets.HeatingUnoccupiedTemp-zoneHysterisisRange) {
@@ -77,7 +77,7 @@ func (r *Room) SetTemp(temp DegF) {
 			log.Info("locking out chiller, room temp too low")
 			chillerLockout = true
 			for k := range c.Chillers {
-				c.Chillers[k].Stop("lockout")
+				c.Chillers[k].ID.Stop("lockout")
 			}
 		}
 		if (r.Occupied && temp > zone.Targets.CoolingOccupiedTemp+zoneHysterisisRange) || (!r.Occupied && temp > zone.Targets.CoolingUnoccupiedTemp+zoneHysterisisRange) {

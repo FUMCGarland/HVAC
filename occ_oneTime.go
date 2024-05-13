@@ -8,7 +8,7 @@ import (
 	"github.com/go-co-op/gocron/v2"
 )
 
-func (s *OccupancySchedule) GetOneTimeEntry(id uint8) *OccupancyOneTimeEntry {
+func (s *OccupancySchedule) GetOneTimeEntry(id OccupancyOneTimeID) *OccupancyOneTimeEntry {
 	for k := range s.OneTime {
 		if s.OneTime[k].ID == id {
 			return &s.OneTime[k]
@@ -88,7 +88,7 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 	return nil
 }
 
-func (s *OccupancySchedule) RemoveOneTimeEntry(id uint8) {
+func (s *OccupancySchedule) RemoveOneTimeEntry(id OccupancyOneTimeID) {
 	index := -1
 	for k := range occupancy.OneTime {
 		if s.OneTime[k].ID == id {

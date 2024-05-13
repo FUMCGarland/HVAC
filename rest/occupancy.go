@@ -76,7 +76,7 @@ func deleteOccupancyRecurring(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	o.RemoveRecurringEntry(uint8(inid))
+	o.RemoveRecurringEntry(hvac.OccupancyRecurringID(inid))
 
 	fmt.Fprint(w, jsonStatusOK)
 }
@@ -98,7 +98,7 @@ func putOccupancyRecurring(w http.ResponseWriter, r *http.Request, ps httprouter
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-	if uint8(inid) != e.ID {
+	if hvac.OccupancyRecurringID(inid) != e.ID {
 		err := fmt.Errorf("url ID does not match incoming json")
 		log.Error(err.Error(), "id", inid, "e", e)
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -168,7 +168,7 @@ func deleteOccupancyOneTime(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 
-	o.RemoveOneTimeEntry(uint8(inid))
+	o.RemoveOneTimeEntry(hvac.OccupancyOneTimeID(inid))
 
 	fmt.Fprint(w, jsonStatusOK)
 }
@@ -190,7 +190,7 @@ func putOccupancyOneTime(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-	if uint8(inid) != e.ID {
+	if hvac.OccupancyOneTimeID(inid) != e.ID {
 		err := fmt.Errorf("url ID does not match incoming json")
 		log.Error(err.Error(), "id", inid, "e", e)
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

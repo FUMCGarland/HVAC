@@ -11,7 +11,7 @@ import (
 	// "github.com/google/uuid"
 )
 
-func (s *OccupancySchedule) GetRecurringEntry(id uint8) *OccupancyRecurringEntry {
+func (s *OccupancySchedule) GetRecurringEntry(id OccupancyRecurringID) *OccupancyRecurringEntry {
 	for k := range s.Recurring {
 		if s.Recurring[k].ID == id {
 			return &s.Recurring[k]
@@ -103,7 +103,7 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 	return err
 }
 
-func (s *OccupancySchedule) RemoveRecurringEntry(id uint8) {
+func (s *OccupancySchedule) RemoveRecurringEntry(id OccupancyRecurringID) {
 	index := -1
 	for k := range occupancy.Recurring {
 		if s.Recurring[k].ID == id {

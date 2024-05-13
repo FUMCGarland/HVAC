@@ -81,7 +81,7 @@ func (p PumpID) canEnable() error {
 			boilerLockout = true
 			return err
 		}
-		if c.Rooms[k].Temperature != 0 && c.Rooms[k].Temperature > boilerLockoutTemp {
+		if c.Rooms[k].Temperature != 0 && c.Rooms[k].Temperature > boilerRecoveryTemp {
 			// a room above the reset temp, do not reset
 			boilerReset = false
 		}
