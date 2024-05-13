@@ -47,11 +47,6 @@ func (s *OccupancySchedule) AddOneTimeEntry(e *OccupancyOneTimeEntry) error {
 }
 
 func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
-	var roomStrings []string
-	for _, r := range e.Rooms {
-		roomStrings = append(roomStrings, fmt.Sprintf("%d", r))
-	}
-
 	_, err := occScheduler.NewJob(
 		gocron.OneTimeJob(
 			gocron.OneTimeJobStartDateTime(e.Start),
@@ -67,6 +62,9 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 		gocron.WithTags(e.Name),
 		gocron.WithName(e.Name),
 	)
+	if err != nil {
+		return err
+	}
 
 	_, err = occScheduler.NewJob(
 		gocron.OneTimeJob(
@@ -81,10 +79,13 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 			},
 		),
 		gocron.WithTags(e.Name),
-		gocron.WithName(e.Name),
+		gocron.WithName(fmt.Sprintf("%s end", e.Name)),
 	)
+	if err != nil {
+		return err
+	}
 
-	return err
+	return nil
 }
 
 func (s *OccupancySchedule) RemoveOneTimeEntry(id uint8) {
