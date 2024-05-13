@@ -63,7 +63,7 @@ func (r *Room) SetTemp(temp DegF) {
 			}
 			return
 		}
-		if (r.Occupied && temp > zone.Targets.HeatingOccupiedTemp+zoneHysterisisRange) || (!r.Occupied && temp < zone.Targets.HeatingUnoccupiedTemp+zoneHysterisisRange) {
+		if (r.Occupied && temp > zone.Targets.HeatingOccupiedTemp+zoneHysterisisRange) || (!r.Occupied && temp > zone.Targets.HeatingUnoccupiedTemp+zoneHysterisisRange) {
 			if c.ControlMode == ControlTemp {
 				zone.ID.Stop("temp")
 			}
@@ -81,7 +81,7 @@ func (r *Room) SetTemp(temp DegF) {
 			}
 			return
 		}
-		if (r.Occupied && temp < zone.Targets.CoolingOccupiedTemp-zoneHysterisisRange) || (!r.Occupied && temp > zone.Targets.CoolingUnoccupiedTemp-zoneHysterisisRange) {
+		if (r.Occupied && temp < zone.Targets.CoolingOccupiedTemp-zoneHysterisisRange) || (!r.Occupied && temp < zone.Targets.CoolingUnoccupiedTemp-zoneHysterisisRange) {
 			log.Info("stopping zone (if in temp control mode)", "zone", zone.ID, "avg temp", temp)
 			if c.ControlMode == ControlTemp {
 				zone.ID.Stop("temp")

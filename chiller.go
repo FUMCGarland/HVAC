@@ -68,6 +68,7 @@ func (ch ChillerID) canEnable() error {
 	}
 
 	chillerReset := true
+	// TODO make sure the temp reports are recent
 	for k := range c.Rooms {
 		if c.Rooms[k].Temperature != 0 && c.Rooms[k].Temperature < chillerLockoutTemp {
 			err := fmt.Errorf("room below %d degF, locking out chiller: %s", chillerLockoutTemp, c.Rooms[k].Name)
