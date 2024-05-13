@@ -6,6 +6,8 @@ import (
 
 type DegF uint8
 
+const defaultRunDuration time.Duration = (time.Hour)
+
 const MaxPumpRunTime time.Duration = (6 * time.Hour)
 const MinPumpRunTime time.Duration = (30 * time.Minute)
 const MaxBlowerRunTime time.Duration = (6 * time.Hour)

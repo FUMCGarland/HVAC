@@ -49,40 +49,43 @@ func (r *Room) SetTemp(temp DegF) {
 			temp = avg
 		}
 	}
-
-	if c.ControlMode != ControlTemp {
-		// return // we are just logging now...
-	}
-
-	log.Info("room temp update", "room", r.Name, "room temp", r.Temperature, "zone avg", temp)
+	log.Info("room temp", "room", r.Name, "zone", zone.ID, "room temp", r.Temperature, "zone avg", temp)
 
 	switch c.SystemMode {
 	case SystemModeHeat:
-		if temp > boilerLockoutTemp {
+		if r.Temperature >= boilerLockoutTemp {
 			log.Info("locking out boiler, room temp too high")
 			boilerLockout = true
 		}
 		if (r.Occupied && temp < zone.Targets.HeatingOccupiedTemp-zoneHysterisisRange) || (!r.Occupied && temp < zone.Targets.HeatingUnoccupiedTemp-zoneHysterisisRange) {
-			// zone.ID.Start(defaultRunDuration, "temp")
+			if c.ControlMode == ControlTemp {
+				zone.ID.Start(defaultRunDuration, "temp")
+			}
 			return
 		}
 		if (r.Occupied && temp > zone.Targets.HeatingOccupiedTemp+zoneHysterisisRange) || (!r.Occupied && temp < zone.Targets.HeatingUnoccupiedTemp+zoneHysterisisRange) {
-			// zone.ID.Stop("temp")
+			if c.ControlMode == ControlTemp {
+				zone.ID.Stop("temp")
+			}
 			return
 		}
 	case SystemModeCool:
-		if temp < chillerLockoutTemp {
+		if r.Temperature <= chillerLockoutTemp {
 			log.Info("locking out chiller, room temp too low")
 			chillerLockout = true
 		}
 		if (r.Occupied && temp > zone.Targets.CoolingOccupiedTemp+zoneHysterisisRange) || (!r.Occupied && temp > zone.Targets.CoolingUnoccupiedTemp+zoneHysterisisRange) {
-			log.Info("would start zone if this were done")
-			// zone.ID.Start(defaultRunDuration, "temp")
+			log.Info("starting zone (if in temp control mode)", "zone", zone.ID, "avg temp", temp)
+			if c.ControlMode == ControlTemp {
+				zone.ID.Start(defaultRunDuration, "temp")
+			}
 			return
 		}
 		if (r.Occupied && temp < zone.Targets.CoolingOccupiedTemp-zoneHysterisisRange) || (!r.Occupied && temp > zone.Targets.CoolingUnoccupiedTemp-zoneHysterisisRange) {
-			log.Info("would stop zone if this were done")
-			// zone.ID.Stop("temp")
+			log.Info("stopping zone (if in temp control mode)", "zone", zone.ID, "avg temp", temp)
+			if c.ControlMode == ControlTemp {
+				zone.ID.Stop("temp")
+			}
 			return
 		}
 	}
