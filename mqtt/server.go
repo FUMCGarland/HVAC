@@ -35,7 +35,7 @@ func Start(c *hvac.MQTTConfig, done <-chan bool) {
 		panic(err.Error())
 	}
 
-	tcp := listeners.NewTCP(listeners.Config{listeners.TypeTCP, c.ID, c.ListenAddr, nil})
+	tcp := listeners.NewTCP(listeners.Config{Type: listeners.TypeTCP, ID: c.ID, Address: c.ListenAddr, TLSConfig: nil})
 	if err := server.AddListener(tcp); err != nil {
 		panic(err.Error())
 	}
