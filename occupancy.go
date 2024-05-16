@@ -11,14 +11,19 @@ import (
 	// "github.com/google/uuid"
 )
 
+// The occupancy scheduler tracks when people are expected to be in a room. If a room is marked as occupied it adjusts the heating/cooling target temp
 type OccupancySchedule struct {
 	Recurring []OccupancyRecurringEntry
 	OneTime   []OccupancyOneTimeEntry
 }
 
+// a pointer to the running schedule
 var occupancy OccupancySchedule
+
+// the scheduler which toggles the occupied bit on rooms
 var occScheduler gocron.Scheduler
 
+// types to help enforce code cleanliness
 type OccupancyOneTimeID uint8
 type OccupancyRecurringID uint8
 
@@ -41,6 +46,7 @@ type OccupancyOneTimeEntry struct {
 	Rooms []RoomID
 }
 
+// init() considered harmful... set up the global scheduler
 func init() {
 	var err error
 	occScheduler, err = gocron.NewScheduler()

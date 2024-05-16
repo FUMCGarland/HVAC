@@ -14,6 +14,9 @@ import (
 )
 
 // ScheduleList is just a wrapper so we can hang methods on it
+// The scheduler is used in "schedule" control mode (not temp) and starts
+// and stops devices based on the schedule, not room temp/occupancy
+// this is akin to the old mode of operation using the scheduler from the 1980s...
 type ScheduleList struct {
 	List []ScheduleEntry
 }
@@ -32,6 +35,7 @@ type ScheduleEntry struct {
 	Zones     []ZoneID
 }
 
+// init() considered harmful, just a singleton to set up the global schedular
 func init() {
 	var err error
 	scheduler, err = gocron.NewScheduler()

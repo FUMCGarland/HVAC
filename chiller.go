@@ -74,6 +74,7 @@ func (ch ChillerID) canEnable() error {
 			if c.Rooms[k].Temperature != 0 && c.Rooms[k].Temperature < chillerRecoveryTemp {
 				// a room below the reset temp, do not reset
 				chillerReset = false
+				break
 			}
 		}
 
@@ -82,7 +83,7 @@ func (ch ChillerID) canEnable() error {
 			chillerLockout = false
 		}
 	}
-	
+
 	if chillerLockout {
 		err := fmt.Errorf("chiller locked out, not enabling")
 		log.Error(err.Error())

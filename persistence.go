@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	storenameSystemMode  = "SystemMode"
-	storenameControlMode = "ControlMode"
+	storenameSystemMode  = "SystemMode"  // filename for the system mode
+	storenameControlMode = "ControlMode" // file name for the control mode
 )
 
 func (c *Config) loadFromStore() error {

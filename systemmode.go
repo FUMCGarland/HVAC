@@ -8,24 +8,29 @@ import (
 	"github.com/FUMCGarland/hvac/log"
 )
 
+// SystemModeT is a convenience type to ensure clean code
 type SystemModeT uint8
 
 const (
-	SystemModeHeat SystemModeT = iota
-	SystemModeCool
-	SystemModeUnknown
+	SystemModeHeat    SystemModeT = iota // the system is heating
+	SystemModeCool                       // the system is cooling
+	SystemModeUnknown                    // unused
 )
 
+// SystemMode is a wrapper type for clean JSON files passed from the REST interface
 type SystemMode struct {
 	Mode SystemModeT
 }
 
+// systemModeStrings is used to translate between the SystemModeT and a friendly name
 var systemModeStrings = []string{"heat", "cool", "unknown"}
 
+// ToString returns a friendly string for a SystemModeT
 func (t SystemModeT) ToString() string {
 	return systemModeStrings[t]
 }
 
+// SystemModeFromString returns a SystemModeT that matches a string
 func SystemModeFromString(s string) SystemModeT {
 	if s == "heat" {
 		return SystemModeHeat
@@ -36,7 +41,9 @@ func SystemModeFromString(s string) SystemModeT {
 	return SystemModeUnknown
 }
 
+// SetSystemMode sets the system into the requested mode
 func (c *Config) SetSystemMode(sm SystemModeT) error {
+	// TODO enforce controlMode == off
 	if sm != SystemModeHeat && sm != SystemModeCool {
 		err := fmt.Errorf("unknown system mode")
 		log.Error(err.Error())

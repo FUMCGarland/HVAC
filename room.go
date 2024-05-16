@@ -6,8 +6,16 @@ import (
 	"github.com/FUMCGarland/hvac/log"
 )
 
+// RoomID is the room number or other identifying number
+// uint16 since we've got 3 floors and a uint8 would not be enough
 type RoomID uint16
 
+// Room is the basic data type for a physical space
+// temperature, humidity, and occupancy are tracked per-room
+// device control is per-zone. This will allow us to track how long different
+// rooms take to bring to proper temperature so we can set start-times
+// properly. When we start building controls for the damnpers and valves
+// having per-room data will help with system tuning even more
 type Room struct {
 	ID          RoomID
 	Name        string
@@ -18,6 +26,7 @@ type Room struct {
 	Occupied    bool
 }
 
+// Get returns a full room struct for a RoomID
 func (r RoomID) Get() *Room {
 	for k := range c.Rooms {
 		if c.Rooms[k].ID == r {
@@ -27,6 +36,8 @@ func (r RoomID) Get() *Room {
 	return nil
 }
 
+// SetTemp records the temperature as reported by the sensors, called from the MQTT subsystem
+// if the zone average is out-of-range, the proper devices are enabled to bring the zone into temperature
 func (r *Room) SetTemp(temp DegF) {
 	r.Temperature = temp
 	r.LastUpdate = time.Now()
@@ -97,6 +108,8 @@ func (r *Room) SetTemp(temp DegF) {
 	}
 }
 
+// SetHumidity records the humidity as reported by the sensors, called from MQTT subsystem
+// currently the data is logged and not used
 func (r *Room) SetHumidity(humidity uint8) {
 	r.Humidity = humidity
 	// nothing to do other than accept the update

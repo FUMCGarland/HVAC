@@ -10,8 +10,12 @@ import (
 	"github.com/FUMCGarland/hvac/log"
 )
 
+// BlowerID a the unique identifier of each individual blower
 type BlowerID uint8
 
+// A blower is a device that blows air over a coil to cool/heat the air
+// blowers are connected to loops, which are driven by pumps
+// a zone is the region of the building serviced by one or more blowers
 type Blower struct {
 	ID               BlowerID
 	Name             string
@@ -26,6 +30,7 @@ type Blower struct {
 	LastStopTime     time.Time
 }
 
+// Get returns a pointer to a Blower for a given BlowerId
 func (b BlowerID) Get() *Blower {
 	for k := range c.Blowers {
 		if c.Blowers[k].ID == b {
@@ -35,6 +40,10 @@ func (b BlowerID) Get() *Blower {
 	return nil
 }
 
+// canEnable checks to see if a blower can be started given current global system state
+// Blowers can run if the loop is not being actively serviced by a pump, but this is unusual
+// blowers must start before pumps
+// other than ensuring the system is on and the blower has not recently been stopped, there are no restrictions on starting a blower
 func (b BlowerID) canEnable() error {
 	if c.ControlMode == ControlOff {
 		err := fmt.Errorf("system off, not starting blower")
@@ -50,6 +59,8 @@ func (b BlowerID) canEnable() error {
 	return nil
 }
 
+// writeToStore writes the current running state to the long-term storage
+// called at process shutdown and when a blower is stopped
 func (b *Blower) writeToStore() error {
 	path := path.Join(c.StateStore, fmt.Sprintf("blower-%d.json", b.ID))
 
@@ -78,6 +89,8 @@ func (b *Blower) writeToStore() error {
 	return nil
 }
 
+// readFromStore reads the last stored state into memory
+// called at process startup
 func (b *Blower) readFromStore() error {
 	path := path.Join(c.StateStore, fmt.Sprintf("blower-%d.json", b.ID))
 
@@ -102,6 +115,7 @@ func (b *Blower) readFromStore() error {
 	return nil
 }
 
+// Start verifies that a blower can be enabled and sends the command to the MQTT subsystem, we do not record the activation of the blower, that takes place when the relay-module confirms that the blower has actually started
 func (b BlowerID) Start(duration time.Duration, source string) error {
 	if err := b.canEnable(); err != nil {
 		log.Error("cannot enable blower", "id", b, "err", err.Error())
@@ -130,6 +144,8 @@ func (b BlowerID) Start(duration time.Duration, source string) error {
 	return nil
 }
 
+// Stop sends the shutdown command to the MQTT subsystem to be sent to the relay-module
+// if there are any pumps on the connected loops running, and no other blowers on the loop are running, the pump is stopped
 func (b BlowerID) Stop(source string) {
 	// if we are the last active blower on the loop, ensure that the pump is shut down
 	last := true

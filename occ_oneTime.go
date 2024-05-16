@@ -8,6 +8,7 @@ import (
 	"github.com/go-co-op/gocron/v2"
 )
 
+// GetOneTimeEntry returns an entry based on ID
 func (s *OccupancySchedule) GetOneTimeEntry(id OccupancyOneTimeID) *OccupancyOneTimeEntry {
 	for k := range s.OneTime {
 		if s.OneTime[k].ID == id {
@@ -17,6 +18,7 @@ func (s *OccupancySchedule) GetOneTimeEntry(id OccupancyOneTimeID) *OccupancyOne
 	return nil
 }
 
+// AddOneTimeEntry adds a new entry to the one-time scheduler
 func (s *OccupancySchedule) AddOneTimeEntry(e *OccupancyOneTimeEntry) error {
 	log.Debug("adding entry", "e", e)
 
@@ -46,6 +48,7 @@ func (s *OccupancySchedule) AddOneTimeEntry(e *OccupancyOneTimeEntry) error {
 	return nil
 }
 
+// buildOneTimeJob adds a job to the onetime scheduler
 func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 	_, err := occScheduler.NewJob(
 		gocron.OneTimeJob(
@@ -88,6 +91,7 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 	return nil
 }
 
+// RemoveOneTimeEntry remove an entry from the running scheduler and the configuration
 func (s *OccupancySchedule) RemoveOneTimeEntry(id OccupancyOneTimeID) {
 	index := -1
 	for k := range occupancy.OneTime {

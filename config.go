@@ -9,9 +9,14 @@ import (
 	"github.com/FUMCGarland/hvac/log"
 )
 
+// c is the global running config
 var c *Config
+
+// cmdChan is the channel used to pass commands to the MQTT server
 var cmdChan chan MQTTRequest
 
+// Config is the system configuration and run-time data
+// a subset of Config is used for the startup configuration
 type Config struct {
 	// the directory in which to store running state
 	StateStore string
@@ -41,6 +46,7 @@ type Config struct {
 	Zones             []Zone
 }
 
+// MQTTConfig is the configuration of the MQTT subsystem
 type MQTTConfig struct {
 	ID         string // something randomish (fumcg-hvac-server)
 	Auth       string // filename (/etc/hvac-mqtt-auth.json)
@@ -48,6 +54,7 @@ type MQTTConfig struct {
 	ListenAddr string // (":1883")
 }
 
+// defaults are the sane defaults if the config file isn't fully populated
 var defaults *Config = &Config{
 	StateStore: "/var/hvac",
 	MQTT: &MQTTConfig{
@@ -64,10 +71,12 @@ var defaults *Config = &Config{
 	OpenWeatherMapID:  4693003,
 }
 
+// init() considered harmful, except that this is trivial and sets up a global
 func init() {
 	cmdChan = make(chan MQTTRequest)
 }
 
+// LoadConfig is called from main() to set up the running configuration
 func LoadConfig(filename string) (*Config, error) {
 	// config.Load is called early, this is probably an OK place for this
 	_ = log.Start()
@@ -95,6 +104,7 @@ func LoadConfig(filename string) (*Config, error) {
 	return c, nil
 }
 
+// GetConfig returns the global running config, used by various sub-modules
 func GetConfig() *Config {
 	if c == nil {
 		panic("GetConfig() called before LoadConfig()")
@@ -103,6 +113,7 @@ func GetConfig() *Config {
 	return c
 }
 
+// validate is called by LoadConfig to make sure that things are sane -- needs work
 func validate() error {
 	if err := validateBlower(); err != nil {
 		return err
@@ -192,26 +203,37 @@ func validateRooms() error {
 	return nil
 }
 
+// GetMQTTChan returns the command channel to the MQTT subsystem
 func GetMQTTChan() chan MQTTRequest {
 	return cmdChan
 }
 
+// StopAll sends a command to all devices to shut down.
 func StopAll() {
+	for k := range c.Chillers {
+		if !c.Chillers[k].Running {
+			continue
+		}
+		c.Chillers[k].ID.Stop("stop all")
+		c.Chillers[k].Running = false
+		time.Sleep(1 * time.Second) // prevent current inrush/overload
+	}
+
 	for k := range c.Pumps {
 		if !c.Pumps[k].Running {
 			continue
 		}
-		c.Pumps[k].ID.Stop("manual")
+		c.Pumps[k].ID.Stop("stop all")
 		c.Pumps[k].Running = false
-		time.Sleep(1 * time.Second)
+		time.Sleep(1 * time.Second) // prevent overload
 	}
 
 	for k := range c.Blowers {
 		if !c.Blowers[k].Running {
 			continue
 		}
-		c.Blowers[k].ID.Stop("manual")
+		c.Blowers[k].ID.Stop("stop all")
 		c.Blowers[k].Running = false
-		time.Sleep(1 * time.Second)
+		time.Sleep(1 * time.Second) // prevent overload
 	}
 }

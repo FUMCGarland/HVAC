@@ -11,10 +11,10 @@ import (
 type ControlModeT uint8
 
 const (
-	ControlManual ControlModeT = iota
-	ControlSchedule
-	ControlTemp
-	ControlOff
+	ControlManual   ControlModeT = iota // Manual Mode
+	ControlSchedule                     // Schedule Individual devices
+	ControlTemp                         // Thermostatic mode
+	ControlOff                          // Everything off
 )
 
 var systemControlModeStrings = []string{"manual", "schedule", "temp", "off"}
@@ -24,10 +24,12 @@ type ControlMode struct {
 	ControlMode ControlModeT
 }
 
+// ToString returns a friendly name for the ControlModeT
 func (t ControlModeT) ToString() string {
 	return systemControlModeStrings[t]
 }
 
+// Take a friendly name and return the ControlModeT
 func ControlModeFromString(s string) ControlModeT {
 	switch s {
 	case "manual":
@@ -43,6 +45,7 @@ func ControlModeFromString(s string) ControlModeT {
 	return ControlManual
 }
 
+// SetControlMode is called from LoadConfig at startup and when the mode is changed manually
 func (c *Config) SetControlMode(cm ControlModeT) error {
 	if cm > ControlOff {
 		err := fmt.Errorf("unknown system control mode")
@@ -85,6 +88,7 @@ func (c *Config) SetControlMode(cm ControlModeT) error {
 	return nil
 }
 
+// write the current mode to disk so that if we restart we come back correctly
 func (c *Config) writeControlMode() error {
 	path := path.Join(c.StateStore, storenameControlMode)
 
@@ -107,6 +111,7 @@ func (c *Config) writeControlMode() error {
 	return nil
 }
 
+// readControlMode called at startup to get the last mode from disk
 func (c *Config) readControlMode() (ControlModeT, error) {
 	path := path.Join(c.StateStore, storenameControlMode)
 

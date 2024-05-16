@@ -2,6 +2,7 @@ package hvac
 
 type damperID uint8
 
+// Damper is a type to be used in the future for controlling how "open" a blower is
 type Damper struct {
 	ID    damperID
 	Name  string

@@ -10,21 +10,25 @@ import (
 	"github.com/FUMCGarland/hvac/log"
 )
 
+// ZoneID is a unique identifier for a zone
 type ZoneID uint8
 
+// A zone is a collection of rooms which are controlled together, either by radiant heat or blowers
 type Zone struct {
 	ID      ZoneID
 	Name    string
 	Targets ZoneTargets
 }
 
+// Each zone has four target temps, based on systemMode and room occupancy
 type ZoneTargets struct {
 	HeatingOccupiedTemp   DegF // 68 -- heat to 68 if someone is schedule to be in the zone
 	HeatingUnoccupiedTemp DegF // 60 -- let it get down to 60 if no one is schedule to be in the zone
-	CoolingOccupiedTemp   DegF //  74 -- cool to 74 if someone is sheduled to be in the zone
+	CoolingOccupiedTemp   DegF // 74 -- cool to 74 if someone is sheduled to be in the zone
 	CoolingUnoccupiedTemp DegF // 80 -- let it get up to 80 if no one is scheduled to be in the zone
 }
 
+// Get returns a populated zone for a given ZoneID
 func (z ZoneID) Get() *Zone {
 	for k := range c.Zones {
 		if c.Zones[k].ID == z {
@@ -34,6 +38,7 @@ func (z ZoneID) Get() *Zone {
 	return nil
 }
 
+// SetTargets sets a zone's target tempratures, called from the REST interface
 func (z *Zone) SetTargets(c *Config, zt *ZoneTargets) error {
 	oor := fmt.Errorf("zone temperature out of sane range")
 
@@ -114,6 +119,7 @@ func (z *Zone) readFromStore() error {
 	return nil
 }
 
+// Stop shuts down all devices in a zone
 func (z ZoneID) Stop(msg string) {
 	log.Debug("stopping zone", "ID", z, "msg", msg)
 
@@ -123,6 +129,7 @@ func (z ZoneID) Stop(msg string) {
 			c.Blowers[k].ID.Stop(msg)
 		}
 	}
+	// stopping the blowers will stop the pumps and chillers if necessary.
 
 	if c.SystemMode == SystemModeHeat {
 		// shut down the radiant loops for the zone
@@ -137,6 +144,7 @@ func (z ZoneID) Stop(msg string) {
 	}
 }
 
+// Start starts up all devices in a zone
 func (z ZoneID) Start(d time.Duration, msg string) error {
 	enabled := make([]DeviceID, 0)
 
@@ -150,6 +158,7 @@ func (z ZoneID) Start(d time.Duration, msg string) error {
 
 			pumpid := c.Blowers[k].getPump(c.SystemMode)
 			if pumpid != 0 {
+				// don't skip if the pump is already running, we want to extend the running time if necessary
 				time.Sleep(1 * time.Second) // let blower start before attempting to start pump
 				if err := pumpid.Start(d, msg); err != nil {
 					stopAll(enabled)
@@ -160,6 +169,7 @@ func (z ZoneID) Start(d time.Duration, msg string) error {
 
 			chillerid := pumpid.getChiller()
 			if chillerid != 0 {
+				// don't skip if the chiller is already running, we want to extend the running time if necessary
 				time.Sleep(1 * time.Second) // let pump start before attempting to start chiller
 				if err := chillerid.Start(d, msg); err != nil {
 					stopAll(enabled)

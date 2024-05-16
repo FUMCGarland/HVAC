@@ -88,7 +88,7 @@ func (p PumpID) canEnable() error {
 			boilerLockout = false
 		}
 	}
-	
+
 	if boilerLockout {
 		err := fmt.Errorf("a room is too hot, boiler locked out, not starting pump")
 		return err
@@ -157,6 +157,7 @@ func (p *Pump) readFromStore() error {
 	return nil
 }
 
+// Start sends the command to the MQTT subsystem to tell the relay-module to start the pump
 func (p PumpID) Start(duration time.Duration, source string) error {
 	if err := p.canEnable(); err != nil {
 		log.Error("cannot enable pump", "id", p, "err", err.Error())
@@ -185,6 +186,8 @@ func (p PumpID) Start(duration time.Duration, source string) error {
 	return nil
 }
 
+// Stop sends the command to the MQTT subsystem to tell the relay-module to stop the pump
+// it stops any chillers on the attached loop if no other pumps are runnning
 func (p PumpID) Stop(source string) {
 	// if we are the last active blower on the loop, ensure that the pump is shut down
 	last := true
@@ -202,6 +205,7 @@ func (p PumpID) Stop(source string) {
 		}
 
 		// something else is running, we aren't last
+		// TODO the running pump needs to be a cool pump, but that is just paranoia
 		if c.Pumps[k].Running {
 			last = false
 			break
