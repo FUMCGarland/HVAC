@@ -67,7 +67,9 @@ func setRelayState(pin uint8, state bool) error {
 		value = 0
 	}
 
-	rl.Wait(context.Background())
+	if err := rl.Wait(context.Background()); err != nil {
+		log.Info("rate limit wait", "error", err.Error())
+	}
 
 	log.Debug("gpio setting relay state", "pin", pin, "value", value)
 	l, err := gpiochip.RequestLine(int(pin), gpiocdev.AsOutput(0), gpiocdev.AsActiveLow)

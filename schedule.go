@@ -165,7 +165,10 @@ func (s *ScheduleList) AddEntry(e *ScheduleEntry) error {
 	}
 
 	schedule.List = append(schedule.List, *e)
-	schedule.writeToStore()
+	if err := schedule.writeToStore(); err != nil {
+		log.Error(err.Error())
+		return err
+	}
 	return nil
 }
 
@@ -203,7 +206,9 @@ func buildJob(e *ScheduleEntry) error {
 				log.Debug("starting scheduled entry", "e", e)
 				for _, zone := range e.Zones {
 					log.Info("starting zone", "zone", zone, "duration", e.RunTime.Minutes())
-					zone.Start(e.RunTime, "scheduled")
+					if err := zone.Start(e.RunTime, "scheduled"); err != nil {
+						log.Error(err.Error())
+					}
 				}
 			},
 		),

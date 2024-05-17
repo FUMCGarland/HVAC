@@ -57,7 +57,7 @@ func (c *Config) SetControlMode(cm ControlModeT) error {
 	case ControlManual:
 		log.Info("stopping schedulers")
 		StopAll()
-		scheduler.StopJobs()
+		_ = scheduler.StopJobs()
 		// occScheduler.StopJobs()
 		occScheduler.Start() // during development, won't hurt since the room's occupied flag is ignored if not in temp mode
 		log.Info("control mode manual")
@@ -68,12 +68,12 @@ func (c *Config) SetControlMode(cm ControlModeT) error {
 		scheduler.Start()
 	case ControlTemp:
 		log.Info("stopping scheduler")
-		scheduler.StopJobs()
+		_ = scheduler.StopJobs()
 		log.Info("starting temp mode")
 		occScheduler.Start()
 	case ControlOff:
 		log.Info("stopping schedulers")
-		scheduler.StopJobs()
+		_ = scheduler.StopJobs()
 		// occScheduler.StopJobs()
 		occScheduler.Start() // during development, won't hurt since the room's occupied flag is ignored if not in temp mode
 		StopAll()

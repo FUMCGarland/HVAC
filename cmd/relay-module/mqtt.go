@@ -84,11 +84,13 @@ func start(ctx context.Context, rc *RelayConf) {
 			log.Error(err.Error())
 			continue
 		}
-		sendUpdate(ctx, rc, &rc.Relays[k], &hvac.Response{
+		if err := sendUpdate(ctx, rc, &rc.Relays[k], &hvac.Response{
 			CurrentState:  false,
 			RanTime:       0,
 			TimeRemaining: 0,
-		})
+		}); err != nil {
+			log.Info("unable to send", "error", err.Error())
+		}
 	}
 
 	ticker := time.NewTicker(time.Minute)
@@ -108,17 +110,19 @@ func start(ctx context.Context, rc *RelayConf) {
 					log.Info("duration expired", "relay", rc.Relays[k].Pin, "RanTime", rt.Minutes())
 
 					if err := setRelayState(rc.Relays[k].Pin, false); err != nil {
-						log.Info(err.Error())
+						log.Error(err.Error())
 						// don't mark it as stopped so we can retry
 					} else {
 						rc.Relays[k].Running = false
 						rc.Relays[k].RunTime += rt
 						rc.Relays[k].StopTime = stoppedRunning
-						sendUpdate(ctx, rc, &rc.Relays[k], &hvac.Response{
+						if err := sendUpdate(ctx, rc, &rc.Relays[k], &hvac.Response{
 							CurrentState:  false,
 							RanTime:       rt,
 							TimeRemaining: 0,
-						})
+						}); err != nil {
+							log.Error("unable to send", "error", err.Error())
+						}
 					}
 				}
 				if curTick%10 == 0 { // send a periodic check-in every 10 minutes
@@ -126,11 +130,13 @@ func start(ctx context.Context, rc *RelayConf) {
 					if rc.Relays[k].Running { // if rc.Relays[k].StopTime > 0 {
 						tr = rc.Relays[k].StopTime.Sub(now)
 					}
-					sendUpdate(ctx, rc, &rc.Relays[k], &hvac.Response{
+					if err := sendUpdate(ctx, rc, &rc.Relays[k], &hvac.Response{
 						CurrentState:  rc.Relays[k].Running,
 						RanTime:       0,
 						TimeRemaining: tr,
-					})
+					}); err != nil {
+						log.Error("unable to send", "error", err.Error())
+					}
 				}
 			}
 			curTick++
@@ -145,7 +151,9 @@ func start(ctx context.Context, rc *RelayConf) {
 	stopAllRunning(context.Background())
 
 	log.Info("Shutting down MQTT client")
-	client.Disconnect(context.Background()) // probably already stopped
+	if err := client.Disconnect(context.Background()); err != nil {
+		log.Error("disconnect failed", "error", err.Error())
+	} // probably already stopped
 }
 
 func stopAllRunning(ctx context.Context) {
@@ -174,11 +182,13 @@ func stopRelay(ctx context.Context, r *hvac.Relay) {
 	r.StartTime = stoppedRunning
 	r.StopTime = stoppedRunning
 	r.Running = false
-	sendUpdate(ctx, rc, r, &hvac.Response{
+	if err := sendUpdate(ctx, rc, r, &hvac.Response{
 		CurrentState:  false,
 		RanTime:       rantime,
 		TimeRemaining: 0,
-	})
+	}); err != nil {
+		log.Error("unable to send", "error", err.Error())
+	}
 }
 
 func processIncoming(pr paho.PublishReceived) (bool, error) {
@@ -296,7 +306,7 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 }
 
 func sendUpdate(ctx context.Context, rc *RelayConf, relay *hvac.Relay, response *hvac.Response) error {
-	mode := "unknown"
+	var mode string
 	var id uint8
 	switch {
 	case relay.BlowerID != 0:

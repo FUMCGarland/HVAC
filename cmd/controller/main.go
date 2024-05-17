@@ -97,5 +97,7 @@ func main() {
 	}
 
 	// ensure any changes are written out
-	c.WriteToStore()
+	if err := c.WriteToStore(); err != nil {
+		log.Error("unable to save running state", "error", err.Error())
+	}
 }

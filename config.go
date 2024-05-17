@@ -78,28 +78,26 @@ func init() {
 
 // LoadConfig is called from main() to set up the running configuration
 func LoadConfig(filename string) (*Config, error) {
-	// config.Load is called early, this is probably an OK place for this
-	_ = log.Start()
-
 	raw, err := os.ReadFile(filename)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	in := defaults
 	// overwrite the defaults with what is in the file
 	if err := json.Unmarshal(raw, &in); err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	c = in
 
 	if err := validate(); err != nil {
-		log.Error("config", "config", c)
-		panic(err.Error())
+		log.Fatal("config", "config", c, "error", err.Error())
 	}
 
-	c.loadFromStore()
+	if err := c.loadFromStore(); err != nil {
+		log.Fatal("config", "config", c, "error", err.Error())
+	}
 
 	return c, nil
 }

@@ -22,14 +22,18 @@ func (c *Config) loadFromStore() error {
 		log.Error("unable to load last system mode")
 		sm = SystemModeHeat
 	}
-	c.SetSystemMode(sm)
+	if err := c.SetSystemMode(sm); err != nil {
+		log.Fatal(err.Error())
+	}
 	cm, err := c.readControlMode()
 	if err != nil {
 		log.Error("unable to load last system control mode")
 		cm = ControlOff
 	}
 	// starts the scheduler or temp handler if set
-	c.SetControlMode(cm)
+	if err := c.SetControlMode(cm); err != nil {
+		log.Fatal(err.Error())
+	}
 
 	for k := range c.Pumps {
 		if err := c.Pumps[k].readFromStore(); err != nil {

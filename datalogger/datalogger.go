@@ -45,7 +45,8 @@ func DataLogger(ctx context.Context) {
 		case <-ticker.C:
 			writeLine(c)
 		case <-ctx.Done():
-			lj.Rotate() // start a new data file for each startup
+			// start a new data file for each startup
+			_ = lj.Rotate()
 			return
 		}
 	}

@@ -51,7 +51,10 @@ func (s *OccupancySchedule) AddRecurringEntry(e *OccupancyRecurringEntry) error 
 	}
 
 	occupancy.Recurring = append(occupancy.Recurring, *e)
-	occupancy.writeToStore()
+	if err := occupancy.writeToStore(); err != nil {
+		log.Error(err.Error())
+		return err
+	}
 	return nil
 }
 
@@ -119,7 +122,9 @@ func (s *OccupancySchedule) RemoveRecurringEntry(id OccupancyRecurringID) {
 	occScheduler.RemoveByTags(fmt.Sprintf("%d", id))
 	s.Recurring = append(s.Recurring[:index], s.Recurring[index+1:]...)
 	log.Debug("new schedule", "s", s.Recurring)
-	_ = s.writeToStore()
+	if err := s.writeToStore(); err != nil {
+		log.Error(err.Error())
+	}
 }
 
 // EditEntry updates an entry in the OccupancySchedule, keyed based on e.ID

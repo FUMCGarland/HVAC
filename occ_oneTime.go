@@ -44,7 +44,10 @@ func (s *OccupancySchedule) AddOneTimeEntry(e *OccupancyOneTimeEntry) error {
 	}
 
 	occupancy.OneTime = append(occupancy.OneTime, *e)
-	occupancy.writeToStore()
+	if err := occupancy.writeToStore(); err != nil {
+		log.Error(err.Error())
+		return err
+	}
 	return nil
 }
 
@@ -108,7 +111,9 @@ func (s *OccupancySchedule) RemoveOneTimeEntry(id OccupancyOneTimeID) {
 	occScheduler.RemoveByTags(fmt.Sprintf("%d", id))
 	s.OneTime = append(s.OneTime[:index], s.OneTime[index+1:]...)
 	log.Debug("new schedule", "s", s.OneTime)
-	_ = s.writeToStore()
+	if err := s.writeToStore(); err != nil {
+		log.Error(err.Error())
+	}
 }
 
 // EditEntry updates an entry in the OccupancySchedule, keyed based on e.ID

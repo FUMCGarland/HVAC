@@ -50,19 +50,29 @@ func Start(c *hvac.MQTTConfig, done <-chan bool) {
 
 	// subscribe to the topics which relay modules and sensors will update
 	sub := fmt.Sprintf("%s/%s/+/%s", root, hvac.PumpsTopic, hvac.CurrentStateEndpoint)
-	server.Subscribe(sub, subscriptionID, pumpCallbackFn)
+	if err := server.Subscribe(sub, subscriptionID, pumpCallbackFn); err != nil {
+		log.Error("subscribe failed", "error", err.Error())
+	}
 
 	sub = fmt.Sprintf("%s/%s/+/%s", root, hvac.BlowersTopic, hvac.CurrentStateEndpoint)
-	server.Subscribe(sub, subscriptionID, blowerCallbackFn)
+	if err := server.Subscribe(sub, subscriptionID, blowerCallbackFn); err != nil {
+		log.Error("subscribe failed", "error", err.Error())
+	}
 
 	sub = fmt.Sprintf("%s/%s/+/%s", root, hvac.ChillersTopic, hvac.CurrentStateEndpoint)
-	server.Subscribe(sub, subscriptionID, chillerCallbackFn)
+	if err := server.Subscribe(sub, subscriptionID, chillerCallbackFn); err != nil {
+		log.Error("subscribe failed", "error", err.Error())
+	}
 
 	sub = fmt.Sprintf("%s/%s/+/%s", root, hvac.RoomsTopic, hvac.TempEndpoint)
-	server.Subscribe(sub, subscriptionID, tempCallbackFn)
+	if err := server.Subscribe(sub, subscriptionID, tempCallbackFn); err != nil {
+		log.Error("subscribe failed", "error", err.Error())
+	}
 
 	sub = fmt.Sprintf("%s/%s/+/%s", root, hvac.RoomsTopic, hvac.HumidityEndpoint)
-	server.Subscribe(sub, subscriptionID, humidityCallbackFn)
+	if err := server.Subscribe(sub, subscriptionID, humidityCallbackFn); err != nil {
+		log.Error("subscribe failed", "error", err.Error())
+	}
 
 	inline = server
 

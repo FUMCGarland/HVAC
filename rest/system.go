@@ -86,7 +86,11 @@ func putControl(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	switch scm.ControlMode {
 	case hvac.ControlManual, hvac.ControlSchedule, hvac.ControlTemp, hvac.ControlOff:
 		hvac.StopAll()
-		c.SetControlMode(scm.ControlMode)
+		if err := c.SetControlMode(scm.ControlMode); err != nil {
+			log.Error("set control mode failed", "error", err.Error())
+			http.Error(w, jsonError(err), http.StatusInternalServerError)
+			return
+		}
 	default:
 		err := fmt.Errorf("unknown ControlMode %d", scm.ControlMode)
 		log.Error(err.Error())
