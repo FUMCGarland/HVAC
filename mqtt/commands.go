@@ -10,23 +10,23 @@ import (
 
 // sendTargetState sends a generic command to a generic device
 func sendTargetState(did hvac.DeviceID, cmd *hvac.Command) error {
-	devtype := "pump"
+	subtopic := hvac.PumpsTopic
 	switch did.(type) {
 	case hvac.PumpID:
-		devtype = "pumps"
+		subtopic = hvac.PumpsTopic
 	case hvac.BlowerID:
-		devtype = "blowers"
+		subtopic = hvac.BlowersTopic
 	case hvac.ChillerID:
-		devtype = "chillers"
+		subtopic = hvac.ChillersTopic
 	}
 
-	topic := fmt.Sprintf("%s/%s/%d/targetstate", root, devtype, did)
+	topic := fmt.Sprintf("%s/%s/%d/%s", root, subtopic, did, hvac.TargetStateEndpoint)
 	jcmd, err := json.Marshal(cmd)
 	if err != nil {
 		log.Error("unable to marshal command", "cmd", cmd, "topic", topic)
 		return err
 	}
 
-	log.Info("controller sending targetState", "type", devtype, "deviceID", did, "target", cmd.TargetState, "topic", topic)
-	return inline.Publish(topic, jcmd, false, 0)
+	log.Debug("controller sending targetState", "deviceID", did, "target", cmd.TargetState, "topic", topic)
+	return inline.Publish(topic, jcmd, false, hvac.QoS)
 }

@@ -46,21 +46,23 @@ func Start(c *hvac.MQTTConfig, done <-chan bool) {
 		}
 	}()
 
+	const subscriptionID int = 1
+
 	// subscribe to the topics which relay modules and sensors will update
-	sub := fmt.Sprintf("%s/pumps/+/currentstate", root)
-	server.Subscribe(sub, 1, pumpCallbackFn)
+	sub := fmt.Sprintf("%s/%s/+/%s", root, hvac.PumpsTopic, hvac.CurrentStateEndpoint)
+	server.Subscribe(sub, subscriptionID, pumpCallbackFn)
 
-	sub = fmt.Sprintf("%s/blowers/+/currentstate", root)
-	server.Subscribe(sub, 1, blowerCallbackFn)
+	sub = fmt.Sprintf("%s/%s/+/%s", root, hvac.BlowersTopic, hvac.CurrentStateEndpoint)
+	server.Subscribe(sub, subscriptionID, blowerCallbackFn)
 
-	sub = fmt.Sprintf("%s/chillers/+/currentstate", root)
-	server.Subscribe(sub, 1, chillerCallbackFn)
+	sub = fmt.Sprintf("%s/%s/+/%s", root, hvac.ChillersTopic, hvac.CurrentStateEndpoint)
+	server.Subscribe(sub, subscriptionID, chillerCallbackFn)
 
-	sub = fmt.Sprintf("%s/rooms/+/temp", root)
-	server.Subscribe(sub, 1, tempCallbackFn)
+	sub = fmt.Sprintf("%s/%s/+/%s", root, hvac.RoomsTopic, hvac.TempEndpoint)
+	server.Subscribe(sub, subscriptionID, tempCallbackFn)
 
-	sub = fmt.Sprintf("%s/rooms/+/humidity", root)
-	server.Subscribe(sub, 1, humidityCallbackFn)
+	sub = fmt.Sprintf("%s/%s/+/%s", root, hvac.RoomsTopic, hvac.HumidityEndpoint)
+	server.Subscribe(sub, subscriptionID, humidityCallbackFn)
 
 	inline = server
 

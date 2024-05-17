@@ -37,14 +37,14 @@ func start(ctx context.Context, rc *RelayConf) {
 		SessionExpiryInterval:         60,
 		OnConnectionUp: func(cm *autopaho.ConnectionManager, connAck *paho.Connack) {
 			log.Info("mqtt connection up")
-			blowerTopic := fmt.Sprintf("%s/blowers/+/targetstate", rc.Root)
-			pumpTopic := fmt.Sprintf("%s/pumps/+/targetstate", rc.Root)
-			chillerTopic := fmt.Sprintf("%s/chillers/+/targetstate", rc.Root)
+			blowerTopic := fmt.Sprintf("%s/%s/+/%s", rc.Root, hvac.BlowersTopic, hvac.TargetStateEndpoint)
+			pumpTopic := fmt.Sprintf("%s/%s/+/%s", rc.Root, hvac.PumpsTopic, hvac.TargetStateEndpoint)
+			chillerTopic := fmt.Sprintf("%s/%s/+/%s", rc.Root, hvac.ChillersTopic, hvac.TargetStateEndpoint)
 			if _, err := cm.Subscribe(ctx, &paho.Subscribe{
 				Subscriptions: []paho.SubscribeOptions{
-					{Topic: blowerTopic, QoS: 0},
-					{Topic: pumpTopic, QoS: 0},
-					{Topic: chillerTopic, QoS: 0},
+					{Topic: blowerTopic, QoS: hvac.QoS},
+					{Topic: pumpTopic, QoS: hvac.QoS},
+					{Topic: chillerTopic, QoS: hvac.QoS},
 				},
 			}); err != nil {
 				log.Info("failed to subscribe. This is likely to mean no messages will be received.", "err", err.Error())
@@ -203,11 +203,11 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 	var relay *hvac.Relay
 	for k := range rc.Relays {
 		switch {
-		case mode == "pumps" && hvac.PumpID(id) == rc.Relays[k].PumpID:
+		case mode == hvac.PumpsTopic && hvac.PumpID(id) == rc.Relays[k].PumpID:
 			relay = &rc.Relays[k]
-		case mode == "blowers" && hvac.BlowerID(id) == rc.Relays[k].BlowerID:
+		case mode == hvac.BlowersTopic && hvac.BlowerID(id) == rc.Relays[k].BlowerID:
 			relay = &rc.Relays[k]
-		case mode == "chillers" && hvac.ChillerID(id) == rc.Relays[k].ChillerID:
+		case mode == hvac.ChillersTopic && hvac.ChillerID(id) == rc.Relays[k].ChillerID:
 			relay = &rc.Relays[k]
 		}
 	}
@@ -226,7 +226,7 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 	// all of this is already processed in the controller, do we need to double-check it here?
 	// paranoia says yes, if someone is sending commands directly via mqtt instead of through the controller's API
 	switch mode {
-	case "pumps":
+	case hvac.PumpsTopic:
 		if cmd.RunTime < hvac.MinPumpRunTime {
 			err := fmt.Errorf("pump runtime too short")
 			log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "min", hvac.MinPumpRunTime.Minutes())
@@ -237,7 +237,7 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 			log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "max", hvac.MaxPumpRunTime.Minutes())
 			return true, nil
 		}
-	case "blowers":
+	case hvac.BlowersTopic:
 		if cmd.RunTime < hvac.MinBlowerRunTime {
 			err := fmt.Errorf("blower runtime too short")
 			log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "min", hvac.MinBlowerRunTime.Minutes())
@@ -248,7 +248,7 @@ func processIncoming(pr paho.PublishReceived) (bool, error) {
 			log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "max", hvac.MaxBlowerRunTime.Minutes())
 			return true, nil
 		}
-	case "chillers":
+	case hvac.ChillersTopic:
 		if cmd.RunTime < hvac.MinChillerRunTime {
 			err := fmt.Errorf("chiller runtime too short")
 			log.Error(err.Error(), "requested", cmd.RunTime.Minutes(), "min", hvac.MinChillerRunTime.Minutes())
@@ -300,13 +300,13 @@ func sendUpdate(ctx context.Context, rc *RelayConf, relay *hvac.Relay, response 
 	var id uint8
 	switch {
 	case relay.BlowerID != 0:
-		mode = "blowers"
+		mode = hvac.BlowersTopic
 		id = uint8(relay.BlowerID)
 	case relay.ChillerID != 0:
-		mode = "chillers"
+		mode = hvac.ChillersTopic
 		id = uint8(relay.ChillerID)
 	case relay.PumpID != 0:
-		mode = "pumps"
+		mode = hvac.PumpsTopic
 		id = uint8(relay.PumpID)
 	default:
 		err := fmt.Errorf("unknown device type")
@@ -314,7 +314,7 @@ func sendUpdate(ctx context.Context, rc *RelayConf, relay *hvac.Relay, response 
 		return err
 	}
 
-	topic := fmt.Sprintf("%s/%s/%d/currentstate", rc.Root, mode, id)
+	topic := fmt.Sprintf("%s/%s/%d/%s", rc.Root, mode, id, hvac.CurrentStateEndpoint)
 	payload, err := json.Marshal(response)
 	if err != nil {
 		log.Error("json marshal response failed", "err", err.Error())
@@ -323,7 +323,7 @@ func sendUpdate(ctx context.Context, rc *RelayConf, relay *hvac.Relay, response 
 	log.Debug("sendUpdate", "topic", topic, "payload", payload)
 
 	if _, err = client.Publish(ctx, &paho.Publish{
-		QoS:     0,
+		QoS:     hvac.QoS,
 		Topic:   topic,
 		Payload: payload,
 	}); err != nil {

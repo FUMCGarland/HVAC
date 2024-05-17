@@ -29,7 +29,7 @@ func blowerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 		return
 	}
 
-	response := hvac.BlowerResponse{}
+	response := hvac.Response{}
 	if err := json.Unmarshal(pk.Payload, &response); err != nil {
 		log.Error("bad response", "blower", bn, "res", pk.Payload, "err", err.Error())
 		return
@@ -88,7 +88,7 @@ func pumpCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet
 		return
 	}
 
-	response := hvac.PumpResponse{}
+	response := hvac.Response{}
 	if err := json.Unmarshal(pk.Payload, &response); err != nil {
 		log.Error("bad response", "pump", pn, "res", pk.Payload, "err", err.Error())
 		return
@@ -136,7 +136,7 @@ func chillerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pac
 		return
 	}
 
-	response := hvac.ChillerResponse{}
+	response := hvac.Response{}
 	if err := json.Unmarshal(pk.Payload, &response); err != nil {
 		log.Error("bad response", "chiller", cn, "res", pk.Payload, "err", err.Error())
 		return

@@ -30,7 +30,7 @@ func putBlower(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	bc := hvac.BlowerCommand{}
+	bc := hvac.Command{}
 	if err := json.NewDecoder(r.Body).Decode(&bc); err != nil {
 		log.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

@@ -64,7 +64,7 @@ func putZoneStart(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 
-	zc := hvac.ZoneCommand{}
+	zc := hvac.Command{}
 	if err := json.NewDecoder(r.Body).Decode(&zc); err != nil {
 		log.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
