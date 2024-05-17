@@ -161,7 +161,7 @@ func (ch ChillerID) Start(duration time.Duration, source string) error {
 	}
 
 	cc := MQTTRequest{
-		Device: ch,
+		DeviceID: ch,
 		Command: Command{
 			TargetState: true,
 			RunTime:     duration,
@@ -174,7 +174,7 @@ func (ch ChillerID) Start(duration time.Duration, source string) error {
 
 func (ch ChillerID) Stop(source string) {
 	cc := MQTTRequest{
-		Device: ch,
+		DeviceID: ch,
 		Command: Command{
 			TargetState: false,
 			RunTime:     0,

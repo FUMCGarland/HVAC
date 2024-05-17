@@ -68,18 +68,8 @@ func Start(c *hvac.MQTTConfig, done <-chan bool) {
 		select {
 		case cmd := <-cmdChan:
 			log.Debug("mqtt got command", "cmd", cmd)
-			switch cmd.Device.(type) {
-			case hvac.PumpID:
-				cc := hvac.PumpCommand(cmd.Command)
-				sendPumpTargetState(cmd.Device.(hvac.PumpID), &cc)
-			case hvac.BlowerID:
-				cc := hvac.BlowerCommand(cmd.Command)
-				sendBlowerTargetState(cmd.Device.(hvac.BlowerID), &cc)
-			case hvac.ChillerID:
-				cc := hvac.ChillerCommand(cmd.Command)
-				sendChillerTargetState(cmd.Device.(hvac.ChillerID), &cc)
-			default:
-				log.Error("unknown command device type")
+			if err := sendTargetState(cmd.DeviceID, &cmd.Command); err != nil {
+				log.Error(err.Error())
 			}
 		case <-done:
 			log.Info("Shutting down MQTT")

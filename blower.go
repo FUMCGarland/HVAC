@@ -133,7 +133,7 @@ func (b BlowerID) Start(duration time.Duration, source string) error {
 	}
 
 	cc := MQTTRequest{
-		Device: b,
+		DeviceID: b,
 		Command: Command{
 			TargetState: true,
 			RunTime:     duration,
@@ -183,7 +183,7 @@ func (b BlowerID) Stop(source string) {
 	}
 
 	cc := MQTTRequest{
-		Device: b,
+		DeviceID: b,
 		Command: Command{
 			TargetState: false,
 			RunTime:     0,

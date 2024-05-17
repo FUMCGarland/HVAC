@@ -8,41 +8,25 @@ import (
 	"github.com/FUMCGarland/hvac/log"
 )
 
-// SendPumpTargetState sends a command to a pump
-func sendPumpTargetState(p hvac.PumpID, cmd *hvac.PumpCommand) error {
-	topic := fmt.Sprintf("%s/pumps/%d/targetstate", root, p)
+// sendTargetState sends a generic command to a generic device
+func sendTargetState(did hvac.DeviceID, cmd *hvac.Command) error {
+	devtype := "pump"
+	switch did.(type) {
+	case hvac.PumpID:
+		devtype = "pump"
+	case hvac.BlowerID:
+		devtype = "blower"
+	case hvac.ChillerID:
+		devtype = "chiller"
+	}
+
+	topic := fmt.Sprintf("%s/%s/%d/targetstate", root, devtype, did)
 	jcmd, err := json.Marshal(cmd)
 	if err != nil {
 		log.Error("unable to marshal command", "cmd", cmd, "topic", topic)
 		return err
 	}
 
-	log.Info("controller: Pump TargetState", "pump", p, "target", cmd.TargetState, "topic", topic)
-	return inline.Publish(topic, jcmd, false, 0)
-}
-
-// SendBlowerTargetState sends a command to a pump
-func sendBlowerTargetState(b hvac.BlowerID, cmd *hvac.BlowerCommand) error {
-	topic := fmt.Sprintf("%s/blowers/%d/targetstate", root, b)
-	jcmd, err := json.Marshal(cmd)
-	if err != nil {
-		log.Error("unable to marshal command", "cmd", cmd, "topic", topic)
-		return err
-	}
-
-	log.Info("controller: blower TargetState", "blower", b, "target", cmd.TargetState, "topic", topic)
-	return inline.Publish(topic, jcmd, false, 0)
-}
-
-// SendChillerTargetState sends a command to a pump
-func sendChillerTargetState(ch hvac.ChillerID, cmd *hvac.ChillerCommand) error {
-	topic := fmt.Sprintf("%s/chillers/%d/targetstate", root, ch)
-	jcmd, err := json.Marshal(cmd)
-	if err != nil {
-		log.Error("unable to marshal command", "cmd", cmd, "topic", topic)
-		return err
-	}
-
-	log.Info("controller: Chiller TargetState", "chiller", ch, "target", cmd.TargetState, "topic", topic)
+	log.Info("controller sending targetState", "type", devtype, "deviceID", did, "target", cmd.TargetState, "topic", topic)
 	return inline.Publish(topic, jcmd, false, 0)
 }

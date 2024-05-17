@@ -175,7 +175,7 @@ func (p PumpID) Start(duration time.Duration, source string) error {
 	}
 
 	cc := MQTTRequest{
-		Device: p,
+		DeviceID: p,
 		Command: Command{
 			TargetState: true,
 			RunTime:     duration,
@@ -222,7 +222,7 @@ func (p PumpID) Stop(source string) {
 
 	log.Info("stopping pump", "pumpID", p)
 	cc := MQTTRequest{
-		Device: p,
+		DeviceID: p,
 		Command: Command{
 			TargetState: false,
 			RunTime:     0,

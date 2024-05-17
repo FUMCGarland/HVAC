@@ -183,14 +183,7 @@ func (z ZoneID) Start(d time.Duration, msg string) error {
 }
 
 func stopAll(enabled []DeviceID) {
-	for _, dev := range enabled {
-		switch dev := dev.(type) {
-		case BlowerID:
-			dev.Stop("internal")
-		case ChillerID:
-			dev.Stop("internal")
-		case PumpID:
-			dev.Stop("internal")
-		}
+	for k := range enabled {
+		enabled[k].Stop("internal")
 	}
 }

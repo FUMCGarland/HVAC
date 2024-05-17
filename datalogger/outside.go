@@ -7,9 +7,9 @@ import (
 	owm "github.com/briandowns/openweathermap"
 )
 
-// my intention is that this system will run for decades without needing updates
+// my intention is that this system will run for decades without needing changes
 // including a third-party API like this makes it all very precarious
-// it should fail-safe should the API key expire, or the service shutdown
+// it should fail-safe should the API key expire, or the service shuts down
 
 func getOutsideTemp(c *hvac.Config) (float64, int) {
 	if err := owm.ValidAPIKey(c.OpenWeatherMapKey); err != nil {

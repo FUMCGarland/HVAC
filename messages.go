@@ -48,6 +48,6 @@ type device interface {
 
 // The MQTTRequest is a wrapper type which contains both the command and the ID of the device being controlled
 type MQTTRequest struct {
-	Device  DeviceID
-	Command Command
+	DeviceID DeviceID
+	Command  Command
 }

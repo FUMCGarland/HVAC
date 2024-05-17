@@ -12,6 +12,7 @@ import (
 	"github.com/brutella/dnssd"
 )
 
+// Start runs the DNSSD announcer - it remains alive as long as the ctx is valid.
 func Start(ctx context.Context, c *hvac.Config) {
 	parts := strings.Split(c.HTTPaddr, ":")
 	p := parts[len(parts)-1]
