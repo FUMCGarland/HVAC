@@ -13,11 +13,11 @@ func sendTargetState(did hvac.DeviceID, cmd *hvac.Command) error {
 	devtype := "pump"
 	switch did.(type) {
 	case hvac.PumpID:
-		devtype = "pump"
+		devtype = "pumps"
 	case hvac.BlowerID:
-		devtype = "blower"
+		devtype = "blowers"
 	case hvac.ChillerID:
-		devtype = "chiller"
+		devtype = "chillers"
 	}
 
 	topic := fmt.Sprintf("%s/%s/%d/targetstate", root, devtype, did)

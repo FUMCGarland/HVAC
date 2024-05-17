@@ -155,22 +155,22 @@ func (z ZoneID) Start(d time.Duration, msg string) error {
 				return err
 			}
 			enabled = append(enabled, c.Blowers[k].ID)
+			time.Sleep(time.Second) // let blowers start before attempting to start pump
 
 			pumpid := c.Blowers[k].getPump(c.SystemMode)
 			if pumpid != 0 {
 				// don't skip if the pump is already running, we want to extend the running time if necessary
-				time.Sleep(1 * time.Second) // let blower start before attempting to start pump
 				if err := pumpid.Start(d, msg); err != nil {
 					stopAll(enabled)
 					return err
 				}
 				enabled = append(enabled, pumpid)
 			}
+			time.Sleep(time.Second) // let pumps start before attempting to start chiller
 
 			chillerid := pumpid.getChiller()
 			if chillerid != 0 {
 				// don't skip if the chiller is already running, we want to extend the running time if necessary
-				time.Sleep(1 * time.Second) // let pump start before attempting to start chiller
 				if err := chillerid.Start(d, msg); err != nil {
 					stopAll(enabled)
 					return err
@@ -183,6 +183,7 @@ func (z ZoneID) Start(d time.Duration, msg string) error {
 }
 
 func stopAll(enabled []DeviceID) {
+	log.Info("calling stopAll", "enabled", enabled)
 	for k := range enabled {
 		enabled[k].Stop("internal")
 	}

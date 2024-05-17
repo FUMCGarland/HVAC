@@ -18,6 +18,7 @@ func Start() *slog.Logger {
 	return log
 }
 
+// Get returns the logger itself so it can be used in other subsystems (e.g. MQTT)
 func Get() *slog.Logger {
 	return l
 }

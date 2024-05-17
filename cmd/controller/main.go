@@ -28,6 +28,7 @@ func main() {
 
 	flag.Parse()
 
+	log.Start()
 	if *debug {
 		log.EnableDebug()
 	}
