@@ -4,11 +4,17 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
-	"golang.org/x/crypto/bcrypt"
+	// "golang.org/x/crypto/bcrypt"
 
 	"github.com/FUMCGarland/hvac/log"
+
+	// "github.com/lestrrat-go/jwx/v2/jwa"
+	// "github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v2/jws"
+	"github.com/lestrrat-go/jwx/v2/jwt"
 )
 
 var ad []AuthData
@@ -28,6 +34,7 @@ const (
 )
 
 // used in the cli to add/update users, should probably just be moved there
+// we can crank this up now that we aren't checking passwords on every request
 const BcryptRounds = 4
 
 func LoadAuth(path string) ([]AuthData, error) {
@@ -48,44 +55,41 @@ func LoadAuth(path string) ([]AuthData, error) {
 
 func authMW(h httprouter.Handle, level authLevel) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		h(w, r, ps)
-	}
-}
-
-func xauthMW(h httprouter.Handle, level authLevel) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		if len(ad) == 0 {
 			log.Error("no http auth data")
 			http.Error(w, "No Auth Data", http.StatusInternalServerError)
 			return
 		}
 
-		username, password, ok := r.BasicAuth()
-		if !ok {
-			log.Error("BasicAuth !ok")
-			w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		ah := r.Header.Get("Authorization")
+		if ah == "" {
+			log.Info("JWT missing")
+			h(w, r, ps)
+			// http.Error(w, "JWT missing", http.StatusUnauthorized)
 			return
 		}
 
-		for k := range ad {
-			if ad[k].Username == username {
-				err := bcrypt.CompareHashAndPassword([]byte(ad[k].PwHash), []byte(password))
-				if err != nil {
-					log.Error("login failed", "err", err)
-					w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
-					http.Error(w, "Unauthorized", http.StatusUnauthorized)
-					return
-				}
-				if ad[k].Level < level {
-					log.Error("login level too low", "wanted", level, "got", ad[k].Level)
-					w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
-					http.Error(w, "Unauthorized", http.StatusForbidden)
-					return
-				}
-				break
-			}
+		token, err := jwt.ParseRequest(r,
+			jwt.WithKeySet(sk, jws.WithInferAlgorithmFromKey(true), jws.WithUseDefault(true)),
+			jwt.WithValidate(true),
+			jwt.WithAudience(sessionName),
+			jwt.WithAcceptableSkew(20*time.Second),
+		)
+		if err != nil {
+			log.Info("token parse/validate failed", "error", err.Error())
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
 		}
+
+		username := string(token.Subject())
+		ii, _ := token.Get("level")
+		inlevel := authLevel(ii.(authLevel))
+		if inlevel < level {
+			log.Info("access level too low", "wanted", level, "got", inlevel, "username", username)
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+
 		h(w, r, ps)
 	}
 }

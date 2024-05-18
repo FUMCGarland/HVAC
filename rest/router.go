@@ -26,6 +26,8 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 
 	m.NotFound = http.HandlerFunc(notFound)
 
+	m.POST("/api/v1/getJWT", login)
+
 	// Add handlers for all the endpoints
 	m.GET("/api/v1/system", authMW(getSystem, AuthLevelView))           // all devices in one shot
 	m.PUT("/api/v1/system/mode", authMW(putSystemMode, AuthLevelAdmin)) // heating or cooling
@@ -59,17 +61,15 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 }
 
 func headers(w http.ResponseWriter, r *http.Request) {
-	origin := r.Header.Get("Origin")
-	if origin != "" {
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	if origin := r.Header.Get("Origin"); origin != "" {
 		w.Header().Add("Access-Control-Allow-Origin", origin)
-	} else {
-		w.Header().Add("Access-Control-Allow-Origin", "*")
 	}
 	w.Header().Add("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, HEAD, DELETE, PATCH")
 	w.Header().Add("Access-Control-Allow-Credentials", "true")
 	w.Header().Add("Access-Control-Allow-Headers", "Content-Type, Accept, If-Modified-Since, If-Match, If-None-Match, Authorization")
 
-	w.Header().Add("Content-Type", jsonType)
+	w.Header().Set("Content-Type", jsonType)
 }
 
 func TODO(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {

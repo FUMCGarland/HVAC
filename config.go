@@ -92,11 +92,11 @@ func LoadConfig(filename string) (*Config, error) {
 	c = in
 
 	if err := validate(); err != nil {
-		log.Fatal("config", "config", c, "error", err.Error())
+		log.Fatal("validate", "config", c, "error", err.Error())
 	}
 
 	if err := c.loadFromStore(); err != nil {
-		log.Fatal("config", "config", c, "error", err.Error())
+		log.Fatal("loadFromStore", "config", c, "error", err.Error())
 	}
 
 	return c, nil
