@@ -1,8 +1,13 @@
 <script>
 	import { Navbar, NavBrand, NavLi, NavUl, NavHamburger, Toast } from 'flowbite-svelte';
 	import { SvelteToast } from '@zerodevx/svelte-toast';
+	import { page } from '$app/stores';
 	import '../app.pcss';
 </script>
+
+<svelte:head>
+	<title>FUMC Garland HVAC Controller</title>
+</svelte:head>
 
 <svelte:window />
 <header class="mx-auto w-full flex-none bg-white dark:bg-slate-950">
