@@ -117,6 +117,16 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	log.Info("login", "username", username, "level", level)
 	headers(res, req)
 	res.Header().Set("content-type", "application/jwt")
+	http.SetCookie(res, &http.Cookie{
+		Name:     "jwt",
+		Value:    JWT,
+		Path:     "/",
+		Expires:  time.Now().Add(time.Hour * 24 * 365),
+		MaxAge:   0,
+		Secure:   false,
+		HttpOnly: false,
+		SameSite: http.SameSiteLaxMode,
+	})
 	fmt.Fprint(res, JWT)
 }
 

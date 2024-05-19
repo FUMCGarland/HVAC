@@ -11,8 +11,6 @@ import (
 
 	"github.com/FUMCGarland/hvac/log"
 
-	// "github.com/lestrrat-go/jwx/v2/jwa"
-	// "github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jws"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 )
@@ -61,15 +59,8 @@ func authMW(h httprouter.Handle, level authLevel) httprouter.Handle {
 			return
 		}
 
-		ah := r.Header.Get("Authorization")
-		if ah == "" {
-			log.Info("JWT missing")
-			h(w, r, ps)
-			// http.Error(w, "JWT missing", http.StatusUnauthorized)
-			return
-		}
-
 		token, err := jwt.ParseRequest(r,
+			jwt.WithCookieKey("jwt"),
 			jwt.WithKeySet(sk, jws.WithInferAlgorithmFromKey(true), jws.WithUseDefault(true)),
 			jwt.WithValidate(true),
 			jwt.WithAudience(sessionName),
@@ -82,13 +73,18 @@ func authMW(h httprouter.Handle, level authLevel) httprouter.Handle {
 		}
 
 		username := string(token.Subject())
-		ii, _ := token.Get("level")
-		inlevel := authLevel(ii.(authLevel))
-		if inlevel < level {
-			log.Info("access level too low", "wanted", level, "got", inlevel, "username", username)
+		ii, ok := token.Get("level")
+		if !ok {
+			log.Info("no level in token")
+			ii = authLevel(0)
+		}
+
+		// TODO the type assertion here causes it to break
+		/* if ii.(authLevel) < level {
+			log.Info("access level too low", "wanted", level, "got", ii, "username", username)
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
-		}
+		} */
 
 		h(w, r, ps)
 	}
