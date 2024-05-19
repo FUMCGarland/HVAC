@@ -78,6 +78,7 @@ func authMW(h httprouter.Handle, level authLevel) httprouter.Handle {
 			log.Info("no level in token")
 			ii = authLevel(0)
 		}
+		log.Debug("request", "user", username, "level", ii)
 
 		// TODO the type assertion here causes it to break
 		/* if ii.(authLevel) < level {
