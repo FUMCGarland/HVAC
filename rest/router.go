@@ -63,7 +63,7 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 func headers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	if origin := r.Header.Get("Origin"); origin != "" {
-		w.Header().Add("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Access-Control-Allow-Origin", origin)
 	}
 	w.Header().Add("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, HEAD, DELETE, PATCH")
 	w.Header().Add("Access-Control-Allow-Credentials", "true")
