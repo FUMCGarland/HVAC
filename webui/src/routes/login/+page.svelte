@@ -3,6 +3,7 @@
 	import { Table, TableBody, TableBodyCell, TableBodyRow, Button, Input } from 'flowbite-svelte';
 	import { page } from '$app/stores';
 	import { hvaccontroller } from '$lib/hvac';
+	import { toast } from '@zerodevx/svelte-toast';
 
 	// export let data;
 	let username;
