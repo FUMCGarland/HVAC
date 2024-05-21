@@ -30,5 +30,25 @@
 			<TableBodyCell>Temp</TableBodyCell>
 			<TableBodyCell>{data.Temperature}</TableBodyCell>
 		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>Humidity</TableBodyCell>
+			<TableBodyCell>{data.Humidity}</TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>Occupied</TableBodyCell>
+			<TableBodyCell>{data.Occupied}</TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>Last Update</TableBodyCell>
+			<TableBodyCell>{data.LastUpdate}</TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>Battery</TableBodyCell>
+			<TableBodyCell>{data.Battery}</TableBodyCell>
+		</TableBodyRow>
+		<TableBodyRow>
+			<TableBodyCell>ShellyID (sensor)</TableBodyCell>
+			<TableBodyCell>{data.ShellyID}</TableBodyCell>
+		</TableBodyRow>
 	</TableBody>
 </Table>
