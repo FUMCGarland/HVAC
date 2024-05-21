@@ -69,6 +69,11 @@ func Start(c *hvac.MQTTConfig, done <-chan bool) {
 		log.Error("subscribe failed", "error", err.Error())
 	}
 
+	// shellies/shellyht-<deviceid>/sensor/ext_power
+	if err := server.Subscribe("shellies/+/sensor/+", subscriptionID, shellyCallbackFn); err != nil {
+		log.Error("subscribe failed", "error", err.Error())
+	}
+
 	sub = fmt.Sprintf("%s/%s/+/%s", root, hvac.RoomsTopic, hvac.HumidityEndpoint)
 	if err := server.Subscribe(sub, subscriptionID, humidityCallbackFn); err != nil {
 		log.Error("subscribe failed", "error", err.Error())

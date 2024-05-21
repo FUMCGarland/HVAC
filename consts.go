@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type DegF uint8
+type DegF float32 // uint8
 
 // min/max durations for user-scheduled run-times, does not affect temp based
 const (
@@ -34,6 +34,8 @@ const (
 	minZoneTemp         DegF = 60 // the coolest we will accept as a user-defined value
 	maxZoneTemp         DegF = 80 // the warmest we will accept as a user-defined value
 )
+
+const tempMaxAge time.Duration = (2 * time.Hour)
 
 // MQTT topic strings
 const (

@@ -1,6 +1,7 @@
 package hvac
 
 import (
+	"strings"
 	"time"
 
 	"github.com/FUMCGarland/hvac/log"
@@ -22,8 +23,10 @@ type Room struct {
 	Zone        ZoneID
 	Temperature DegF
 	Humidity    uint8
+	Battery     uint8
 	LastUpdate  time.Time
 	Occupied    bool
+	ShellyID    string
 }
 
 // Get returns a full room struct for a RoomID
@@ -44,17 +47,17 @@ func (r *Room) SetTemp(temp DegF) {
 
 	zone := r.Zone.Get()
 	{
-		var avgCnt DegF
+		var avgCnt uint8
 		var avgTot DegF
 		var avg DegF
-		hourAgo := time.Now().Add(0 - time.Hour)
+		maxAge := time.Now().Add(0 - tempMaxAge)
 		for k := range c.Rooms {
 			// in the zone, and not zero, and more recent than an hour ago
-			if c.Rooms[k].Zone == zone.ID && c.Rooms[k].Temperature != 0 && c.Rooms[k].LastUpdate.After(hourAgo) {
+			if c.Rooms[k].Zone == zone.ID && c.Rooms[k].Temperature != 0 && c.Rooms[k].LastUpdate.After(maxAge) {
 				avgCnt++
 				avgTot += c.Rooms[k].Temperature
 			}
-			avg = avgTot / avgCnt
+			avg = avgTot / DegF(avgCnt)
 		}
 		if avg != 0 {
 			temp = avg
@@ -109,8 +112,22 @@ func (r *Room) SetTemp(temp DegF) {
 }
 
 // SetHumidity records the humidity as reported by the sensors, called from MQTT subsystem
-// currently the data is logged and not used
 func (r *Room) SetHumidity(humidity uint8) {
 	r.Humidity = humidity
-	// nothing to do other than accept the update
+}
+
+// SetBattery records the battery status as reported by the sensors, called from MQTT subsystem
+func (r *Room) SetBattery(battery uint8) {
+	r.Battery = battery
+}
+
+// GetRoomIDFromShelly returns a RoomID based on an associated (case insensitive) shelly ID
+func GetRoomIDFromShelly(shellyID string) RoomID {
+	for k := range c.Rooms {
+		if strings.EqualFold(c.Rooms[k].ShellyID, shellyID) {
+			return c.Rooms[k].ID
+		}
+	}
+
+	return 0
 }

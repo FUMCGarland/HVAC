@@ -111,7 +111,7 @@ func writeLine(c *hvac.Config) {
 
 	for k := range c.Rooms {
 		b.WriteString(",")
-		b.WriteString(fmt.Sprintf("%d", c.Rooms[k].Temperature))
+		b.WriteString(fmt.Sprintf("%.2f", c.Rooms[k].Temperature))
 		b.WriteString(",")
 		b.WriteString(fmt.Sprintf("%d", c.Rooms[k].Humidity))
 		b.WriteString(",")
@@ -133,15 +133,15 @@ func roomTarget(r hvac.Room, c *hvac.Config) string {
 		if c.Zones[k].ID == r.Zone {
 			if c.SystemMode == hvac.SystemModeHeat {
 				if r.Occupied {
-					return fmt.Sprintf("%d", c.Zones[k].Targets.HeatingOccupiedTemp)
+					return fmt.Sprintf("%.2f", c.Zones[k].Targets.HeatingOccupiedTemp)
 				} else {
-					return fmt.Sprintf("%d", c.Zones[k].Targets.HeatingUnoccupiedTemp)
+					return fmt.Sprintf("%.2f", c.Zones[k].Targets.HeatingUnoccupiedTemp)
 				}
 			} else {
 				if r.Occupied {
-					return fmt.Sprintf("%d", c.Zones[k].Targets.CoolingOccupiedTemp)
+					return fmt.Sprintf("%.2f", c.Zones[k].Targets.CoolingOccupiedTemp)
 				} else {
-					return fmt.Sprintf("%d", c.Zones[k].Targets.CoolingUnoccupiedTemp)
+					return fmt.Sprintf("%.2f", c.Zones[k].Targets.CoolingUnoccupiedTemp)
 				}
 			}
 		}

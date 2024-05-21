@@ -208,3 +208,61 @@ func humidityCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pa
 	log.Debug("recording humidity", "room", rn, "humidity", humidity)
 	room.SetHumidity(uint8(humidity))
 }
+
+func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
+	ts := strings.Split(pk.TopicName, "/")
+
+	if len(ts) != 4 || ts[1] == "" {
+		log.Error("invalid shelly topic")
+	}
+	room := hvac.GetRoomIDFromShelly(ts[1])
+
+	switch ts[3] {
+	case "temperature":
+		temp, err := strconv.ParseFloat(string(pk.Payload), 32)
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+		r := room.Get()
+		if r == nil {
+			log.Error("unknown shelly", "shelly", ts[1])
+			return
+		}
+		r.SetTemp(hvac.DegF(temp))
+	case "humidity":
+		hum, err := strconv.ParseFloat(string(pk.Payload), 32)
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+		r := room.Get()
+		if r == nil {
+			log.Error("unknown shelly", "shelly", ts[1])
+			return
+		}
+		r.SetHumidity(uint8(hum))
+	case "battery":
+		batt, err := strconv.ParseFloat(string(pk.Payload), 32)
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+		r := room.Get()
+		if r == nil {
+			log.Error("unknown shelly", "shelly", ts[1])
+			return
+		}
+		r.SetBattery(uint8(batt))
+	case "error":
+		if string(pk.Payload) != "0" {
+			log.Error("error", "shelly", ts[1], "room", room, "data", pk.Payload)
+		}
+	case "act_reasons":
+		if string(pk.Payload) != "[\"sensor\"]" {
+			log.Info("act_reason", "shelly", ts[1], "room", room, "data", pk.Payload)
+		}
+	case "ext_power":
+		log.Debug("ext_power", "shelly", ts[1], "room", room, "data", pk.Payload)
+	}
+}
