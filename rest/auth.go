@@ -79,7 +79,7 @@ func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 			ii = authLevel(0)
 		}
 
-		checklevel, ok := ii.(authlevel)
+		checklevel, ok := ii.(authLevel)
 		if !ok {
 			log.Error("authlevel type assertion failed", "user", username, "level", ii)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -88,7 +88,7 @@ func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 
 		// TODO the type assertion here causes it to break
 		if checklevel < requiredlevel {
-			log.Info("access level too low", "wanted", level, "got", ii, "username", username)
+			log.Info("access level too low", "wanted", requiredlevel, "got", ii, "username", username)
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
