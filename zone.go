@@ -126,7 +126,7 @@ func (z ZoneID) Stop(msg string) {
 
 	for k := range c.Blowers {
 		if c.Blowers[k].Zone == z && c.Blowers[k].Running {
-			log.Info("stopping blower on zone", "zone", c.Blowers[k].ID)
+			log.Debug("stopping blower on zone", "zone", c.Blowers[k].ID)
 			c.Blowers[k].ID.Stop(msg)
 		}
 	}
@@ -184,7 +184,7 @@ func (z ZoneID) Start(d time.Duration, msg string) error {
 }
 
 func stopAll(enabled []DeviceID) {
-	log.Info("calling stopAll", "enabled", enabled)
+	log.Debug("calling stopAll", "enabled", enabled)
 	for k := range enabled {
 		enabled[k].Stop("internal")
 	}

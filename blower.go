@@ -168,7 +168,7 @@ func (b BlowerID) Stop(source string) {
 	}
 
 	if last {
-		log.Info("last running blower on loop, getting pump")
+		log.Debug("last running blower on loop, getting pump")
 		pl := PumpID(0)
 		if c.SystemMode == SystemModeHeat {
 			pl = c.getPumpFromLoop(blower.HotLoop)
@@ -176,7 +176,7 @@ func (b BlowerID) Stop(source string) {
 			pl = c.getPumpFromLoop(blower.ColdLoop)
 		}
 		pump := pl.Get()
-		log.Info("pump", "id", pl, "pump", pump)
+		log.Debug("pump", "id", pl, "pump", pump)
 		if pump.Running {
 			pump.ID.Stop("internal")
 		}
@@ -208,6 +208,6 @@ func (b *Blower) getPump(sm SystemModeT) PumpID {
 			return c.Pumps[k].ID
 		}
 	}
-	log.Info("unknown pump for blower", "blowerID", b.ID)
+	log.Warn("unknown pump for blower", "blowerID", b.ID)
 	return PumpID(0)
 }

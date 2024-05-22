@@ -115,10 +115,10 @@ func (s *OccupancySchedule) RemoveRecurringEntry(id OccupancyRecurringID) {
 		}
 	}
 	if index == -1 {
-		log.Info("unknown occupancy recurring entry ID", "id", id)
+		log.Warn("unknown occupancy recurring entry ID", "id", id)
 		return
 	}
-	log.Info("removing job from recurring schedule", "id", id)
+	log.Debug("removing job from recurring schedule", "id", id)
 	occScheduler.RemoveByTags(fmt.Sprintf("%d", id))
 	s.Recurring = append(s.Recurring[:index], s.Recurring[index+1:]...)
 	log.Debug("new schedule", "s", s.Recurring)
@@ -164,7 +164,7 @@ func (s *OccupancySchedule) EditRecurringEntry(e *OccupancyRecurringEntry) error
 		return err
 	}
 
-	log.Info("removing job from schedule", "id", e.ID)
+	log.Debug("removing job from schedule", "id", e.ID)
 	occScheduler.RemoveByTags(fmt.Sprintf("%d", e.ID))
 
 	if err := buildRecurringJob(e); err != nil {

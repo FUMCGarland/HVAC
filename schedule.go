@@ -205,7 +205,7 @@ func buildJob(e *ScheduleEntry) error {
 			func() {
 				log.Debug("starting scheduled entry", "e", e)
 				for _, zone := range e.Zones {
-					log.Info("starting zone", "zone", zone, "duration", e.RunTime.Minutes())
+					log.Debug("starting zone", "zone", zone, "duration", e.RunTime.Minutes())
 					if err := zone.Start(e.RunTime, "scheduled"); err != nil {
 						log.Error(err.Error())
 					}
@@ -229,10 +229,10 @@ func (s *ScheduleList) RemoveEntry(id uint8) {
 		}
 	}
 	if index == -1 {
-		log.Info("unknown schedule entry ID", "id", id)
+		log.Warn("unknown schedule entry ID", "id", id)
 		return
 	}
-	log.Info("removing job from schedule", "id", id)
+	log.Debug("removing job from schedule", "id", id)
 	scheduler.RemoveByTags(fmt.Sprintf("%d", id))
 	s.List = append(s.List[:index], s.List[index+1:]...)
 	log.Debug("new schedule", "s", s.List)
@@ -282,7 +282,7 @@ func (s *ScheduleList) EditEntry(e *ScheduleEntry) error {
 		return err
 	}
 
-	log.Info("removing job from schedule", "id", e.ID)
+	log.Debug("removing job from schedule", "id", e.ID)
 	scheduler.RemoveByTags(fmt.Sprintf("%d", e.ID))
 
 	if err := buildJob(e); err != nil {

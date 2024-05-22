@@ -104,10 +104,10 @@ func (s *OccupancySchedule) RemoveOneTimeEntry(id OccupancyOneTimeID) {
 		}
 	}
 	if index == -1 {
-		log.Info("unknown occupancy recurring entry ID", "id", id)
+		log.Warn("unknown occupancy recurring entry ID", "id", id)
 		return
 	}
-	log.Info("removing job from recurring schedule", "id", id)
+	log.Debug("removing job from recurring schedule", "id", id)
 	occScheduler.RemoveByTags(fmt.Sprintf("%d", id))
 	s.OneTime = append(s.OneTime[:index], s.OneTime[index+1:]...)
 	log.Debug("new schedule", "s", s.OneTime)
@@ -147,7 +147,7 @@ func (s *OccupancySchedule) EditOneTimeEntry(e *OccupancyOneTimeEntry) error {
 		return err
 	}
 
-	log.Info("removing job from schedule", "id", e.ID)
+	log.Debug("removing job from schedule", "id", e.ID)
 	occScheduler.RemoveByTags(fmt.Sprintf("%d", e.ID))
 
 	if err := buildOneTimeJob(e); err != nil {

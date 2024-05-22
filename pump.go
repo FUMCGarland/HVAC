@@ -79,13 +79,13 @@ func (p PumpID) canEnable() error {
 		for k := range c.Rooms {
 			if c.Rooms[k].Temperature != 0 && c.Rooms[k].Temperature > boilerRecoveryTemp {
 				// a room above the reset temp, do not reset
-				log.Info("unlocking boiler, all rooms below max temp")
+				log.Warn("not unlocking boiler, rooms still above max temp")
 				boilerReset = false
 			}
 		}
 
 		if boilerReset {
-			log.Info("all rooms above recovery temp, unlocking boiler")
+			log.Warn("all rooms below recovery temp, unlocking boiler")
 			boilerLockout = false
 		}
 	}
@@ -221,7 +221,7 @@ func (p PumpID) Stop(source string) {
 		}
 	}
 
-	log.Info("stopping pump", "pumpID", p)
+	log.Debug("stopping pump", "pumpID", p)
 	cc := MQTTRequest{
 		DeviceID: p,
 		Command: Command{
