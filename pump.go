@@ -79,6 +79,7 @@ func (p PumpID) canEnable() error {
 		for k := range c.Rooms {
 			if c.Rooms[k].Temperature != 0 && c.Rooms[k].Temperature > boilerRecoveryTemp {
 				// a room above the reset temp, do not reset
+				log.Info("unlocking boiler, all rooms below max temp")
 				boilerReset = false
 			}
 		}

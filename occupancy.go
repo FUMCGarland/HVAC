@@ -124,7 +124,7 @@ func readOccupancyFromStore() (*OccupancySchedule, error) {
 	}
 
 	for k := range sl.Recurring {
-		log.Info("loading recurring occupancy entry", "entry", sl.Recurring[k])
+		log.Debug("loading recurring occupancy entry", "entry", sl.Recurring[k])
 		if err := buildRecurringJob(&sl.Recurring[k]); err != nil {
 			log.Error(err.Error())
 			return &sl, err
@@ -132,7 +132,7 @@ func readOccupancyFromStore() (*OccupancySchedule, error) {
 	}
 
 	for k := range sl.OneTime {
-		log.Info("loading onetime occupancy entry", "entry", sl.OneTime[k])
+		log.Debug("loading onetime occupancy entry", "entry", sl.OneTime[k])
 		if err := buildOneTimeJob(&sl.OneTime[k]); err != nil {
 			log.Error(err.Error())
 			// return &sl, err // TODO: check for erros but ignore jobs in the past

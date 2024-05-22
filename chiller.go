@@ -74,6 +74,7 @@ func (ch ChillerID) canEnable() error {
 			if c.Rooms[k].Temperature != 0 && c.Rooms[k].Temperature < chillerRecoveryTemp {
 				// a room below the reset temp, do not reset
 				chillerReset = false
+				log.Info("unlocking chiller, all rooms are above minimum temp")
 				break
 			}
 		}
@@ -146,7 +147,7 @@ func (ch *Chiller) readFromStore() error {
 
 func (ch ChillerID) Start(duration time.Duration, source string) error {
 	if err := ch.canEnable(); err != nil {
-		log.Error("cannot enable ch", "id", ch, "err", err.Error())
+		log.Error("cannot enable chiller", "id", ch, "err", err.Error())
 		return err
 	}
 

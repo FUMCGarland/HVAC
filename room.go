@@ -44,8 +44,16 @@ func (r RoomID) Get() *Room {
 func (r *Room) SetTemp(temp DegF) {
 	r.Temperature = temp
 	r.LastUpdate = time.Now()
-
 	zone := r.Zone.Get()
+	zoneOccupied := false
+
+	for k := range c.Rooms {
+		if c.Rooms[k].Zone == zone.ID && c.Rooms[k].Occupied {
+			zoneOccupied = true
+			break
+		}
+	}
+
 	{
 		var avgCnt uint8
 		var avgTot DegF
@@ -64,45 +72,46 @@ func (r *Room) SetTemp(temp DegF) {
 		}
 	}
 	log.Info("room temp", "room", r.Name, "zone", zone.ID, "room temp", r.Temperature, "zone avg", temp)
+	zone.AverageTemp = temp
 
 	switch c.SystemMode {
 	case SystemModeHeat:
-		if r.Temperature >= boilerLockoutTemp {
+		if r.Temperature >= boilerLockoutTemp && !boilerLockout {
 			log.Info("locking out boiler, room temp too high")
 			boilerLockout = true
 			for k := range c.Pumps {
 				c.Pumps[k].ID.Stop("lockout")
 			}
 		}
-		if (r.Occupied && temp < zone.Targets.HeatingOccupiedTemp-zoneHysterisisRange) || (!r.Occupied && temp < zone.Targets.HeatingUnoccupiedTemp-zoneHysterisisRange) {
+		if (zoneOccupied && temp < zone.Targets.HeatingOccupiedTemp-zoneHysterisisRange) || (!zoneOccupied && temp < zone.Targets.HeatingUnoccupiedTemp-zoneHysterisisRange) {
 			if c.ControlMode == ControlTemp {
 				_ = zone.ID.Start(defaultRunDuration, "temp")
 			}
 			return
 		}
-		if (r.Occupied && temp > zone.Targets.HeatingOccupiedTemp+zoneHysterisisRange) || (!r.Occupied && temp > zone.Targets.HeatingUnoccupiedTemp+zoneHysterisisRange) {
+		if (zoneOccupied && temp > zone.Targets.HeatingOccupiedTemp+zoneHysterisisRange) || (!zoneOccupied && temp > zone.Targets.HeatingUnoccupiedTemp+zoneHysterisisRange) {
 			if c.ControlMode == ControlTemp {
 				zone.ID.Stop("temp")
 			}
 			return
 		}
 	case SystemModeCool:
-		if r.Temperature <= chillerLockoutTemp {
+		if r.Temperature <= chillerLockoutTemp && !chillerLockout {
 			log.Info("locking out chiller, room temp too low")
 			chillerLockout = true
 			for k := range c.Chillers {
 				c.Chillers[k].ID.Stop("lockout")
 			}
 		}
-		if (r.Occupied && temp > zone.Targets.CoolingOccupiedTemp+zoneHysterisisRange) || (!r.Occupied && temp > zone.Targets.CoolingUnoccupiedTemp+zoneHysterisisRange) {
-			log.Info("starting zone (if in temp control mode)", "zone", zone.ID, "avg temp", temp)
+		if (zoneOccupied && temp > zone.Targets.CoolingOccupiedTemp+zoneHysterisisRange) || (!zoneOccupied && temp > zone.Targets.CoolingUnoccupiedTemp+zoneHysterisisRange) {
+			log.Info("starting zone (if in temp control mode)", "zone", zone.ID, "avg temp", temp, "targets", zone.Targets)
 			if c.ControlMode == ControlTemp {
 				_ = zone.ID.Start(defaultRunDuration, "temp")
 			}
 			return
 		}
-		if (r.Occupied && temp < zone.Targets.CoolingOccupiedTemp-zoneHysterisisRange) || (!r.Occupied && temp < zone.Targets.CoolingUnoccupiedTemp-zoneHysterisisRange) {
-			log.Info("stopping zone (if in temp control mode)", "zone", zone.ID, "avg temp", temp)
+		if (zoneOccupied && temp < zone.Targets.CoolingOccupiedTemp-zoneHysterisisRange) || (!zoneOccupied && temp < zone.Targets.CoolingUnoccupiedTemp-zoneHysterisisRange) {
+			log.Info("stopping zone (if in temp control mode)", "zone", zone.ID, "avg temp", temp, "targets", zone.Targets)
 			if c.ControlMode == ControlTemp {
 				zone.ID.Stop("temp")
 			}

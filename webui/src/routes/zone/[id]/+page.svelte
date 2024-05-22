@@ -10,9 +10,7 @@
 		TableHead,
 		TableHeadCell,
 		Heading,
-		P,
 		A,
-		Hr,
 		Input,
 		Button,
 		Label
@@ -85,6 +83,10 @@
 				<TableBodyCell>{room.Temperature}</TableBodyCell>
 			</TableBodyRow>
 		{/each}
+		<TableBodyRow>
+			<TableBodyCell>Average</TableBodyCell>
+			<TableBodyCell>{data.AverageTemperature}</TableBodyCell>
+		</TableBodyRow>
 	</TableBody>
 </Table>
 

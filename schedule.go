@@ -107,7 +107,7 @@ func readScheduleFromStore() (*ScheduleList, error) {
 	}
 
 	for k := range sl.List {
-		log.Info("loading schedule entry", "entry", sl.List[k])
+		log.Debug("loading schedule entry", "entry", sl.List[k])
 		if err := buildJob(&sl.List[k]); err != nil {
 			log.Error(err.Error())
 			return &sl, err

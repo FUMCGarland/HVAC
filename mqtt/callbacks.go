@@ -229,6 +229,10 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 			log.Error("unknown shelly", "shelly", ts[1])
 			return
 		}
+		// this is temporary
+		if temp < 23 {
+			temp = (temp * 1.8) + 32 // module set to C
+		}
 		r.SetTemp(hvac.DegF(temp))
 	case "humidity":
 		hum, err := strconv.ParseFloat(string(pk.Payload), 32)
