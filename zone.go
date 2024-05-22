@@ -15,9 +15,10 @@ type ZoneID uint8
 
 // A zone is a collection of rooms which are controlled together, either by radiant heat or blowers
 type Zone struct {
-	ID      ZoneID
-	Name    string
-	Targets ZoneTargets
+	ID          ZoneID
+	Name        string
+	Targets     ZoneTargets
+	AverageTemp DegF
 }
 
 // Each zone has four target temps, based on systemMode and room occupancy
