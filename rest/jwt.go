@@ -28,7 +28,6 @@ import (
 const jwtSignerFilename = "signer.jwk"
 
 func mintjwt(username string, level authLevel) (string, error) {
-
 	hostname, err := os.Hostname()
 	if err != nil {
 		return "", err
@@ -53,13 +52,11 @@ func mintjwt(username string, level authLevel) (string, error) {
 	}
 
 	hdrs := jws.NewHeaders()
-	// _ = hdrs.Set()
 	signed, err := jwt.Sign(jwts, jwt.WithKey(jwa.RS256, key, jws.WithProtectedHeaders(hdrs)))
 	if err != nil {
 		return "", err
 	}
 
-	// log.Info("jwt", "signed", string(signed[:]))
 	return string(signed[:]), nil
 }
 
@@ -183,7 +180,7 @@ func getJWSigningKeys() jwk.Set {
 
 	keys, err := jwk.ReadFile(path.Join(c.StateStore, jwtSignerFilename))
 	if err != nil {
-		log.Info("unable to load jwk signer, creating new", "error", err.Error())
+		log.Warn("unable to load jwk signer, creating new", "error", err.Error())
 		// first run, or old keys deleted, start anew
 		if err := initkey(); err != nil {
 			log.Fatal(err.Error())

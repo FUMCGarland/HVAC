@@ -51,7 +51,7 @@ func LoadAuth(path string) ([]AuthData, error) {
 	return in, nil
 }
 
-func authMW(h httprouter.Handle, level authLevel) httprouter.Handle {
+func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		if len(ad) == 0 {
 			log.Error("no http auth data")
@@ -78,15 +78,20 @@ func authMW(h httprouter.Handle, level authLevel) httprouter.Handle {
 			log.Info("no level in token")
 			ii = authLevel(0)
 		}
-		log.Debug("request", "user", username, "level", ii)
+
+		checklevel, ok := ii.(authlevel)
+		if !ok {
+			log.Error("authlevel type assertion failed", "user", username, "level", ii)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
 		// TODO the type assertion here causes it to break
-		/* if ii.(authLevel) < level {
+		if checklevel < requiredlevel {
 			log.Info("access level too low", "wanted", level, "got", ii, "username", username)
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
-		} */
-
+		}
 		h(w, r, ps)
 	}
 }

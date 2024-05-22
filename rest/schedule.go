@@ -39,7 +39,7 @@ func postSchedule(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-	log.Info("adding schedule entry", "e", e)
+	log.Debug("adding schedule entry", "e", e)
 
 	schedule, err := c.GetSchedule()
 	if err != nil {
@@ -67,7 +67,7 @@ func deleteSchedule(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-	log.Info("removing schedule entry", "id", inid)
+	log.Debug("removing schedule entry", "id", inid)
 
 	schedule, err := c.GetSchedule()
 	if err != nil {
@@ -105,7 +105,7 @@ func putSchedule(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	log.Info("updating schedule entry", "id", inid, "e", e)
+	log.Debug("updating schedule entry", "id", inid, "e", e)
 	schedule, err := c.GetSchedule()
 	if err != nil {
 		log.Error(err.Error())

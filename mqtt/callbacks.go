@@ -37,7 +37,7 @@ func blowerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 
 	// ignore the routine check-ins if no change
 	if response.CurrentState != blower.Running {
-		log.Info("blower state change", "blower", bn, "state", response.CurrentState)
+		log.Debug("blower state change", "blower", bn, "state", response.CurrentState)
 		blower.Running = response.CurrentState
 		if !response.CurrentState && response.RanTime > 0 {
 			blower.Runtime += response.RanTime
@@ -61,7 +61,7 @@ func blowerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 				}
 			}
 			if !blowerRunning {
-				log.Info("last blower on cool loop stopped, shutting down pump for the loop")
+				log.Debug("last blower on cool loop stopped, shutting down pump for the loop")
 				for k := range c.Pumps {
 					if c.Pumps[k].Loop == blower.ColdLoop {
 						c.Pumps[k].ID.Stop("internal")
@@ -96,7 +96,7 @@ func pumpCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet
 
 	// ignore the routine check-ins if no change
 	if response.CurrentState != pump.Running {
-		log.Info("pump state change", "pump", pn, "state", response.CurrentState)
+		log.Debug("pump state change", "pump", pn, "state", response.CurrentState)
 		pump.Running = response.CurrentState
 		if !response.CurrentState && response.RanTime > 0 {
 			pump.Runtime += response.RanTime
@@ -144,7 +144,7 @@ func chillerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pac
 
 	// ignore the routine check-ins if no change
 	if response.CurrentState != chiller.Running {
-		log.Info("chiller state change", "chiller", cn, "state", response.CurrentState)
+		log.Debug("chiller state change", "chiller", cn, "state", response.CurrentState)
 		chiller.Running = response.CurrentState
 		if !response.CurrentState && response.RanTime > 0 {
 			chiller.Runtime += response.RanTime

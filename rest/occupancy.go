@@ -39,7 +39,7 @@ func postOccupancyRecurring(w http.ResponseWriter, r *http.Request, _ httprouter
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-	log.Info("adding occupancy entry", "e", e)
+	log.Debug("adding occupancy entry", "e", e)
 
 	o, err := c.GetOccupancySchedule()
 	if err != nil {
@@ -67,7 +67,7 @@ func deleteOccupancyRecurring(w http.ResponseWriter, r *http.Request, ps httprou
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-	log.Info("removing occupancy entry", "id", inid)
+	log.Debug("removing occupancy entry", "id", inid)
 
 	o, err := c.GetOccupancySchedule()
 	if err != nil {
@@ -105,7 +105,7 @@ func putOccupancyRecurring(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	log.Info("updating occupancy entry", "id", inid, "e", e)
+	log.Debug("updating occupancy entry", "id", inid, "e", e)
 	o, err := c.GetOccupancySchedule()
 	if err != nil {
 		log.Error(err.Error())
@@ -131,7 +131,7 @@ func postOccupancyOneTime(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-	log.Info("adding occupancy entry", "e", e)
+	log.Debug("adding occupancy entry", "e", e)
 
 	o, err := c.GetOccupancySchedule()
 	if err != nil {
@@ -159,7 +159,7 @@ func deleteOccupancyOneTime(w http.ResponseWriter, r *http.Request, ps httproute
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-	log.Info("removing occupancy entry", "id", inid)
+	log.Debug("removing occupancy entry", "id", inid)
 
 	o, err := c.GetOccupancySchedule()
 	if err != nil {
@@ -197,7 +197,7 @@ func putOccupancyOneTime(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		return
 	}
 
-	log.Info("updating occupancy entry", "id", inid, "e", e)
+	log.Debug("updating occupancy entry", "id", inid, "e", e)
 	o, err := c.GetOccupancySchedule()
 	if err != nil {
 		log.Error(err.Error())
