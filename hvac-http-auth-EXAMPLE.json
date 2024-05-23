@@ -1,0 +1,17 @@
+[
+ {
+  "Username": "admin",
+  "PwHash": "$2a$04$GbunplPXNvySYEsqauzPG.f.4xwWrNCv21UURTqKGwkQkchWrE/A2",
+  "Level": 2
+ },
+ {
+  "Username": "viewer",
+  "PwHash": "$2a$04$xFMEgkYd1Us1p53N9yR4BuUyu6TqgOd7WyO8T5W.8nqzR79l9DfZ6",
+  "Level": 0
+ },
+ {
+  "Username": "manager",
+  "PwHash": "$2a$04$M3/OFe1LeQw/JzupZrGwNO1GhgzvSaet3/8V4hL5k0.N5pXVWCyxC",
+  "Level": 1
+ }
+]
