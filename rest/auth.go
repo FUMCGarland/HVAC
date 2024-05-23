@@ -2,12 +2,12 @@ package rest
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
-	// "golang.org/x/crypto/bcrypt"
 
 	"github.com/FUMCGarland/hvac/log"
 
@@ -32,8 +32,7 @@ const (
 )
 
 // used in the cli to add/update users, should probably just be moved there
-// we can crank this up now that we aren't checking passwords on every request
-const BcryptRounds = 4
+const BcryptRounds = 14
 
 func LoadAuth(path string) ([]AuthData, error) {
 	data, err := os.ReadFile(path)
@@ -73,22 +72,20 @@ func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 		}
 
 		username := string(token.Subject())
-		ii, ok := token.Get("level")
+		claim, ok := token.Get("level")
 		if !ok {
-			log.Info("no level in token")
-			ii = authLevel(0)
+			log.Info("no level in token", "username", username)
+			claim = 0
 		}
 
-		checklevel, ok := ii.(authLevel)
+		checklevel, ok := claim.(float64) // why does this come across as float64?
 		if !ok {
-			log.Error("authlevel type assertion failed", "user", username, "level", ii)
+			log.Error("authlevel type assertion failed", "user", username, "claim", claim, "type", fmt.Sprintf("%T", claim))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		// TODO the type assertion here causes it to break
-		if checklevel < requiredlevel {
-			log.Info("access level too low", "wanted", requiredlevel, "got", ii, "username", username)
+		if authLevel(checklevel) < requiredlevel {
+			log.Info("access level too low", "wanted", requiredlevel, "got", checklevel, "username", username)
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
