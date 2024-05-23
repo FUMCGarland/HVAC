@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { UsersGroupOutline, CloseCircleOutline } from 'flowbite-svelte-icons';
 	import { invalidateAll } from '$app/navigation';
 	import {
 		Badge,
@@ -58,6 +59,7 @@
 		<TableHeadCell on:click={tablesort('Name')}>Name</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Occupied')}>Occupied</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Zone')}>Zone</TableHeadCell>
+		<TableHeadCell>Range</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Temperature')}>Temperature</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Humidity')}>Humidity</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Battery')}>Battery</TableHeadCell>
@@ -66,10 +68,18 @@
 		{#each data.Rooms as room}
 			<TableBodyRow>
 				<TableBodyCell><A href="/room/{room.ID}">{room.Name}</A></TableBodyCell>
-				<TableBodyCell
-					>{room.Occupied} (using range: {room.Targets.Min} - {room.Targets.Max})</TableBodyCell
-				>
+				<TableBodyCell>
+					{#if !room.Occupied}
+						<CloseCircleOutline />
+					{/if}
+					{#if room.Occupied}
+						<UsersGroupOutline />
+					{/if}
+				</TableBodyCell>
 				<TableBodyCell><A href="/zone/{room.Zone}">{zoneName(room.Zone)}</A></TableBodyCell>
+				<TableBodyCell
+					><A href="/zone/{room.Zone}">{room.Targets.Min} - {room.Targets.Max}</A></TableBodyCell
+				>
 
 				{#if room.Temperature == 0}
 					<TableBodyCell>&nbsp;</TableBodyCell>
