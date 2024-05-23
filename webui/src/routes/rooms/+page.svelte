@@ -59,7 +59,7 @@
 		<TableHeadCell on:click={tablesort('Name')}>Name</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Occupied')}>Occupied</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Zone')}>Zone</TableHeadCell>
-		<TableHeadCell>Range</TableHeadCell>
+		<TableHeadCell>Target Temp</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Temperature')}>Temperature</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Humidity')}>Humidity</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Battery')}>Battery</TableHeadCell>
@@ -77,9 +77,7 @@
 					{/if}
 				</TableBodyCell>
 				<TableBodyCell><A href="/zone/{room.Zone}">{zoneName(room.Zone)}</A></TableBodyCell>
-				<TableBodyCell
-					><A href="/zone/{room.Zone}">{room.Targets.Min} - {room.Targets.Max}</A></TableBodyCell
-				>
+				<TableBodyCell><A href="/zone/{room.Zone}">{room.Targets.Min + 3}</A></TableBodyCell>
 
 				{#if room.Temperature == 0}
 					<TableBodyCell>&nbsp;</TableBodyCell>
