@@ -32,6 +32,11 @@
 		});
 		updateZoneTargets(data.ID, cmd);
 	}
+
+	function formatDate(d) {
+		if (d == '0001-01-01T00:00:00Z') return '';
+		return new Date(Date.parse(d)).toLocaleString();
+	}
 </script>
 
 <Heading tag="h2">Zone {data.ID}: {data.Name}</Heading>
@@ -75,17 +80,20 @@
 	<TableHead>
 		<TableHeadCell>Name</TableHeadCell>
 		<TableHeadCell>Current Temperature</TableHeadCell>
+		<TableHeadCell>Last Update</TableHeadCell>
 	</TableHead>
 	<TableBody>
 		{#each data.Rooms as room}
 			<TableBodyRow>
 				<TableBodyCell><A href="/room/{room.ID}">{room.Name}</A></TableBodyCell>
 				<TableBodyCell>{room.Temperature}</TableBodyCell>
+				<TableBodyCell>{formatDate(room.LastUpdate)}</TableBodyCell>
 			</TableBodyRow>
 		{/each}
 		<TableBodyRow>
 			<TableBodyCell>Zone Average</TableBodyCell>
 			<TableBodyCell>{data.AverageTemp}</TableBodyCell>
+			<TableBodyCell>&nbsp;</TableBodyCell>
 		</TableBodyRow>
 	</TableBody>
 </Table>
