@@ -84,8 +84,8 @@
 			</TableBodyRow>
 		{/each}
 		<TableBodyRow>
-			<TableBodyCell>Average</TableBodyCell>
-			<TableBodyCell>{data.AverageTemperature}</TableBodyCell>
+			<TableBodyCell>Zone Average</TableBodyCell>
+			<TableBodyCell>{data.AverageTemp}</TableBodyCell>
 		</TableBodyRow>
 	</TableBody>
 </Table>

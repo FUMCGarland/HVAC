@@ -14,6 +14,7 @@
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
 	const weekdays = ['Sun', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
 	export let data;
+	console.log(data);
 
 	function parseWeekdays(w) {
 		return w.map((p) => weekdays[p]);
@@ -37,7 +38,11 @@
 		{#each data.Recurring as r}
 			<TableBodyRow>
 				<TableBodyCell><A href="/occupancy/recurring/{r.ID}">{r.Name}</A></TableBodyCell>
-				<TableBodyCell>{r.Rooms}</TableBodyCell>
+				<TableBodyCell>
+					{#each r.Rooms as room}
+						<A href="/room/{room}">{room}</A>&nbsp;
+					{/each}
+				</TableBodyCell>
 				<TableBodyCell>{parseWeekdays(r.Weekdays)}</TableBodyCell>
 				<TableBodyCell>{r.StartTime}</TableBodyCell>
 				<TableBodyCell>{r.EndTime}</TableBodyCell>
