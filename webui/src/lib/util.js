@@ -4,7 +4,7 @@ export function lowestFreeID(arr) {
 	}
 
 	const ids = arr.map((x) => x.ID).sort();
-	var i = 1;
+	let i = 1;
 	ids.forEach((x) => {
 		if (x != i) return i;
 		i++;
