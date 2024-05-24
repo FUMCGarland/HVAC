@@ -45,8 +45,9 @@ func (r *Room) SetTemp(temp DegF) {
 	r.Temperature = temp
 	r.LastUpdate = time.Now()
 	zone := r.Zone.Get()
-	zoneOccupied := false
 
+	// determine if the ZONE is occupied
+	zoneOccupied := false
 	for k := range c.Rooms {
 		if c.Rooms[k].Zone == zone.ID && c.Rooms[k].Occupied {
 			zoneOccupied = true
@@ -54,13 +55,14 @@ func (r *Room) SetTemp(temp DegF) {
 		}
 	}
 
+	// calculate the average temperature of all rooms in the zone
 	{
 		var avgCnt uint8
 		var avgTot DegF
 		var avg DegF
 		maxAge := time.Now().Add(0 - tempMaxAge)
 		for k := range c.Rooms {
-			// in the zone, and not zero, and more recent than an hour ago
+			// in the zone, not zero, and more recent than tempMaxAge
 			if c.Rooms[k].Zone == zone.ID && c.Rooms[k].Temperature != 0 && c.Rooms[k].LastUpdate.After(maxAge) {
 				avgCnt++
 				avgTot += c.Rooms[k].Temperature
@@ -68,11 +70,10 @@ func (r *Room) SetTemp(temp DegF) {
 			avg = avgTot / DegF(avgCnt)
 		}
 		if avg != 0 {
-			temp = avg
+			zone.AverageTemp = avg
 		}
 	}
-	log.Info("room temp", "room", r.Name, "zone", zone.ID, "room temp", r.Temperature, "zone avg", temp)
-	zone.AverageTemp = temp
+	log.Info("room temp", "room", r.Name, "zone", zone.ID, "room temp", r.Temperature, "zone avg", zone.AverageTemp)
 
 	switch c.SystemMode {
 	case SystemModeHeat:
@@ -83,36 +84,38 @@ func (r *Room) SetTemp(temp DegF) {
 				c.Pumps[k].ID.Stop("lockout")
 			}
 		}
-		if (zoneOccupied && temp < zone.Targets.HeatingOccupiedTemp-zoneHysterisisRange) || (!zoneOccupied && temp < zone.Targets.HeatingUnoccupiedTemp-zoneHysterisisRange) {
+		if (zoneOccupied && zone.AverageTemp < zone.Targets.HeatingOccupiedTemp-zoneHysterisisRange) || (!zoneOccupied && zone.AverageTemp < zone.Targets.HeatingUnoccupiedTemp-zoneHysterisisRange) {
 			if c.ControlMode == ControlTemp {
+				log.Info("starting zone", "zone", zone.ID, "avg temp", zone.AverageTemp)
 				_ = zone.ID.Start(defaultRunDuration, "temp")
 			}
 			return
 		}
-		if (zoneOccupied && temp > zone.Targets.HeatingOccupiedTemp+zoneHysterisisRange) || (!zoneOccupied && temp > zone.Targets.HeatingUnoccupiedTemp+zoneHysterisisRange) {
+		if (zoneOccupied && zone.AverageTemp > zone.Targets.HeatingOccupiedTemp+zoneHysterisisRange) || (!zoneOccupied && zone.AverageTemp > zone.Targets.HeatingUnoccupiedTemp+zoneHysterisisRange) {
 			if c.ControlMode == ControlTemp {
+				log.Info("starting stopping", "zone", zone.ID, "avg temp", zone.AverageTemp)
 				zone.ID.Stop("temp")
 			}
 			return
 		}
 	case SystemModeCool:
 		if r.Temperature <= chillerLockoutTemp && !chillerLockout {
-			log.Warn("locking out chiller, room temp too low")
+			log.Warn("locking out chiller, room temp too low", "room", r.ID, "temp", r.Temperature)
 			chillerLockout = true
 			for k := range c.Chillers {
 				c.Chillers[k].ID.Stop("lockout")
 			}
 		}
-		if (zoneOccupied && temp > zone.Targets.CoolingOccupiedTemp+zoneHysterisisRange) || (!zoneOccupied && temp > zone.Targets.CoolingUnoccupiedTemp+zoneHysterisisRange) {
-			log.Info("starting zone (if in temp control mode)", "zone", zone.ID, "avg temp", temp, "targets", zone.Targets)
+		if (zoneOccupied && zone.AverageTemp > zone.Targets.CoolingOccupiedTemp+zoneHysterisisRange) || (!zoneOccupied && zone.AverageTemp > zone.Targets.CoolingUnoccupiedTemp+zoneHysterisisRange) {
 			if c.ControlMode == ControlTemp {
+				log.Info("starting zone", "zone", zone.ID, "avg temp", zone.AverageTemp)
 				_ = zone.ID.Start(defaultRunDuration, "temp")
 			}
 			return
 		}
-		if (zoneOccupied && temp < zone.Targets.CoolingOccupiedTemp-zoneHysterisisRange) || (!zoneOccupied && temp < zone.Targets.CoolingUnoccupiedTemp-zoneHysterisisRange) {
-			log.Info("stopping zone (if in temp control mode)", "zone", zone.ID, "avg temp", temp, "targets", zone.Targets)
+		if (zoneOccupied && zone.AverageTemp < zone.Targets.CoolingOccupiedTemp-zoneHysterisisRange) || (!zoneOccupied && zone.AverageTemp < zone.Targets.CoolingUnoccupiedTemp-zoneHysterisisRange) {
 			if c.ControlMode == ControlTemp {
+				log.Info("stopping zone", "zone", zone.ID, "avg temp", zone.AverageTemp)
 				zone.ID.Stop("temp")
 			}
 			return

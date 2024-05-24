@@ -219,6 +219,10 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 
 	switch ts[3] {
 	case "temperature":
+		if string(pk.Payload) == "null" {
+			// periodic update
+			return
+		}
 		temp, err := strconv.ParseFloat(string(pk.Payload), 32)
 		if err != nil {
 			log.Error(err.Error())
@@ -229,12 +233,12 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 			log.Error("unknown shelly", "shelly", ts[1])
 			return
 		}
-		// this is temporary
-		if temp < 23 {
-			temp = (temp * 1.8) + 32 // module set to C
-		}
 		r.SetTemp(hvac.DegF(temp))
 	case "humidity":
+		if string(pk.Payload) == "null" {
+			// periodic update
+			return
+		}
 		hum, err := strconv.ParseFloat(string(pk.Payload), 32)
 		if err != nil {
 			log.Error(err.Error())
@@ -247,6 +251,10 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 		}
 		r.SetHumidity(uint8(hum))
 	case "battery":
+		if string(pk.Payload) == "null" {
+			// periodic update
+			return
+		}
 		batt, err := strconv.ParseFloat(string(pk.Payload), 32)
 		if err != nil {
 			log.Error(err.Error())
@@ -262,6 +270,12 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 		if string(pk.Payload) != "0" {
 			log.Error("error", "shelly", ts[1], "room", room, "data", pk.Payload)
 		}
+		r := room.Get()
+		if r == nil {
+			log.Error("unknown shelly", "shelly", ts[1])
+			return
+		}
+		r.SetBattery(1) // visually show that there is an error
 	case "act_reasons":
 		if string(pk.Payload) != "[\"sensor\"]" {
 			log.Info("act_reason", "shelly", ts[1], "room", room, "data", pk.Payload)
