@@ -53,8 +53,9 @@ func LoadAuth(path string) ([]AuthData, error) {
 func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		if len(ad) == 0 {
-			log.Error("no http auth data")
-			http.Error(w, "No Auth Data", http.StatusInternalServerError)
+			err := fmt.Errorf("no auth data")
+			log.Error(err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -74,18 +75,23 @@ func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 		username := string(token.Subject())
 		claim, ok := token.Get("level")
 		if !ok {
-			log.Info("no level in token", "username", username)
-			claim = 0
+			err := fmt.Errorf("no level claim in token")
+			log.Error(err.Error(), "user", username, "claim", claim, "type", fmt.Sprintf("%T", claim))
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		checklevel, ok := claim.(float64) // why does this come across as float64?
 		if !ok {
-			log.Error("authlevel type assertion failed", "user", username, "claim", claim, "type", fmt.Sprintf("%T", claim))
+			err := fmt.Errorf("authlevel type assertion failed")
+			log.Error(err.Error(), "user", username, "claim", claim, "type", fmt.Sprintf("%T", claim))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		if authLevel(checklevel) < requiredlevel {
-			log.Info("access level too low", "wanted", requiredlevel, "got", checklevel, "username", username)
+			err := fmt.Errorf("acess level too low")
+			log.Info(err.Error(), "wanted", requiredlevel, "got", checklevel, "username", username)
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
