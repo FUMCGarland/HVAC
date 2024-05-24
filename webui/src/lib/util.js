@@ -14,7 +14,8 @@ export function lowestFreeID(arr) {
 
 export function getAccessLevel() {
 	const raw = localStorage.getItem('jwt');
+	if (!raw) return 0;
+
 	const token = JSON.parse(window.atob(raw.split('.')[1]).toString());
-	console.log(token);
 	return token.level;
 }
