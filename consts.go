@@ -8,7 +8,7 @@ type DegF float32 // uint8
 
 // min/max durations for user-scheduled run-times, does not affect temp based
 const (
-	defaultRunDuration time.Duration = (time.Hour)
+	defaultRunDuration time.Duration = (time.Hour) // used in temp control mode, we just need a value to send to the relays
 	MaxPumpRunTime     time.Duration = (6 * time.Hour)
 	MinPumpRunTime     time.Duration = (30 * time.Minute)
 	MaxBlowerRunTime   time.Duration = (6 * time.Hour)
@@ -35,7 +35,7 @@ const (
 	maxZoneTemp         DegF = 80 // the warmest we will accept as a user-defined value
 )
 
-const tempMaxAge time.Duration = (2 * time.Hour)
+const tempMaxAge time.Duration = (4 * time.Hour)
 
 // MQTT topic strings
 const (
@@ -45,8 +45,8 @@ const (
 	RoomsTopic           string = "rooms"
 	CurrentStateEndpoint string = "currentstate"
 	TargetStateEndpoint  string = "targetstate"
-	TempEndpoint         string = "temp"
-	HumidityEndpoint     string = "humidity"
+	TempEndpoint         string = "temp"     // Shellies use their own topic, this is for other (potential) sensors
+	HumidityEndpoint     string = "humidity" // Shellies use their own topic, this is for other (potential) sensors
 )
 
 // QoS is the MQTT Quality of Service value
