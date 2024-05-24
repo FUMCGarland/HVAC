@@ -1,5 +1,6 @@
 <script>
 	import { goto } from '$app/navigation';
+	import { toast } from '@zerodevx/svelte-toast';
 	import { onMount } from 'svelte';
 	import { putRecurringOccupancy, deleteRecurringOccupancy } from '$lib/occupancy';
 	import {
@@ -61,8 +62,13 @@
 			EndTime: data.EndTime,
 			Rooms: data.SystemRooms.filter((r) => r.selected).map((r) => r.ID)
 		};
-		await putRecurringOccupancy(c);
-		goto('/occupancy');
+		try {
+			await putRecurringOccupancy(c);
+			goto('/occupancy');
+		} catch (e) {
+			console.log(e);
+			toast.push(e);
+		}
 	}
 </script>
 

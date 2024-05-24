@@ -12,6 +12,7 @@ export async function postRecurringOccupancy(cmd) {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify(cmd)
@@ -60,6 +61,7 @@ export async function putRecurringOccupancy(cmd) {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify(cmd)
@@ -85,6 +87,7 @@ export async function postOneTimeOccupancy(cmd) {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify(cmd)
@@ -133,6 +136,7 @@ export async function putOneTimeOccupancy(cmd) {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify(cmd)

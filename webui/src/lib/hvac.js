@@ -34,6 +34,7 @@ export async function setSystemControlMode(m) {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: cmd
@@ -59,6 +60,7 @@ export async function setSystemMode(m) {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: cmd
@@ -91,6 +93,7 @@ export async function blowerStart(id, minutes = 60, source = 'manual') {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: cmd
@@ -116,6 +119,7 @@ export async function blowerStop(id, source = 'manual') {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: cmd
@@ -147,6 +151,7 @@ export async function pumpStart(id, minutes = 60, source = 'manual') {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: cmd
@@ -172,6 +177,7 @@ export async function pumpStop(id, source = 'manual') {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: cmd
@@ -196,6 +202,7 @@ export async function updateZoneTargets(id, cmd) {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: cmd
@@ -223,6 +230,7 @@ export async function postSchedule(cmd) {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify(cmd)
@@ -271,6 +279,7 @@ export async function putSchedule(cmd) {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify(cmd)
@@ -303,6 +312,7 @@ export async function zoneStart(id, minutes = 60, source = 'manual') {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: cmd
@@ -328,6 +338,7 @@ export async function zoneStop(id, source = 'manual') {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: cmd
@@ -353,6 +364,7 @@ export async function chillerStop(id, source = 'manual') {
 		redirect: 'manual',
 		referrerPolicy: 'origin',
 		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
 			'Content-Type': 'application/json'
 		},
 		body: cmd
