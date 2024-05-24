@@ -48,7 +48,7 @@
 		</TableBodyRow>
 		<TableBodyRow>
 			<TableBodyCell>ShellyID (sensor)</TableBodyCell>
-			<TableBodyCell>{data.ShellyID}</TableBodyCell>
+			<TableBodyCell><A href="/shelly/">{data.ShellyID}</A></TableBodyCell>
 		</TableBodyRow>
 	</TableBody>
 </Table>

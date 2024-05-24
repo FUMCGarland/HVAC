@@ -73,7 +73,6 @@
 									<Button
 										type="submit"
 										on:click={(x) => {
-											// console.log(x.srcElement);
 											x.srcElement.textContent = 'Processing...';
 											x.srcElement.disable = true;
 											blowerStop(blower.ID);
@@ -98,7 +97,6 @@
 									<Button
 										type="submit"
 										on:click={(x) => {
-											// console.log(x.srcElement);
 											x.srcElement.textContent = 'Processing...';
 											x.srcElement.disable = true;
 											blowerStart(blower.ID, blower.newRunTime);

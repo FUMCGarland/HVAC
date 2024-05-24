@@ -1,5 +1,16 @@
 <script>
-	import { Navbar, NavBrand, NavLi, NavUl, NavHamburger, Toast } from 'flowbite-svelte';
+	import {
+		Navbar,
+		NavBrand,
+		NavLi,
+		NavUl,
+		NavHamburger,
+		Toast,
+		Dropdown,
+		DropdownItem,
+		DropdownDivider
+	} from 'flowbite-svelte';
+	import { ChevronDownOutline } from 'flowbite-svelte-icons';
 	import { SvelteToast } from '@zerodevx/svelte-toast';
 	import { page } from '$app/stores';
 	import '../app.pcss';
@@ -20,11 +31,20 @@
 		</NavBrand>
 		<NavHamburger />
 		<NavUl>
-			<NavLi href="/occupancy">Occupancy</NavLi>
-			<NavLi href="/rooms">Rooms</NavLi>
-			<NavLi href="/zones">Zones</NavLi>
-			<NavLi href="/schedule">Schedule</NavLi>
-			<NavLi href="/manual">Manual</NavLi>
+			<NavLi href="/rooms">Room Status</NavLi>
+			<NavLi href="/occupancy">Occupancy Schedule</NavLi>
+			<NavLi class="cursor-pointer">
+				Advanced<ChevronDownOutline class="ms-2 inline h-6 w-6 text-primary-800 dark:text-white" />
+			</NavLi>
+
+			<Dropdown class="z-20 w-44">
+				<DropdownItem href="/zones">Zones Temp Settings</DropdownItem>
+				<DropdownItem href="/shelly">Sensor Status</DropdownItem>
+				<DropdownDivider />
+				<DropdownItem href="/schedule">Zone Schedule</DropdownItem>
+				<DropdownItem href="/manual">Manual Zone Control</DropdownItem>
+				<DropdownItem href="/override">Manual Device Override</DropdownItem>
+			</Dropdown>
 		</NavUl>
 	</Navbar>
 	<SvelteToast />
