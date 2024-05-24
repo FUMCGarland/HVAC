@@ -11,3 +11,10 @@ export function lowestFreeID(arr) {
 	});
 	return i;
 }
+
+export function getAccessLevel() {
+	const raw = localStorage.getItem('jwt');
+	const token = JSON.parse(window.atob(raw.split('.')[1]).toString());
+	console.log(token);
+	return token.level;
+}

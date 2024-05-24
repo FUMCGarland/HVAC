@@ -12,8 +12,12 @@
 	} from 'flowbite-svelte';
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
 	import { SvelteToast } from '@zerodevx/svelte-toast';
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import '../app.pcss';
+	import { getAccessLevel } from '$lib/util';
+
+	const level = getAccessLevel();
 </script>
 
 <svelte:head>
@@ -41,12 +45,17 @@
 				<DropdownItem href="/zones">Zones Temp Settings</DropdownItem>
 				<DropdownItem href="/shelly">Sensor Status</DropdownItem>
 				<DropdownDivider />
-				<DropdownItem href="/schedule">Zone Schedule</DropdownItem>
-				<DropdownItem href="/manual">Manual Zone Control</DropdownItem>
-				<DropdownItem href="/override">Manual Device Override</DropdownItem>
-				<DropdownDivider />
-				<DropdownItem href="/systemmode">System Mode</DropdownItem>
-				<DropdownItem href="/controlmode">Control Mode</DropdownItem>
+				{#if level > 0}
+					<DropdownItem href="/schedule">Zone Schedule</DropdownItem>
+					<DropdownItem href="/manual">Manual Zone Control</DropdownItem>
+					<DropdownItem href="/override">Manual Device Override</DropdownItem>
+				{/if}
+				{#if level > 1}
+					<DropdownDivider />
+					<DropdownItem href="/systemmode">System Mode</DropdownItem>
+					<DropdownItem href="/controlmode">Control Mode</DropdownItem>
+				{/if}
+				<DropdownItem href="/login">Logout</DropdownItem>
 			</Dropdown>
 		</NavUl>
 	</Navbar>

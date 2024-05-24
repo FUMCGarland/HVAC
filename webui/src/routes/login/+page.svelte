@@ -9,13 +9,19 @@
 	let username;
 	let password;
 
+	// if you come to this page and are logged in, log out...
+	const jwt = localStorage.getItem('jwt');
+	if (jwt) {
+		localStorage.removeItem('jwt');
+	}
+
 	async function doLogin() {
-		console.log(username, password);
 		try {
 			await getJWT(username, password);
 			goto('/');
 		} catch (e) {
 			console.log(e);
+			toast.push(e);
 		}
 	}
 
@@ -41,7 +47,6 @@
 			toast.push('Server Responded with: ' + response.status + ': ' + payload.error);
 			return;
 		}
-		// stuff it away for no particular reason, we will be using the cookies because svelte and safari and request.header == badness
 		localStorage.setItem('jwt', payload);
 	}
 </script>

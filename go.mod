@@ -9,7 +9,7 @@ require (
 	github.com/go-co-op/gocron/v2 v2.5.0
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lestrrat-go/jwx/v2 v2.0.21
-	github.com/mochi-mqtt/server/v2 v2.6.3
+	github.com/mochi-mqtt/server/v2 v2.6.4
 	github.com/warthog618/go-gpiocdev v0.9.0
 	golang.org/x/crypto v0.23.0
 	golang.org/x/time v0.5.0
@@ -18,7 +18,7 @@ require (
 
 require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0 // indirect
-	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.1 // indirect
 	github.com/jonboulle/clockwork v0.4.0 // indirect
@@ -39,5 +39,3 @@ require (
 	golang.org/x/tools v0.21.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/lestrrat-go/jwx/v2 v2.0.21 => ./deps/jwx

@@ -6,9 +6,8 @@ export const hvaccontroller = import.meta.env.VITE_API_URL;
 export const durationMult = 60000000000; // TODO Josh wants hours not minutes
 
 export function genRequest() {
-	// TODO: this should be smarter than "any cookie set", check for jwt cookie
-	const jwt = document.cookie;
-	if (!jwt) {
+	const jwtstring = localStorage.getItem('jwt');
+	if (!jwtstring) {
 		goto('/login');
 		return;
 	}
@@ -16,7 +15,10 @@ export function genRequest() {
 	const request = {
 		mode: 'cors',
 		credentials: 'include',
-		referrerPolicy: 'origin'
+		referrerPolicy: 'origin',
+		headers: {
+			Authorization: 'Bearer ' + jwtstring
+		}
 	};
 	return request;
 }

@@ -60,7 +60,6 @@ func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 		}
 
 		token, err := jwt.ParseRequest(r,
-			jwt.WithCookieKey("jwt"),
 			jwt.WithKeySet(sk, jws.WithInferAlgorithmFromKey(true), jws.WithUseDefault(true)),
 			jwt.WithValidate(true),
 			jwt.WithAudience(sessionName),
