@@ -57,6 +57,8 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 	m.PUT("/api/v1/occupancy/onetime/:id", authMW(putOccupancyOneTime, AuthLevelControl))       // update an occupancy-expected entry
 	m.DELETE("/api/v1/occupancy/onetime/:id", authMW(deleteOccupancyOneTime, AuthLevelControl)) // update an occupancy-expected entry
 
+	m.GET("/api/v1/datalog", getDatalog) // any reason to protect this?
+
 	return m
 }
 
