@@ -86,6 +86,12 @@ func writeHeader(c *hvac.Config) {
 		b.WriteString(" Target")
 	}
 
+	for k := range c.Zones {
+		b.WriteString(",")
+		b.WriteString(c.Zones[k].Name)
+		b.WriteString(" Zone Average Temp")
+	}
+
 	log.Println(b.String())
 }
 
@@ -116,6 +122,11 @@ func writeLine(c *hvac.Config) {
 		b.WriteString(fmt.Sprintf("%d", c.Rooms[k].Humidity))
 		b.WriteString(",")
 		b.WriteString(roomTarget(c.Rooms[k], c))
+	}
+
+	for k := range c.Zones {
+		b.WriteString(",")
+		b.WriteString(fmt.Sprintf("%.2f", c.Zones[k].AverageTemp))
 	}
 
 	log.Println(b.String())
