@@ -33,14 +33,6 @@
 		return 'cooling';
 	}
 
-	function controlModeLabel(scm) {
-		if (scm == 0) return 'manual';
-		if (scm == 1) return 'schedule';
-		if (scm == 2) return 'temp';
-		if (scm == 3) return 'off';
-		return 'manual';
-	}
-
 	function inMode(pump) {
 		return data.SystemMode == pump.SystemMode;
 	}
@@ -57,9 +49,6 @@
 	}
 </script>
 
-<P><A href="/systemmode">System Mode</A> {systemModeLabel(data.SystemMode)}</P>
-<P><A href="/controlmode">Control Mode</A> {controlModeLabel(data.ControlMode)}</P>
-<Hr />
 <Heading tag="h2">Blowers</Heading>
 <Table>
 	<TableHead>
