@@ -44,6 +44,9 @@
 				<DropdownItem href="/schedule">Zone Schedule</DropdownItem>
 				<DropdownItem href="/manual">Manual Zone Control</DropdownItem>
 				<DropdownItem href="/override">Manual Device Override</DropdownItem>
+				<DropdownDivider />
+				<DropdownItem href="/systemmode">System Mode</DropdownItem>
+				<DropdownItem href="/controlmode">Control Mode</DropdownItem>
 			</Dropdown>
 		</NavUl>
 	</Navbar>
