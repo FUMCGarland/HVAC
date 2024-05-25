@@ -67,28 +67,29 @@ func (ch ChillerID) canEnable() error {
 		return err
 	}
 
+	// if locked out, check to see if we can reset
 	if chillerLockout {
 		chillerReset := true
-		// TODO make sure the temp reports are recent
+
 		for k := range c.Rooms {
 			if c.Rooms[k].Temperature != 0 && c.Rooms[k].Temperature < chillerRecoveryTemp {
 				// a room below the reset temp, do not reset
 				chillerReset = false
-				log.Warn("unlocking chiller, all rooms are above minimum temp")
 				break
 			}
 		}
 
 		if chillerReset {
-			log.Warn("all rooms above recovery temp, unlocking chiller")
+			log.Info("all rooms above recovery temp, unlocking chiller")
 			chillerLockout = false
 		}
 	}
 
+	// still locked out, don't return error so blowers/pumps can run to unfreeze the lines
 	if chillerLockout {
 		err := fmt.Errorf("chiller locked out, not enabling")
-		log.Error(err.Error())
-		return err
+		log.Warn(err.Error())
+		return nil
 	}
 
 	return nil

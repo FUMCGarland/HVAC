@@ -33,7 +33,6 @@ func (p PumpID) Get() *Pump {
 	return nil
 }
 
-// TODO: implement this
 var boilerLockout bool
 
 // canEnable
@@ -72,6 +71,7 @@ func (p PumpID) canEnable() error {
 		return err
 	}
 
+	// if locked out, see if we are safet to restart
 	if boilerLockout {
 		boilerReset := true
 		// TODO only check rooms on this pump? ... do we need a per-zone boiler lockout instead of a global?
@@ -79,7 +79,7 @@ func (p PumpID) canEnable() error {
 		for k := range c.Rooms {
 			if c.Rooms[k].Temperature != 0 && c.Rooms[k].Temperature > boilerRecoveryTemp {
 				// a room above the reset temp, do not reset
-				log.Warn("not unlocking boiler, rooms still above max temp")
+				log.Debug("not unlocking boiler, rooms still above max temp")
 				boilerReset = false
 			}
 		}
@@ -90,9 +90,11 @@ func (p PumpID) canEnable() error {
 		}
 	}
 
+	// still locked out, do not return error so pumps can start
 	if boilerLockout {
-		err := fmt.Errorf("a room is too hot, boiler locked out, not starting pump")
-		return err
+		err := fmt.Errorf("a room is still too hot, boiler locked out, not starting pump")
+		log.Warn(err.Error())
+		return nil
 	}
 
 	return nil
