@@ -7,7 +7,7 @@
 		TableHead,
 		TableHeadCell,
 		Heading,
-		A,
+		A
 	} from 'flowbite-svelte';
 
 	export let data;

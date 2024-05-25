@@ -15,7 +15,14 @@
 		Label,
 		Button
 	} from 'flowbite-svelte';
-	import { blowerStart, blowerStop, pumpStart, pumpStop } from '$lib/hvac.js';
+	import {
+		blowerStart,
+		blowerStop,
+		pumpStart,
+		pumpStop,
+		chillerStart,
+		chillerStop
+	} from '$lib/hvac.js';
 
 	export let data;
 	data.Pumps.forEach((p) => {
@@ -23,6 +30,9 @@
 	});
 	data.Blowers.forEach((b) => {
 		b.newRunTime = 0;
+	});
+	data.Chillers.forEach((c) => {
+		c.parsedLoops = new TextEncoder().encode(atob(c.Loops));
 	});
 
 	onMount(() => {
@@ -177,6 +187,77 @@
 					</TableBodyCell>
 				</TableBodyRow>
 			{/if}
+		{/each}
+	</TableBody>
+</Table>
+<Heading tag="h2">Chillers</Heading>
+<Table>
+	<TableHead>
+		<TableHeadCell>ID</TableHeadCell>
+		<TableHeadCell>Name</TableHeadCell>
+		<TableHeadCell>Loops</TableHeadCell>
+		<TableHeadCell>Running</TableHeadCell>
+		<TableHeadCell>Command</TableHeadCell>
+	</TableHead>
+	<TableBody>
+		{#each data.Chillers as chiller}
+			<TableBodyRow>
+				<TableBodyCell><A href="/chiller/{chiller.ID}">{chiller.ID}</A></TableBodyCell>
+				<TableBodyCell>{chiller.Name}</TableBodyCell>
+				<TableBodyCell>
+					{#each chiller.parsedLoops as l}
+						<A href="/loop/{l}">{l}</A>&nbsp;
+					{/each}
+				</TableBodyCell>
+				{#if chiller.Running}
+					<TableBodyCell><Badge color="green">Running</Badge></TableBodyCell>
+				{/if}
+				{#if !chiller.Running}
+					<TableBodyCell><Badge color="red">Stopped</Badge></TableBodyCell>
+				{/if}
+				<TableBodyCell>
+					{#if chiller.Running}
+						<form>
+							<div class="mb-6 grid gap-6">
+								<div>
+									<Button
+										type="submit"
+										on:click={(x) => {
+											x.srcElement.textContent = 'Processing...';
+											x.srcElement.disable = true;
+											chillerStop(chiller.ID);
+										}}>Stop</Button
+									>
+								</div>
+							</div>
+						</form>
+					{/if}
+					{#if !chiller.Running}
+						<form>
+							<div class="mb-6 grid gap-6">
+								<div>
+									<Label for="run_time${chiller.ID}" class="mb-2">Run Time (minutes)</Label>
+									<Input
+										type="text"
+										id="run_time{chiller.ID}"
+										placeholder="60"
+										required
+										bind:value={chiller.newRunTime}
+									/>
+									<Button
+										type="submit"
+										on:click={(x) => {
+											x.srcElement.textContent = 'Processing...';
+											x.srcElement.disable = true;
+											chillerStart(chiller.ID, chiller.newRunTime);
+										}}>Start</Button
+									>
+								</div>
+							</div>
+						</form>
+					{/if}
+				</TableBodyCell>
+			</TableBodyRow>
 		{/each}
 	</TableBody>
 </Table>

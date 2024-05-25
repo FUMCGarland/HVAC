@@ -380,3 +380,35 @@ export async function chillerStop(id, source = 'manual') {
 	}
 	invalidateAll();
 }
+
+export async function chillerStart(id, minutes = 60, source = 'manual') {
+	if (minutes > 600 || minutes < 30) {
+		toast.push('chiller runtime out-of-range (min 30, max 600)');
+		return;
+	}
+	const goduration = minutes * durationMult;
+
+	const cmd = `{ "TargetState": true, "RunTime": ${goduration}, "Source": "${source}" }`;
+	const request = {
+		method: 'PUT',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
+			'Content-Type': 'application/json'
+		},
+		body: cmd
+	};
+
+	const response = await fetch(`${hvaccontroller}/api/v1/chiller/${id}/target`, request);
+	const payload = await response.json();
+
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		toast.push('Server Responded with: ' + response.status + ': ' + payload.error);
+		return;
+	}
+	invalidateAll();
+}
