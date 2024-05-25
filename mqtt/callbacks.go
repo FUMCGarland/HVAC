@@ -269,13 +269,13 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 	case "error":
 		if string(pk.Payload) != "0" {
 			log.Error("error", "shelly", ts[1], "room", room, "data", pk.Payload)
+			r := room.Get()
+			r.SetBattery(1) // visually show that there is an error
+			if r == nil {
+				log.Error("unknown shelly", "shelly", ts[1])
+				return
+			}
 		}
-		r := room.Get()
-		if r == nil {
-			log.Error("unknown shelly", "shelly", ts[1])
-			return
-		}
-		r.SetBattery(1) // visually show that there is an error
 	case "act_reasons":
 		if string(pk.Payload) != "[\"sensor\"]" {
 			log.Info("act_reason", "shelly", ts[1], "room", room, "data", pk.Payload)
