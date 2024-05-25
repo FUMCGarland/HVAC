@@ -14,6 +14,7 @@
 	} from 'flowbite-svelte';
 
 	export let data;
+	let rooms = data.Rooms.filter((r) =>  r.ShellyID );
 
 	// how do we sort the data for display
 	const sortBy = { col: 'Name', ascending: true };
@@ -43,7 +44,7 @@
 
 		let sortcallback = (a, b) =>
 			a[column] < b[column] ? -1 * sm : a[column] > b[column] ? 1 * sm : 0;
-		data.Rooms = data.Rooms.sort(sortcallback);
+		rooms = rooms.sort(sortcallback);
 	};
 
 	function formatDate(d) {
@@ -61,7 +62,7 @@
 		<TableHeadCell on:click={tablesort('Battery')}>Battery</TableHeadCell>
 	</TableHead>
 	<TableBody>
-		{#each data.Rooms as room}
+		{#each rooms as room}
 			<TableBodyRow>
 				<TableBodyCell><A href="/room/{room.ID}">{room.Name}</A></TableBodyCell>
 				<TableBodyCell>{room.ShellyID}</TableBodyCell>
