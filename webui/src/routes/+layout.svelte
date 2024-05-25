@@ -44,6 +44,7 @@
 			<Dropdown class="z-20 w-44">
 				<DropdownItem href="/zones">Zones Temp Settings</DropdownItem>
 				<DropdownItem href="/shelly">Sensor Status</DropdownItem>
+				<DropdownItem href="/api/v1/datalog">Download datalog</DropdownItem>
 				<DropdownDivider />
 				{#if level > 0}
 					<DropdownItem href="/schedule">Zone Schedule</DropdownItem>
