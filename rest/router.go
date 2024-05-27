@@ -74,23 +74,13 @@ func headers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", jsonType)
 }
 
-func TODO(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	http.Error(w, "Forbidden", http.StatusForbidden)
-}
-
 func notFound(w http.ResponseWriter, r *http.Request) {
-	if r.URL.String() == "" || r.URL.String() == "/" {
+	if r.URL.String() == "" || r.URL.String() == "/" || strings.HasPrefix(r.URL.String(), "/static") {
 		http.Redirect(w, r, "/static/index.html", http.StatusMovedPermanently)
 		return
 	}
 
-	if strings.HasPrefix(r.URL.String(), "/static") {
-		err := fmt.Errorf("404, not found")
-		http.Error(w, jsonError(err), http.StatusNotFound)
-		return
-	}
-
 	newLoc := fmt.Sprintf("/static%s", r.URL)
-	log.Debug("not found, redirecting", "request", r.URL, "new", newLoc, "method", r.Method)
+	log.Debug("not found, redirecting", "request", r.URL.String(), "new", newLoc, "method", r.Method)
 	http.Redirect(w, r, newLoc, http.StatusMovedPermanently)
 }
