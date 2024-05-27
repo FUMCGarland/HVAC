@@ -73,7 +73,7 @@ func (r *Room) SetTemp(temp DegF) {
 			zone.AverageTemp = avg
 		}
 	}
-	log.Info("room temp", "room", r.Name, "zone", zone.ID, "room temp", r.Temperature, "zone avg", zone.AverageTemp)
+	log.Debug("room temp", "room", r.Name, "zone", zone.ID, "room temp", r.Temperature, "zone avg", zone.AverageTemp)
 
 	switch c.SystemMode {
 	case SystemModeHeat:
@@ -93,7 +93,7 @@ func (r *Room) SetTemp(temp DegF) {
 		}
 		if (zoneOccupied && zone.AverageTemp > zone.Targets.HeatingOccupiedTemp+zoneHysterisisRange) || (!zoneOccupied && zone.AverageTemp > zone.Targets.HeatingUnoccupiedTemp+zoneHysterisisRange) {
 			if c.ControlMode == ControlTemp {
-				log.Info("starting stopping", "zone", zone.ID, "avg temp", zone.AverageTemp)
+				log.Info("stopping zone", "zone", zone.ID, "avg temp", zone.AverageTemp)
 				zone.ID.Stop("temp")
 			}
 			return
