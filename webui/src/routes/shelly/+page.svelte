@@ -14,7 +14,7 @@
 	} from 'flowbite-svelte';
 
 	export let data;
-	let rooms = data.Rooms.filter((r) =>  r.ShellyID );
+	let rooms = data.Rooms.filter((r) => r.ShellyID);
 
 	// how do we sort the data for display
 	const sortBy = { col: 'Name', ascending: true };
