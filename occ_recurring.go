@@ -95,7 +95,12 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 			func() {
 				log.Debug("marking room as occupied", "e", e)
 				for _, room := range e.Rooms {
-					room.Get().Occupied = true
+					r := room.Get()
+					if r == nil {
+						log.Warn("got nil room starting recurring occupancy, update the rules")
+						continue
+					}
+					r.Occupied = true
 				}
 			},
 		),
