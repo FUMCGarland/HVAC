@@ -11,7 +11,8 @@
 		TableHead,
 		TableHeadCell,
 		Heading,
-		A
+		A,
+		P
 	} from 'flowbite-svelte';
 
 	export let data;
@@ -54,6 +55,14 @@
 </script>
 
 <Heading tag="h2">Rooms</Heading>
+<P
+	>Legend:
+	<Badge color="green">+/- 3 degrees of target</Badge>
+	<Badge color="blue">3-10 degrees cooler</Badge>
+	<Badge color="yellow">3-10 degrees warmer</Badge>
+	<Badge color="purple">&gt; 10 degrees cooler</Badge>
+	<Badge color="red">&gt; 10 degrees warmer</Badge>
+</P>
 <Table>
 	<TableHead>
 		<TableHeadCell on:click={tablesort('Name')}>Name</TableHeadCell>
@@ -83,10 +92,10 @@
 					<TableBodyCell>&nbsp;</TableBodyCell>
 				{/if}
 				{#if room.Temperature != 0 && room.Temperature < room.Targets.Min - 10}
-					<TableBodyCell><Badge color="red">{room.Temperature}</Badge></TableBodyCell>
+					<TableBodyCell><Badge color="purple">{room.Temperature}</Badge></TableBodyCell>
 				{/if}
 				{#if room.Temperature >= room.Targets.Min - 10 && room.Temperature < room.Targets.Min}
-					<TableBodyCell><Badge color="yellow">{room.Temperature}</Badge></TableBodyCell>
+					<TableBodyCell><Badge color="blue">{room.Temperature}</Badge></TableBodyCell>
 				{/if}
 				{#if room.Temperature >= room.Targets.Min && room.Temperature < room.Targets.Max}
 					<TableBodyCell><Badge color="green">{room.Temperature}</Badge></TableBodyCell>
