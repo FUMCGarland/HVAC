@@ -86,12 +86,13 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	var level authLevel = 0
 	authenticated := false
 	for k := range ad {
-		if ad[k].Username == username {
+		if strings.EqualFold(ad[k].Username, username) { // ignore case
 			if err := bcrypt.CompareHashAndPassword([]byte(ad[k].PwHash), []byte(password)); err != nil {
 				log.Error("login failed", "err", err)
 				http.Error(res, "Invalid username/password", http.StatusNotAcceptable)
 				return
 			}
+			username = ad[k].Username // use case in config file
 			level = ad[k].Level
 			authenticated = true
 			break
