@@ -15,10 +15,11 @@ type ZoneID uint8
 
 // A zone is a collection of rooms which are controlled together, either by radiant heat or blowers
 type Zone struct {
-	ID          ZoneID
-	Name        string
-	Targets     ZoneTargets
-	AverageTemp DegF
+	ID               ZoneID
+	Name             string
+	Targets          ZoneTargets
+	AverageTemp      DegF
+	OneDegreeAdjTime time.Duration // how long does it take the zone to move by 1 degF
 }
 
 // Each zone has four target temps, based on systemMode and room occupancy
@@ -188,4 +189,9 @@ func stopAll(enabled []DeviceID) {
 	for k := range enabled {
 		enabled[k].Stop("internal")
 	}
+}
+
+// this will get smarter once we have more data to do some ML on
+func (z ZoneID) estimateOneDegAdjTime() (time.Duration, error) {
+	return (15 * time.Minute), nil
 }

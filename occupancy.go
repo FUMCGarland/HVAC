@@ -99,8 +99,6 @@ func (s *OccupancySchedule) writeToStore() error {
 
 func readOccupancyFromStore() (*OccupancySchedule, error) {
 	sl := OccupancySchedule{}
-	// sl.Recurring = []OccupancyRecurringEntry{}
-	// sl.OneTime = []OccupancyOneTimeEntry{}
 
 	path := path.Join(c.StateStore, "occupancy.json")
 

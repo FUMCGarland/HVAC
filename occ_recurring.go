@@ -61,6 +61,19 @@ func (s *OccupancySchedule) AddRecurringEntry(e *OccupancyRecurringEntry) error 
 func buildRecurringJob(e *OccupancyRecurringEntry) error {
 	attimes := make([]gocron.AtTime, 0)
 
+	var maxPreRunTime time.Duration
+	for _, r := range e.Rooms {
+		timeDiff, err := r.GetPreRunTime()
+		if err != nil {
+			log.Error(err.Error())
+			continue
+		}
+		if timeDiff > maxPreRunTime {
+			maxPreRunTime = timeDiff
+		}
+	}
+	log.Info("TODO need to offset time", "prerun", maxPreRunTime)
+
 	times := strings.Split(e.StartTime, ";")
 	for _, v := range times {
 		log.Debug("time", "time", v)

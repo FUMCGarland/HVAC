@@ -1,6 +1,7 @@
 package hvac
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -142,4 +143,37 @@ func GetRoomIDFromShelly(shellyID string) RoomID {
 	}
 
 	return 0
+}
+
+func (r RoomID) GetPreRunTime() (time.Duration, error) {
+	room := r.Get()
+	if room == nil {
+		err := fmt.Errorf("invalid room")
+		return 0, err
+	}
+	zid := room.Zone
+	z := zid.Get()
+	if z == nil {
+		err := fmt.Errorf("invalid zone")
+		return 0, err
+	}
+
+	var tempDiff DegF
+	if c.SystemMode == SystemModeHeat {
+		tempDiff = z.Targets.HeatingOccupiedTemp - z.Targets.HeatingUnoccupiedTemp
+	} else {
+		tempDiff = z.Targets.CoolingUnoccupiedTemp - z.Targets.CoolingOccupiedTemp
+	}
+
+	if z.OneDegreeAdjTime == 0 {
+		var err error
+		z.OneDegreeAdjTime, err = zid.estimateOneDegAdjTime()
+		if err != nil {
+			log.Error(err.Error())
+			return 0, err
+		}
+	}
+	t := time.Duration(tempDiff) * z.OneDegreeAdjTime
+	log.Debug("Zone occupancy range", "tempDiff", tempDiff, "zone 1 degree adjustment time", z.OneDegreeAdjTime, "time required", t)
+	return t, nil
 }
