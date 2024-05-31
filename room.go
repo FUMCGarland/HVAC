@@ -77,9 +77,9 @@ func (r *Room) SetTemp(temp DegF) {
 
 	switch c.SystemMode {
 	case SystemModeHeat:
-		if r.Temperature >= boilerLockoutTemp && !boilerLockout {
+		if r.Temperature >= boilerLockoutTemp && !c.BoilerLockout {
 			log.Warn("locking out boiler, room temp too high")
-			boilerLockout = true
+			c.BoilerLockout = true
 			for k := range c.Pumps {
 				c.Pumps[k].ID.Stop("lockout")
 			}
@@ -99,9 +99,9 @@ func (r *Room) SetTemp(temp DegF) {
 			return
 		}
 	case SystemModeCool:
-		if r.Temperature <= chillerLockoutTemp && !chillerLockout {
+		if r.Temperature <= chillerLockoutTemp && !c.ChillerLockout {
 			log.Warn("locking out chiller, room temp too low", "room", r.ID, "temp", r.Temperature)
-			chillerLockout = true
+			c.ChillerLockout = true
 			for k := range c.Chillers {
 				c.Chillers[k].ID.Stop("lockout")
 			}

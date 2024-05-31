@@ -36,6 +36,8 @@ type Config struct {
 	DataLogFile       string
 	OpenWeatherMapKey string
 	OpenWeatherMapID  int
+	ChillerLockout    bool
+	BoilerLockout     bool
 	Blowers           []Blower
 	Chillers          []Chiller
 	Dampers           []Damper
@@ -58,9 +60,9 @@ type MQTTConfig struct {
 var defaults *Config = &Config{
 	StateStore: "/var/hvac",
 	MQTT: &MQTTConfig{
-		Root:       "fumcg",
+		Root:       "hvac",
 		Auth:       "/etc/hvac-mqtt-auth.json",
-		ID:         "fumcg",
+		ID:         "hvac",
 		ListenAddr: ":1883",
 	},
 	HTTPaddr:          ":8080",

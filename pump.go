@@ -33,8 +33,6 @@ func (p PumpID) Get() *Pump {
 	return nil
 }
 
-var boilerLockout bool
-
 // canEnable
 // (1) the loop SystemMode must match the current SystemMode -- no running Hot loops in cooling mode
 // (2) at least one blower on the loop must be running in cool mode lest the system freeze over
@@ -72,7 +70,7 @@ func (p PumpID) canEnable() error {
 	}
 
 	// if locked out, see if we are safet to restart
-	if boilerLockout {
+	if c.BoilerLockout {
 		boilerReset := true
 		// TODO only check rooms on this pump? ... do we need a per-zone boiler lockout instead of a global?
 		// TODO make sure temp reports are recent (1 hour)
@@ -86,12 +84,12 @@ func (p PumpID) canEnable() error {
 
 		if boilerReset {
 			log.Warn("all rooms below recovery temp, unlocking boiler")
-			boilerLockout = false
+			c.BoilerLockout = false
 		}
 	}
 
 	// still locked out, do not return error so pumps can start
-	if boilerLockout {
+	if c.BoilerLockout {
 		err := fmt.Errorf("a room is still too hot, boiler locked out, not starting pump")
 		log.Warn(err.Error())
 		return nil
