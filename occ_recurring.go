@@ -72,7 +72,8 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 			maxPreRunTime = timeDiff
 		}
 	}
-	log.Info("TODO need to offset time", "prerun", maxPreRunTime)
+	preRunHours := int64(maxPreRunTime.Hours())
+	preRunMinutes := int64(maxPreRunTime.Minutes()) % 60
 
 	times := strings.Split(e.StartTime, ";")
 	for _, v := range times {
@@ -83,13 +84,20 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 			log.Error(err.Error())
 			return err
 		}
-		hour = hour % 24
+		hour = (hour - preRunHours) % 24
+
 		minute, err := strconv.ParseInt(units[1], 10, 8)
 		if err != nil {
 			log.Error(err.Error())
 			return err
 		}
-		minute = minute % 60
+		minute = (minute - preRunMinutes) % 60
+		if minute < 0 {
+			hour = hour - 1
+			minute = minute + 60
+		}
+
+		log.Debug("time", "configured time", v, "prerun hour", hour, "prerun minute", minute)
 		attimes = append(attimes, gocron.NewAtTime(uint(hour), uint(minute), 0))
 	}
 
