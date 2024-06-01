@@ -97,3 +97,19 @@ func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 		h(w, r, ps)
 	}
 }
+
+func getUser(r *http.Request) string {
+	token, err := jwt.ParseRequest(r,
+		jwt.WithKeySet(sk, jws.WithInferAlgorithmFromKey(true), jws.WithUseDefault(true)),
+		jwt.WithValidate(true),
+		jwt.WithAudience(sessionName),
+		jwt.WithAcceptableSkew(20*time.Second),
+	)
+	if err != nil {
+		log.Error("token parse/validate failed", "error", err.Error())
+		return ""
+	}
+
+	username := string(token.Subject())
+	return username
+}

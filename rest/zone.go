@@ -72,15 +72,15 @@ func putZoneStart(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	}
 
 	if zc.TargetState {
-		log.Info("starting zone manually", "id", id, "cmd", zc)
-		if err := id.Start(zc.RunTime, "manual"); err != nil {
+		log.Info("starting zone manually", "id", id, "cmd", zc, "user", getUser(r))
+		if err := id.Start(zc.RunTime, "manual: "+getUser(r)); err != nil {
 			log.Error(err.Error())
 			http.Error(w, jsonError(err), http.StatusInternalServerError)
 			return
 		}
 	} else {
-		log.Info("stopping zone manually", "id", id, "cmd", zc)
-		id.Stop("manual")
+		log.Info("stopping zone manually", "id", id, "cmd", zc, "user", getUser(r))
+		id.Stop("manual: " + getUser(r))
 	}
 
 	fmt.Fprint(w, jsonStatusOK)
