@@ -61,7 +61,7 @@ func Start(ctx context.Context, c *hvac.Config) {
 	}
 	h.UpdateText(map[string]string{"api_proto": "mqtt", "destination_port": "1883"}, rp)
 
-	log.Info("starting DNSSD")
+	log.Debug("starting DNSSD")
 	if err := rp.Respond(ctx); err != nil {
 		log.Error("unable to start DNSSD responder", "error", err.Error())
 	}

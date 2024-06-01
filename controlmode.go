@@ -55,27 +55,32 @@ func (c *Config) SetControlMode(cm ControlModeT) error {
 
 	switch cm {
 	case ControlManual:
-		log.Info("stopping schedulers")
-		StopAll()
-		_ = scheduler.StopJobs()
-		// occScheduler.StopJobs()
-		occScheduler.Start() // during development, won't hurt since the room's occupied flag is ignored if not in temp mode
+		if err := scheduler.StopJobs(); err != nil {
+			log.Error(err.Error())
+		}
+		if err := occScheduler.StopJobs(); err != nil {
+			log.Error(err.Error())
+		}
 		log.Info("control mode manual")
 	case ControlSchedule:
-		// occScheduler.StopJobs()
-		occScheduler.Start() // during development, won't hurt since the room's occupied flag is ignored if not in temp mode
-		log.Info("starting scheduler")
+		if err := occScheduler.StopJobs(); err != nil {
+			log.Error(err.Error())
+		}
 		scheduler.Start()
+		log.Info("control mode schedule")
 	case ControlTemp:
-		log.Info("stopping scheduler")
-		_ = scheduler.StopJobs()
-		log.Info("starting temp mode")
+		if err := scheduler.StopJobs(); err != nil {
+			log.Error(err.Error())
+		}
 		occScheduler.Start()
+		log.Info("control mode temp")
 	case ControlOff:
-		log.Info("stopping schedulers")
-		_ = scheduler.StopJobs()
-		// occScheduler.StopJobs()
-		occScheduler.Start() // during development, won't hurt since the room's occupied flag is ignored if not in temp mode
+		if err := scheduler.StopJobs(); err != nil {
+			log.Error(err.Error())
+		}
+		if err := occScheduler.StopJobs(); err != nil {
+			log.Error(err.Error())
+		}
 		StopAll()
 		log.Info("control mode off")
 	}

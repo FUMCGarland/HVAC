@@ -133,7 +133,7 @@ func readOccupancyFromStore() (*OccupancySchedule, error) {
 		log.Debug("loading onetime occupancy entry", "entry", sl.OneTime[k])
 		if err := buildOneTimeJob(&sl.OneTime[k]); err != nil {
 			log.Error(err.Error())
-			// return &sl, err // TODO: check for erros but ignore jobs in the past
+			return &sl, err
 			// TODO: purge jobs in the past routinely
 		}
 	}

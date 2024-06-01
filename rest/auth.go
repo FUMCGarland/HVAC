@@ -66,7 +66,7 @@ func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 			jwt.WithAcceptableSkew(20*time.Second),
 		)
 		if err != nil {
-			log.Info("token parse/validate failed", "error", err.Error())
+			log.Error("token parse/validate failed", "error", err.Error())
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
@@ -90,7 +90,7 @@ func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 
 		if authLevel(checklevel) < requiredlevel {
 			err := fmt.Errorf("acess level too low")
-			log.Info(err.Error(), "wanted", requiredlevel, "got", checklevel, "username", username)
+			log.Warn(err.Error(), "wanted", requiredlevel, "got", checklevel, "username", username)
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}

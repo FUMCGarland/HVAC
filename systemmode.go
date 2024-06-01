@@ -49,7 +49,7 @@ func (c *Config) SetSystemMode(sm SystemModeT) error {
 		log.Error(err.Error())
 		return err
 	}
-	log.Info("setting system mode", "mode", sm, "string", sm.ToString())
+	log.Debug("setting system mode", "mode", sm, "string", sm.ToString())
 	c.SystemMode = sm
 	if err := c.writeSystemMode(); err != nil {
 		log.Error("unable to write system mode to disk", "error", err.Error())

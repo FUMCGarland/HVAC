@@ -78,7 +78,7 @@ func (ch ChillerID) canEnable() error {
 		}
 
 		if chillerReset {
-			log.Info("all rooms above recovery temp, unlocking chiller")
+			log.Warn("all rooms above recovery temp, unlocking chiller")
 			c.ChillerLockout = false
 		}
 	}
