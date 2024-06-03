@@ -18,7 +18,7 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 	m.GlobalOPTIONS = http.HandlerFunc(headers)
 
 	if _, err := os.Stat(c.HTTPStaticDir); err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 	m.ServeFiles("/static/*filepath", http.Dir(c.HTTPStaticDir))
 	appDir := fmt.Sprintf("%s/_app", c.HTTPStaticDir)
@@ -26,6 +26,7 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 
 	m.NotFound = http.HandlerFunc(notFound)
 
+	// URL to login, returns the JWT to pass in to authenticated endpoints
 	m.POST("/api/v1/getJWT", login)
 
 	// Add handlers for all the endpoints
@@ -75,11 +76,24 @@ func headers(w http.ResponseWriter, r *http.Request) {
 }
 
 func notFound(w http.ResponseWriter, r *http.Request) {
-	if r.URL.String() == "" || r.URL.String() == "/" || strings.HasPrefix(r.URL.String(), "/static") {
+	// default: redirect to webui
+	if r.URL.String() == "" || r.URL.String() == "/" {
 		http.Redirect(w, r, "/static/index.html", http.StatusMovedPermanently)
 		return
 	}
 
+	// if static, but not found, treat it as extra info on the webui
+	if strings.HasPrefix(r.URL.String(), "/static") {
+		log.Info("unknown static URL requested", "url", r.URL.String())
+		// TODO parse, redirect to temp URL
+		url := "room"
+		newLoc := fmt.Sprintf("/static/index.html?u=%s", url)
+
+		http.Redirect(w, r, newLoc, http.StatusMovedPermanently)
+		return
+	}
+
+	// something unexpected (not /static or /_app) requested, look under /static for it
 	newLoc := fmt.Sprintf("/static%s", r.URL)
 	log.Debug("not found, redirecting", "request", r.URL.String(), "new", newLoc, "method", r.Method)
 	http.Redirect(w, r, newLoc, http.StatusMovedPermanently)

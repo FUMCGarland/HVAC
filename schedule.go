@@ -212,7 +212,7 @@ func buildJob(e *ScheduleEntry) error {
 				}
 			},
 		),
-		gocron.WithTags(fmt.Sprintf("%d", e.ID)),
+		gocron.WithTags(fmt.Sprintf("%d", e.ID), scheduleTagDevice, e.Name),
 		gocron.WithName(e.Name),
 	)
 

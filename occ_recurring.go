@@ -8,7 +8,6 @@ import (
 
 	"github.com/FUMCGarland/hvac/log"
 	"github.com/go-co-op/gocron/v2"
-	// "github.com/google/uuid"
 )
 
 func (s *OccupancySchedule) GetRecurringEntry(id OccupancyRecurringID) *OccupancyRecurringEntry {
@@ -101,9 +100,9 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 		attimes = append(attimes, gocron.NewAtTime(uint(hour), uint(minute), 0))
 	}
 
-	var roomStrings []string
+	newTags := []string{e.Name, scheduleTagOccupancy, scheduleTagRecurring}
 	for _, r := range e.Rooms {
-		roomStrings = append(roomStrings, fmt.Sprintf("%d", r))
+		newTags = append(newTags, fmt.Sprintf("%d", r))
 	}
 
 	_, err := occScheduler.NewJob(
@@ -125,7 +124,7 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 				}
 			},
 		),
-		gocron.WithTags(roomStrings...),
+		gocron.WithTags(newTags...),
 		gocron.WithName(e.Name),
 	)
 

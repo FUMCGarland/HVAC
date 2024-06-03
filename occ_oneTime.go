@@ -84,7 +84,7 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 				}
 			},
 		),
-		gocron.WithTags(e.Name),
+		gocron.WithTags(e.Name, scheduleTagOccupancy, scheduleTagOneTime),
 		gocron.WithName(e.Name),
 	)
 	if err != nil {
@@ -103,7 +103,7 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 				}
 			},
 		),
-		gocron.WithTags(e.Name),
+		gocron.WithTags(e.Name, scheduleTagOccupancy, scheduleTagOneTime),
 		gocron.WithName(fmt.Sprintf("%s end", e.Name)),
 	)
 	if err != nil {
@@ -167,6 +167,7 @@ func (s *OccupancySchedule) EditOneTimeEntry(e *OccupancyOneTimeEntry) error {
 	}
 
 	log.Debug("removing job from schedule", "id", e.ID)
+	// need to add RemoveByName
 	occScheduler.RemoveByTags(fmt.Sprintf("%d", e.ID))
 
 	if err := buildOneTimeJob(e); err != nil {

@@ -18,12 +18,12 @@ func Start(ctx context.Context, c *hvac.Config) {
 	p := parts[len(parts)-1]
 	port, err := strconv.ParseInt(p, 10, 16)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	hostname, err := os.Hostname()
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	svhttp, err := dnssd.NewService(dnssd.Config{
@@ -32,7 +32,7 @@ func Start(ctx context.Context, c *hvac.Config) {
 		Port: int(port),
 	})
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	svmqtt, err := dnssd.NewService(dnssd.Config{
@@ -41,23 +41,23 @@ func Start(ctx context.Context, c *hvac.Config) {
 		Port: 1883,
 	})
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	rp, err := dnssd.NewResponder()
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	h, err := rp.Add(svhttp)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 	h.UpdateText(map[string]string{"JOSH": "Joyous Online Scheduler for HVAC"}, rp)
 
 	h, err = rp.Add(svmqtt)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 	h.UpdateText(map[string]string{"api_proto": "mqtt", "destination_port": "1883"}, rp)
 

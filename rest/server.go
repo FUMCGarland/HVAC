@@ -25,7 +25,7 @@ const jsonStatusOK = `{"status":"ok"}`
 func Start(c *hvac.Config, done <-chan bool) {
 	var err error
 	if ad, err = LoadAuth(c.HTTPAuthData); err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	srv = &http.Server{
@@ -42,7 +42,7 @@ func Start(c *hvac.Config, done <-chan bool) {
 	log.Info("Starting up REST server", "on", c.HTTPaddr)
 	go func() {
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			panic(err.Error())
+			log.Fatal(err.Error())
 		}
 	}()
 

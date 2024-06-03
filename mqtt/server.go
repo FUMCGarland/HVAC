@@ -26,23 +26,21 @@ func Start(c *hvac.MQTTConfig, done <-chan bool) {
 
 	authData, err := os.ReadFile(c.Auth)
 	if err != nil {
-		log.Error(err.Error())
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	if err := server.AddHook(new(auth.Hook), &auth.Options{Data: authData}); err != nil {
-		log.Error(err.Error())
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	tcp := listeners.NewTCP(listeners.Config{Type: listeners.TypeTCP, ID: c.ID, Address: c.ListenAddr, TLSConfig: nil})
 	if err := server.AddListener(tcp); err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	go func() {
 		if err := server.Serve(); err != nil {
-			panic(err.Error())
+			log.Fatal(err.Error())
 		}
 	}()
 
