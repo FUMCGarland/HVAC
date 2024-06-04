@@ -33,20 +33,24 @@ func DataLogger(ctx context.Context) {
 	}
 	log.SetOutput(lj)
 
+	// clear and re-set the logger flags so the first line doesn't get the timestamp
+	{
+		flags := log.Flags()
+		log.SetFlags(0)
+		writeHeader(c)
+		log.SetFlags(flags)
+	}
+
+	// every 5 minutes, write another line to the log file
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
-
-	flags := log.Flags()
-	log.SetFlags(0)
-	writeHeader(c)
-	log.SetFlags(flags)
 	for {
 		select {
 		case <-ticker.C:
 			writeLine(c)
 		case <-ctx.Done():
 			// start a new data file for each startup
-			_ = lj.Rotate()
+			// _ = lj.Rotate()
 			return
 		}
 	}
