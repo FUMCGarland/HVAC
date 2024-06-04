@@ -1,11 +1,11 @@
 {
     "MQTT": {
         "Root": "hvac",
-        "ID": "hvac-controller",
+        "ID": "hvac-controller"
     },
     "HTTPaddr": ":8080",
     "HTTPStaticDir": "/home/scot/HVAC/webui/build/",
-    "_OpenWeatherMapKey": "",
+    "OpenWeatherMapKey": "",
     "Blowers": [
         {"ID": 1, "Name": "First Floor", "HotLoop": 0, "ColdLoop": 5, "Zone": 1 },
         {"ID": 2, "Name": "2nd Floor West Wing", "HotLoop": 0, "ColdLoop": 5, "Zone": 2 },
