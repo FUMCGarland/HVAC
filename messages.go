@@ -6,9 +6,9 @@ import (
 
 // Command is what the MQTT server sends to the relay controllers
 type Command struct {
-	TargetState bool
-	RunTime     time.Duration // the time to run the device/zone
 	Source      string        // a string describing the reasonx:, manual, schedule, auto
+	RunTime     time.Duration // the time to run the device/zone
+	TargetState bool
 }
 
 // Response is what the Relay Controller sends to the MQTT server

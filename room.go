@@ -19,15 +19,15 @@ type RoomID uint16
 // properly. When we start building controls for the damnpers and valves
 // having per-room data will help with system tuning even more
 type Room struct {
-	ID          RoomID
+	LastUpdate  time.Time
 	Name        string
-	Zone        ZoneID
+	ShellyID    string
 	Temperature DegF
+	ID          RoomID
+	Zone        ZoneID
 	Humidity    uint8
 	Battery     uint8
-	LastUpdate  time.Time
 	Occupied    bool
-	ShellyID    string
 }
 
 // Get returns a full room struct for a RoomID

@@ -18,14 +18,10 @@ var cmdChan chan MQTTRequest
 // Config is the system configuration and run-time data
 // a subset of Config is used for the startup configuration
 type Config struct {
-	// the directory in which to store running state
-	StateStore string
-	// heating/cooling
-	SystemMode SystemModeT
-	// off/manual/schedule/temp
-	ControlMode ControlModeT
 	// config for the mqtt server
 	MQTT *MQTTConfig
+	// the directory in which to store running state
+	StateStore string
 	// the address on which to listen :8080
 	HTTPaddr string
 	// the directory that contains the built webui
@@ -35,9 +31,6 @@ type Config struct {
 	// the location of the datalog files
 	DataLogFile       string
 	OpenWeatherMapKey string
-	OpenWeatherMapID  int
-	ChillerLockout    bool
-	BoilerLockout     bool
 	Blowers           []Blower
 	Chillers          []Chiller
 	Dampers           []Damper
@@ -46,6 +39,13 @@ type Config struct {
 	Rooms             []Room
 	Valves            []Valve
 	Zones             []Zone
+	OpenWeatherMapID  int
+	// heating/cooling
+	SystemMode SystemModeT
+	// off/manual/schedule/temp
+	ControlMode    ControlModeT
+	ChillerLockout bool
+	BoilerLockout  bool
 }
 
 // MQTTConfig is the configuration of the MQTT subsystem

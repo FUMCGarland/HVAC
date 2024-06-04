@@ -13,15 +13,15 @@ import (
 type PumpID uint8
 
 type Pump struct {
-	ID               PumpID
-	Name             string
-	Loop             LoopID
-	Runtime          time.Duration
-	SystemMode       SystemModeT
-	Running          bool
 	CurrentStartTime time.Time
 	LastStartTime    time.Time
 	LastStopTime     time.Time
+	Name             string
+	Runtime          time.Duration
+	ID               PumpID
+	Loop             LoopID
+	SystemMode       SystemModeT
+	Running          bool
 }
 
 func (p PumpID) Get() *Pump {

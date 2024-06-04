@@ -29,21 +29,21 @@ type OccupancyRecurringID uint8
 
 // ScheduleEntry is the definition of a job to be run at specified times
 type OccupancyRecurringEntry struct {
-	ID        OccupancyRecurringID
 	Name      string
 	StartTime string // "6:30"
 	EndTime   string // "15:30"
 	Weekdays  []time.Weekday
 	Rooms     []RoomID
+	ID        OccupancyRecurringID
 }
 
 // ScheduleEntry is the definition of a job to be run at specified times
 type OccupancyOneTimeEntry struct {
-	ID    OccupancyOneTimeID
-	Name  string
 	Start time.Time
 	End   time.Time
+	Name  string
 	Rooms []RoomID
+	ID    OccupancyOneTimeID
 }
 
 // init() considered harmful... set up the global scheduler

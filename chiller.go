@@ -13,14 +13,14 @@ import (
 type ChillerID uint8
 
 type Chiller struct {
-	ID               ChillerID
-	Name             string
-	Loops            []LoopID
-	Runtime          time.Duration
-	Running          bool
 	CurrentStartTime time.Time
 	LastStartTime    time.Time
 	LastStopTime     time.Time
+	Name             string
+	Loops            []LoopID
+	Runtime          time.Duration
+	ID               ChillerID
+	Running          bool
 }
 
 func (p ChillerID) Get() *Chiller {

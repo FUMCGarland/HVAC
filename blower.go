@@ -17,17 +17,17 @@ type BlowerID uint8
 // blowers are connected to loops, which are driven by pumps
 // a zone is the region of the building serviced by one or more blowers
 type Blower struct {
-	ID               BlowerID
+	CurrentStartTime time.Time
+	LastStartTime    time.Time
+	LastStopTime     time.Time
 	Name             string
+	Runtime          time.Duration
+	FilterTime       uint64
+	ID               BlowerID
 	HotLoop          LoopID
 	ColdLoop         LoopID
 	Zone             ZoneID
 	Running          bool
-	Runtime          time.Duration
-	FilterTime       uint64
-	CurrentStartTime time.Time
-	LastStartTime    time.Time
-	LastStopTime     time.Time
 }
 
 // Get returns a pointer to a Blower for a given BlowerId

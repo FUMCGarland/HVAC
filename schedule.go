@@ -26,13 +26,13 @@ var scheduler gocron.Scheduler
 
 // ScheduleEntry is the definition of a job to be run at specified times
 type ScheduleEntry struct {
-	ID        uint8
 	Name      string
-	Mode      SystemModeT
 	StartTime string // "10:30" "18:00;22:30;24:00""
 	Weekdays  []time.Weekday
-	RunTime   time.Duration
 	Zones     []ZoneID
+	RunTime   time.Duration
+	ID        uint8
+	Mode      SystemModeT
 }
 
 // init() considered harmful, just a singleton to set up the global schedular
