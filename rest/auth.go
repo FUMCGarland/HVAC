@@ -34,6 +34,7 @@ const (
 // used in the cli to add/update users, should probably just be moved there
 const BcryptRounds = 14
 
+// LoadAuth loads the auth config file, exported since the cli tool uses it
 func LoadAuth(path string) ([]AuthData, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {

@@ -145,7 +145,7 @@ func GetRoomIDFromShelly(shellyID string) RoomID {
 	return 0
 }
 
-func (r RoomID) GetPreRunTime() (time.Duration, error) {
+func (r RoomID) getPreRunTime() (time.Duration, error) {
 	room := r.Get()
 	if room == nil {
 		err := fmt.Errorf("invalid room")

@@ -30,8 +30,8 @@ func (t SystemModeT) ToString() string {
 	return systemModeStrings[t]
 }
 
-// SystemModeFromString returns a SystemModeT that matches a string
-func SystemModeFromString(s string) SystemModeT {
+// systemModeFromString returns a SystemModeT that matches a string
+func systemModeFromString(s string) SystemModeT {
 	if s == "heat" {
 		return SystemModeHeat
 	}
@@ -88,5 +88,5 @@ func (c *Config) readSystemMode() (SystemModeT, error) {
 		log.Error(err.Error())
 		return SystemModeUnknown, err
 	}
-	return SystemModeFromString(string(data)), nil
+	return systemModeFromString(string(data)), nil
 }

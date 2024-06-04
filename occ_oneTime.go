@@ -55,7 +55,7 @@ func (s *OccupancySchedule) AddOneTimeEntry(e *OccupancyOneTimeEntry) error {
 func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 	var maxPreRunTime time.Duration
 	for _, r := range e.Rooms {
-		timeDiff, err := r.GetPreRunTime()
+		timeDiff, err := r.getPreRunTime()
 		if err != nil {
 			log.Error(err.Error())
 			continue

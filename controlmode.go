@@ -30,7 +30,7 @@ func (t ControlModeT) ToString() string {
 }
 
 // Take a friendly name and return the ControlModeT
-func ControlModeFromString(s string) ControlModeT {
+func controlModeFromString(s string) ControlModeT {
 	switch s {
 	case "manual":
 		return ControlManual
@@ -125,5 +125,5 @@ func (c *Config) readControlMode() (ControlModeT, error) {
 		log.Error(err.Error())
 		return ControlManual, err
 	}
-	return ControlModeFromString(string(data)), nil
+	return controlModeFromString(string(data)), nil
 }
