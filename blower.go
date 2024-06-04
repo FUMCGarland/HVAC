@@ -51,6 +51,10 @@ func (b BlowerID) canEnable() error {
 	}
 
 	blower := b.Get()
+	if blower == nil {
+		err := fmt.Errorf("invalid blower")
+		return err
+	}
 	if !blower.LastStopTime.Before(time.Now().Add(blowerMinTimeBetweenRuns)) {
 		err := fmt.Errorf("blower recently stopped, in hold-down state")
 		return err
@@ -150,6 +154,10 @@ func (b BlowerID) Stop(source string) {
 	// if we are the last active blower on the loop, ensure that the pump is shut down
 	last := true
 	blower := b.Get()
+	if blower == nil {
+		log.Warn("invalid blower", "blower ID", b)
+		return
+	}
 	for k := range c.Blowers {
 		// skip self
 		if c.Blowers[k].ID == b {
@@ -177,7 +185,7 @@ func (b BlowerID) Stop(source string) {
 		}
 		pump := pl.Get()
 		log.Debug("pump", "id", pl, "pump", pump)
-		if pump.Running {
+		if pump != nil && pump.Running {
 			pump.ID.Stop("internal")
 		}
 	}
@@ -195,6 +203,10 @@ func (b BlowerID) Stop(source string) {
 
 func (b BlowerID) getPump(sm SystemModeT) PumpID {
 	blower := b.Get()
+	if blower == nil {
+		log.Warn("getPump called for invalid blower", "blower ID", b)
+		return 0
+	}
 	return blower.getPump(sm)
 }
 

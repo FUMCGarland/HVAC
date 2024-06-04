@@ -235,6 +235,10 @@ func (p PumpID) Stop(source string) {
 
 func (p PumpID) getChiller() ChillerID {
 	pump := p.Get()
+	if pump == nil {
+		log.Warn("requested chiller for invalid pump", "pump ID", p)
+		return 0
+	}
 	return pump.getChiller()
 }
 

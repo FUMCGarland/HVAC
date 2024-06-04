@@ -18,19 +18,18 @@ var cmdChan chan MQTTRequest
 // Config is the system configuration and run-time data
 // a subset of Config is used for the startup configuration
 type Config struct {
-	// config for the mqtt server
-	MQTT *MQTTConfig
-	// the directory in which to store running state
-	StateStore string
-	// the address on which to listen :8080
-	HTTPaddr string
-	// the directory that contains the built webui
-	HTTPStaticDir string
-	// the file that contains the HTTP authentication creds
-	HTTPAuthData string
-	// the location of the datalog files
-	DataLogFile       string
-	OpenWeatherMapKey string
+	StateStore        string       // the directory in which to store running state
+	SystemMode        SystemModeT  // heating/cooling
+	ControlMode       ControlModeT // off/manual/schedule/temp
+	MQTT              *MQTTConfig  // config for the mqtt server
+	HTTPaddr          string       // the address on which to listen :8080
+	HTTPStaticDir     string       // the directory that contains the built webui
+	HTTPAuthData      string       // the file that contains the HTTP authentication creds
+	DataLogFile       string       // the name of the datalog files
+	OpenWeatherMapKey string       // API key from OpenWeatherMap
+	OpenWeatherMapID  int          // locaiton ID in OpenWeatherMap
+	ChillerLockout    bool         // is the chiller locked-out due to being too cold?
+	BoilerLockout     bool         // is the boiler locked-out due to being to warm?
 	Blowers           []Blower
 	Chillers          []Chiller
 	Dampers           []Damper
@@ -39,13 +38,6 @@ type Config struct {
 	Rooms             []Room
 	Valves            []Valve
 	Zones             []Zone
-	OpenWeatherMapID  int
-	// heating/cooling
-	SystemMode SystemModeT
-	// off/manual/schedule/temp
-	ControlMode    ControlModeT
-	ChillerLockout bool
-	BoilerLockout  bool
 }
 
 // MQTTConfig is the configuration of the MQTT subsystem
@@ -69,8 +61,11 @@ var defaults *Config = &Config{
 	HTTPStaticDir:     "/usr/local/hvac",
 	HTTPAuthData:      "/etc/hvac-http-auth.json",
 	DataLogFile:       "/var/hvac/datalog.csv",
-	OpenWeatherMapKey: "",
-	OpenWeatherMapID:  4693003,
+	OpenWeatherMapKey: "",      // no key, do not check OWM
+	OpenWeatherMapID:  4693003, // Garland, TX
+	ChillerLockout:    false,
+	BoilerLockout:     false,
+	SystemMode:        SystemModeCool,
 }
 
 // init() considered harmful, except that this is trivial and sets up a global
@@ -113,7 +108,8 @@ func GetConfig() *Config {
 	return c
 }
 
-// validate is called by LoadConfig to make sure that things are sane -- needs work
+// validate is called by LoadConfig to make sure that things are sane
+// TODO fill in all the rest
 func validate() error {
 	if err := validateBlower(); err != nil {
 		return err
