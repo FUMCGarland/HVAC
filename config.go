@@ -9,9 +9,6 @@ import (
 	"github.com/FUMCGarland/hvac/log"
 )
 
-// c is the global running config
-var c *Config
-
 // cmdChan is the channel used to pass commands to the MQTT server
 var cmdChan chan MQTTRequest
 
@@ -48,8 +45,9 @@ type MQTTConfig struct {
 	ListenAddr string // (":1883")
 }
 
-// defaults are the sane defaults if the config file isn't fully populated
-var defaults *Config = &Config{
+// c is the global running config
+// start with sane defaults if the config file isn't fully populated
+var c *Config = &Config{
 	StateStore: "/var/hvac",
 	MQTT: &MQTTConfig{
 		Root:       "hvac",
@@ -80,13 +78,10 @@ func LoadConfig(filename string) (*Config, error) {
 		log.Fatal(err.Error())
 	}
 
-	in := defaults
 	// overwrite the defaults with what is in the file
-	if err := json.Unmarshal(raw, &in); err != nil {
+	if err := json.Unmarshal(raw, c); err != nil {
 		log.Fatal(err.Error())
 	}
-
-	c = in
 
 	if err := validate(); err != nil {
 		log.Fatal("validate", "config", c, "error", err.Error())
@@ -101,10 +96,6 @@ func LoadConfig(filename string) (*Config, error) {
 
 // GetConfig returns the global running config, used by various sub-modules
 func GetConfig() *Config {
-	if c == nil {
-		panic("GetConfig() called before LoadConfig()")
-	}
-
 	return c
 }
 
