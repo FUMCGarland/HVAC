@@ -8,8 +8,6 @@ import (
 	"github.com/FUMCGarland/hvac/log"
 )
 
-var rc *RelayConf
-
 type RelayConf struct {
 	Root         string
 	MQTTuser     string
@@ -19,7 +17,7 @@ type RelayConf struct {
 	Relays       []hvac.Relay
 }
 
-var relaydefaults *RelayConf = &RelayConf{
+var rc *RelayConf = &RelayConf{
 	Root:         "hvac",
 	MQTTuser:     "relay1",
 	MQTTpass:     "relay1",
@@ -34,29 +32,19 @@ func load(filename string) (*RelayConf, error) {
 		panic(err.Error())
 	}
 
-	in := relaydefaults
 	// overwrite the defaults with what is in the file
-	if err := json.Unmarshal(raw, &in); err != nil {
+	if err := json.Unmarshal(raw, rc); err != nil {
 		panic(err.Error())
 	}
 
 	log.Start()
-	rc = in
 
 	if err := relayvalidate(); err != nil {
-		log.Info("config", "config", rc)
+		log.Debug("config", "config", rc)
 		panic(err.Error())
 	}
 
 	return rc, nil
-}
-
-func get() *RelayConf {
-	if rc == nil {
-		panic("Get() called before Load()")
-	}
-
-	return rc
 }
 
 func relayvalidate() error {

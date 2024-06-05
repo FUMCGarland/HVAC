@@ -47,7 +47,7 @@ func start(ctx context.Context, rc *RelayConf) {
 					{Topic: chillerTopic, QoS: hvac.QoS},
 				},
 			}); err != nil {
-				log.Info("failed to subscribe. This is likely to mean no messages will be received.", "err", err.Error())
+				log.Warn("failed to subscribe. This is likely to mean no messages will be received.", "err", err.Error())
 			}
 			log.Debug("mqtt subscription made")
 		},
@@ -192,8 +192,6 @@ func stopRelay(ctx context.Context, r *hvac.Relay) {
 }
 
 func processIncoming(pr paho.PublishReceived) (bool, error) {
-	rc := get()
-
 	t := strings.Split(pr.Packet.Topic, "/")
 	id, err := strconv.ParseInt(t[len(t)-2], 10, 8)
 	if err != nil {
