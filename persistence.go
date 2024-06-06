@@ -63,6 +63,13 @@ func (c *Config) loadFromStore() error {
 		}
 	}
 
+	for k := range c.Rooms {
+		if err := c.Rooms[k].readFromStore(); err != nil {
+			log.Error(err.Error())
+			return err
+		}
+	}
+
 	s, err := readScheduleFromStore()
 	if err != nil {
 		log.Error(err.Error())
@@ -117,6 +124,13 @@ func (c *Config) WriteToStore() error {
 
 	for k := range c.Chillers {
 		if err := c.Chillers[k].writeToStore(); err != nil {
+			log.Error(err.Error())
+			return err
+		}
+	}
+
+	for k := range c.Rooms {
+		if err := c.Rooms[k].writeToStore(); err != nil {
 			log.Error(err.Error())
 			return err
 		}

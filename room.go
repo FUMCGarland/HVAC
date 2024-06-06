@@ -1,7 +1,10 @@
 package hvac
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -176,4 +179,54 @@ func (r RoomID) getPreRunTime() (time.Duration, error) {
 	t := time.Duration(tempDiff) * z.OneDegreeAdjTime
 	log.Debug("Zone occupancy range", "tempDiff", tempDiff, "zone 1 degree adjustment time", z.OneDegreeAdjTime, "time required", t)
 	return t, nil
+}
+
+func (r *Room) writeToStore() error {
+	path := path.Join(c.StateStore, fmt.Sprintf("room-%d.json", r.ID))
+
+	fd, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	j, err := json.Marshal(*r)
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	if _, err := fd.Write(j); err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	if err := fd.Close(); err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (r *Room) readFromStore() error {
+	path := path.Join(c.StateStore, fmt.Sprintf("room-%d.json", r.ID))
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	var in Room
+	if err = json.Unmarshal(data, &in); err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	r.Temperature = in.Temperature
+	r.Humidity = in.Humidity
+	r.Battery = in.Battery
+
+	return nil
 }
