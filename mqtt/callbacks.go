@@ -58,6 +58,7 @@ func blowerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 			for k := range c.Blowers {
 				if blower.ColdLoop == c.Blowers[k].ColdLoop && c.Blowers[k].Running {
 					blowerRunning = true
+					break
 				}
 			}
 			if !blowerRunning {
@@ -272,7 +273,7 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 			r := room.Get()
 			r.SetBattery(1) // visually show that there is an error
 			if r == nil {
-				log.Error("unknown shelly", "shelly", ts[1])
+				log.Warn("unknown shelly", "shelly", ts[1])
 				return
 			}
 		}
