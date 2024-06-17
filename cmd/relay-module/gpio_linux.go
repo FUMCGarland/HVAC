@@ -16,7 +16,7 @@ var gpiorunning bool
 var rl *rate.Limiter
 
 func (c *RelayConf) setupGPIO() {
-	rl = rate.NewLimiter(2, 0)
+	rl = rate.NewLimiter(2, 1)
 
 	var err error
 	gpiochip, err = gpiocdev.NewChip(chipname, gpiocdev.WithConsumer("relay-module"))
