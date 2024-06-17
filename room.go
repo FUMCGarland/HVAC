@@ -214,8 +214,8 @@ func (r *Room) readFromStore() error {
 
 	data, err := os.ReadFile(path)
 	if err != nil {
-		log.Error(err.Error())
-		return err
+		log.Error(err.Error()) // log and ignore
+		return nil
 	}
 
 	var in Room
