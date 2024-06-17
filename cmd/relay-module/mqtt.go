@@ -107,7 +107,7 @@ func start(ctx context.Context, rc *RelayConf) {
 				}
 				if rc.Relays[k].Running && rc.Relays[k].StopTime.Before(now) {
 					rt := now.Sub(rc.Relays[k].StartTime)
-					log.Info("duration expired", "relay", rc.Relays[k].Pin, "RanTime", rt.Minutes())
+					log.Debug("duration expired", "relay", rc.Relays[k].Pin, "RanTime", rt.Minutes())
 
 					if err := setRelayState(rc.Relays[k].Pin, false); err != nil {
 						log.Error(err.Error())
