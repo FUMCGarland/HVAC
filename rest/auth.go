@@ -90,7 +90,7 @@ func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 		}
 
 		if authLevel(checklevel) < requiredlevel {
-			err := fmt.Errorf("acess level too low")
+			err := fmt.Errorf("access level too low")
 			log.Warn(err.Error(), "wanted", requiredlevel, "got", checklevel, "username", username)
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
