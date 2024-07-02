@@ -36,7 +36,11 @@ export async function deleteRecurringOccupancy(id) {
 		mode: 'cors',
 		credentials: 'include',
 		redirect: 'manual',
-		referrerPolicy: 'origin'
+		referrerPolicy: 'origin',
+		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
+			'Content-Type': 'application/json'
+		}
 	};
 
 	const response = await fetch(`${hvaccontroller}/api/v1/occupancy/recurring/${id}`, request);
@@ -111,7 +115,11 @@ export async function deleteOneTimeOccupancy(id) {
 		mode: 'cors',
 		credentials: 'include',
 		redirect: 'manual',
-		referrerPolicy: 'origin'
+		referrerPolicy: 'origin',
+		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
+			'Content-Type': 'application/json'
+		}
 	};
 
 	const response = await fetch(`${hvaccontroller}/api/v1/occupancy/onetime/${id}`, request);
