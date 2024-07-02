@@ -254,7 +254,11 @@ export async function deleteSchedule(id) {
 		mode: 'cors',
 		credentials: 'include',
 		redirect: 'manual',
-		referrerPolicy: 'origin'
+		referrerPolicy: 'origin',
+		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
+			'Content-Type': 'application/json'
+		},
 	};
 
 	const response = await fetch(`${hvaccontroller}/api/v1/sched/${id}`, request);
