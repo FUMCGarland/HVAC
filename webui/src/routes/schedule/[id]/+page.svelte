@@ -130,7 +130,7 @@
 				<Button
 					on:click={() => {
 						deleteSchedule(data.ID);
-						throw redirect(303, '/schedule');
+						redirect(303, '/schedule');
 					}}>Delete</Button
 				>
 			</TableBodyCell>
