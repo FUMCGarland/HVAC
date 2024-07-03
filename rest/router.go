@@ -78,6 +78,7 @@ func headers(w http.ResponseWriter, r *http.Request) {
 func notFound(w http.ResponseWriter, r *http.Request) {
 	// default: redirect to webui
 	if r.URL.String() == "" || r.URL.String() == "/" {
+		log.Info("/ requested, redirecting to /static/index.html")
 		http.Redirect(w, r, "/static/index.html", http.StatusMovedPermanently)
 		return
 	}
@@ -94,7 +95,7 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// something unexpected (not /static or /_app) requested, look under /static for it
-	newLoc := fmt.Sprintf("/static%s", r.URL)
+	newLoc := fmt.Sprintf("/static/index.html?u=%s", r.URL)
 	log.Debug("not found, redirecting", "request", r.URL.String(), "new", newLoc, "method", r.Method)
 	http.Redirect(w, r, newLoc, http.StatusMovedPermanently)
 }
