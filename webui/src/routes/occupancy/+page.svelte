@@ -9,12 +9,14 @@
 		TableHeadCell,
 		Heading,
 		Button,
-		A
+		A,
+		Banner
 	} from 'flowbite-svelte';
+	import { BullhornSolid } from 'flowbite-svelte-icons';
+
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
 	const weekdays = ['Sun', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
 	export let data;
-	console.log(data);
 
 	function parseWeekdays(w) {
 		return w.map((p) => weekdays[p]);
@@ -25,6 +27,21 @@
 	}
 </script>
 
+{#if data.ControlMode != 2}
+	<Banner id="default-banner">
+		<!-- position="absolute" -->
+		<p class="flex items-center text-sm font-normal text-gray-500 dark:text-gray-400">
+			<span class="me-3 inline-flex rounded-full bg-gray-200 p-1 dark:bg-gray-600">
+				<BullhornSolid class="h-3 w-3 text-gray-500 dark:text-gray-400" />
+				<span class="sr-only">Light bulb</span>
+			</span>
+			<span>
+				The system is not in "temp" control mode; you can configure the occupancy schedule, but it
+				will not be active until the control mode is switched.
+			</span>
+		</p>
+	</Banner>
+{/if}
 <Heading tag="h2">Recurring Occupancy Events</Heading>
 <Table>
 	<TableHead>
