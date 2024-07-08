@@ -114,7 +114,7 @@ func pumpCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet
 			// shut down the chiller if no other pumps are running for it
 			c := hvac.GetConfig()
 			chid := c.GetChillerFromLoop(pump.Loop)
-			if !chid.PumpsRunning() {
+			if chid != 0 && !chid.PumpsRunning() {
 				chid.Stop("internal")
 			}
 		}

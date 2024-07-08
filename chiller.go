@@ -29,6 +29,7 @@ func (p ChillerID) Get() *Chiller {
 			return &c.Chillers[k]
 		}
 	}
+	log.Debug("unable to get chiller", "chillerID", p)
 	return nil
 }
 
@@ -44,6 +45,11 @@ func (ch ChillerID) canEnable() error {
 	}
 
 	chiller := ch.Get()
+	if chiller == nil {
+		err := fmt.Errorf("unable to get chiller")
+		return err
+	}
+
 	if c.SystemMode != SystemModeCool {
 		err := fmt.Errorf("cannot enable chiller if not in cooling")
 		return err
@@ -197,6 +203,10 @@ func (c *Config) GetChillerFromLoop(id LoopID) ChillerID {
 
 func (ch ChillerID) PumpsRunning() bool {
 	chiller := ch.Get()
+	if chiller.Loops == nil || len(chiller.Loops) == 0 {
+		return false
+	}
+
 	for _, l := range chiller.Loops {
 		p := c.getPumpFromLoop(l)
 		pump := p.Get()
