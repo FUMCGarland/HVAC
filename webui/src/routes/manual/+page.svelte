@@ -84,14 +84,18 @@
 						<form>
 							<div class="mb-6 grid gap-6">
 								<div>
-									<Label for="run_time${zone.ID}" class="mb-2">Run Time (minutes)</Label>
-									<Input
-										type="text"
-										id="run_time{zone.ID}"
-										placeholder="60"
-										required
-										bind:value={zone.newRunTime}
-									/>
+									<Label for="run_time{zone.ID}" class="mb-2">Run Time (minutes)</Label>
+									<select id="run_time{zone.ID}" bind:value={zone.newRunTime}>
+										<option value="30">30 min</option>
+										<option value="60">1 hour</option>
+										<option value="120">2 hours</option>
+										<option value="240">4 hours</option>
+										<option value="360">6 hours</option>
+										<option value="480">8 hours</option>
+										<option value="600">10 hours</option>
+										<option value="720">12 hours</option>
+										<option value="840">14 hours</option>
+									</select>
 									<Button
 										type="submit"
 										on:click={(x) => {

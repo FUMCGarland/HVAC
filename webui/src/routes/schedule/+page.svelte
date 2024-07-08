@@ -159,8 +159,20 @@
 				<TableBodyCell><Input type="text" bind:value={starttime} /></TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell>Run Time (minutes)</TableBodyCell>
-				<TableBodyCell><Input type="text" bind:value={runtime} /></TableBodyCell>
+				<TableBodyCell>Run Time</TableBodyCell>
+				<TableBodyCell>
+					<select id="runtime" bind:value={runtime}>
+						<option value="30">30 min</option>
+						<option value="60">1 hour</option>
+						<option value="120">2 hours</option>
+						<option value="240">4 hours</option>
+						<option value="360">6 hours</option>
+						<option value="480">8 hours</option>
+						<option value="600">10 hours</option>
+						<option value="720">12 hours</option>
+						<option value="840">14 hours</option>
+					</select>
+				</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
 				<TableBodyCell>Zones</TableBodyCell>
