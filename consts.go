@@ -9,11 +9,11 @@ type DegF float32 // uint8
 // min/max durations for user-scheduled run-times, does not affect temp based
 const (
 	defaultRunDuration time.Duration = (time.Hour) // used in temp control mode, we just need a value to send to the relays
-	MaxPumpRunTime     time.Duration = (6 * time.Hour)
+	MaxPumpRunTime     time.Duration = (14 * time.Hour)
 	MinPumpRunTime     time.Duration = (30 * time.Minute)
-	MaxBlowerRunTime   time.Duration = (6 * time.Hour)
+	MaxBlowerRunTime   time.Duration = (14 * time.Hour)
 	MinBlowerRunTime   time.Duration = (30 * time.Minute)
-	MaxChillerRunTime  time.Duration = (6 * time.Hour)
+	MaxChillerRunTime  time.Duration = (14 * time.Hour)
 	MinChillerRunTime  time.Duration = (30 * time.Minute)
 )
 
