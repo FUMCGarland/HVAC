@@ -28,7 +28,7 @@
 <header class="mx-auto w-full flex-none bg-white dark:bg-slate-950">
 	<Navbar>
 		<NavBrand href="/">
-			<img src="/fumcg.jpg" class="me-3 h-6 sm:h-9" alt="FUMCG Logo" />
+			<img src="/static/fumcg.jpg" class="me-3 h-6 sm:h-9" alt="FUMCG Logo" />
 			<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"
 				>FUMC Garland HVAC</span
 			>
