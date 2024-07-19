@@ -7,9 +7,9 @@ export async function load({ fetch, params }) {
 	const sched = await fetch(`${hvaccontroller}/api/v1/schedule`, genRequest());
 	const s = await sched.json();
 	item.Schedule = s.List;
-
 	item.Schedule.forEach((s) => {
 		s.RunTime = s.RunTime / durationMult;
 	});
+	item.Schedule.sort((a, b) => { Number(a.ID) - Number(b.ID) });
 	return item;
 }
