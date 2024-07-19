@@ -78,7 +78,6 @@ func headers(w http.ResponseWriter, r *http.Request) {
 func notFound(w http.ResponseWriter, r *http.Request) {
 	// default: redirect to webui
 	if r.URL.String() == "" || r.URL.String() == "/" {
-		log.Info("/ requested, redirecting to /static/index.html")
 		http.Redirect(w, r, "/static/index.html", http.StatusMovedPermanently)
 		return
 	}
