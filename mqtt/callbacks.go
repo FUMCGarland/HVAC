@@ -214,7 +214,7 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 	ts := strings.Split(pk.TopicName, "/")
 
 	if len(ts) != 4 || ts[1] == "" {
-		log.Error("invalid shelly topic")
+		log.Warn("invalid shelly topic")
 	}
 	room := hvac.GetRoomIDFromShelly(ts[1])
 
@@ -231,7 +231,7 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 		}
 		r := room.Get()
 		if r == nil {
-			log.Error("unknown shelly", "shelly", ts[1])
+			log.Warn("unknown shelly", "shelly", ts[1])
 			return
 		}
 		r.SetTemp(hvac.DegF(temp))
@@ -247,7 +247,7 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 		}
 		r := room.Get()
 		if r == nil {
-			log.Error("unknown shelly", "shelly", ts[1])
+			log.Warn("unknown shelly", "shelly", ts[1])
 			return
 		}
 		r.SetHumidity(uint8(hum))
@@ -263,7 +263,7 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 		}
 		r := room.Get()
 		if r == nil {
-			log.Error("unknown shelly", "shelly", ts[1])
+			log.Warn("unknown shelly", "shelly", ts[1])
 			return
 		}
 		r.SetBattery(uint8(batt))
@@ -283,5 +283,14 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 		}
 	case "ext_power":
 		log.Debug("ext_power", "shelly", ts[1], "room", room, "data", pk.Payload)
+		if string(pk.Payload) != "true" {
+			return
+		}
+		r := room.Get()
+		if r == nil {
+			log.Warn("unknown shelly", "shelly", ts[1])
+			return
+		}
+		r.SetBattery(101)
 	}
 }
