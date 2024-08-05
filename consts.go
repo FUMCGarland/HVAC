@@ -31,8 +31,8 @@ const (
 	chillerRecoveryTemp DegF = 68 // all rooms must be above this temp to unlock the chiller
 	boilerLockoutTemp   DegF = 78 // if a room is warmer than this, stop all heater pumps (thereby stopping boilers)
 	boilerRecoveryTemp  DegF = 68 // all rooms must fall below this to unlock the heater pumps
-	minZoneTemp         DegF = 60 // the coolest we will accept as a user-defined value
-	maxZoneTemp         DegF = 80 // the warmest we will accept as a user-defined value
+	minZoneTemp         DegF = 58 // the coolest we will accept as a user-defined value
+	maxZoneTemp         DegF = 85 // the warmest we will accept as a user-defined value
 )
 
 const tempMaxAge time.Duration = (4 * time.Hour)
