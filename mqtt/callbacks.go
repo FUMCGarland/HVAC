@@ -278,7 +278,7 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 			}
 		}
 	case "act_reasons":
-		if string(pk.Payload) != "[\"sensor\"]" {
+		if string(pk.Payload) != "[\"sensor\"]" || string(pk.Payload) != "[\"periodic\"]" {
 			log.Info("act_reason", "shelly", ts[1], "room", room, "data", pk.Payload)
 		}
 	case "ext_power":
