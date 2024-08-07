@@ -114,6 +114,9 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 		gocron.NewTask(
 			func() {
 				log.Debug("marking room as occupied", "e", e)
+				zoneActivated := false
+				zones := make([]ZoneID, 0)
+
 				for _, room := range e.Rooms {
 					r := room.Get()
 					if r == nil {
@@ -121,6 +124,18 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 						continue
 					}
 					r.Occupied = true
+
+					zoneActivated = false
+					for k := range zones {
+						if zones[k] == r.Zone {
+							zoneActivated = true
+						}
+					}
+					if !zoneActivated {
+						log.Debug("activating zone")
+						r.Zone.Get().UpdateTemp() // recalculates the avg and runs if needed
+						zones = append(zones, r.Zone)
+					}
 				}
 			},
 		),

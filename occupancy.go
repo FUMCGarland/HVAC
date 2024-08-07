@@ -70,6 +70,7 @@ func (c *Config) GetOccupancySchedule() (*OccupancySchedule, error) {
 }
 
 func (s *OccupancySchedule) writeToStore() error {
+	log.Debug("writing occupancy schedule")
 	path := path.Join(c.StateStore, "occupancy.json")
 
 	fd, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
@@ -133,7 +134,7 @@ func readOccupancyFromStore() (*OccupancySchedule, error) {
 		log.Debug("loading onetime occupancy entry", "entry", sl.OneTime[k])
 		if err := buildOneTimeJob(&sl.OneTime[k]); err != nil {
 			log.Error(err.Error())
-			return &sl, err
+			// return &sl, err
 			// TODO: purge jobs in the past routinely
 		}
 	}

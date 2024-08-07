@@ -69,6 +69,7 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 
 	if e.Start.Before(time.Now()) {
 		log.Info("not adding job in the past")
+		occupancy.RemoveOneTimeEntry(e.ID)
 		return nil // not an error, just info
 	}
 
@@ -78,9 +79,27 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 		),
 		gocron.NewTask(
 			func() {
-				log.Debug("marking room as occupied", "e", e)
+				log.Info("marking room as occupied", "e", e)
+				zones := make([]ZoneID, 0)
+				zoneActivated := false
 				for _, room := range e.Rooms {
-					room.Get().Occupied = true
+					r := room.Get()
+					if r == nil {
+						log.Warn("got nil room starting recurring occupancy, update the rules")
+						continue
+					}
+					r.Occupied = true
+					zoneActivated = false
+					for k := range zones {
+						if zones[k] == r.Zone {
+							zoneActivated = true
+						}
+					}
+					if !zoneActivated {
+						log.Debug("activating zone")
+						r.Zone.Get().UpdateTemp() // recalculates the avg and runs if needed
+						zones = append(zones, r.Zone)
+					}
 				}
 			},
 		),
@@ -99,8 +118,12 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 			func() {
 				log.Debug("marking room as unoccupied", "e", e)
 				for _, room := range e.Rooms {
-					room.Get().Occupied = false
+					r := room.Get()
+					r.Occupied = false
+					r.Zone.Get().UpdateTemp() // recalculates the avg and runs if needed
 				}
+				cleanOneTimeSchedule()
+
 			},
 		),
 		gocron.WithTags(e.Name, scheduleTagOccupancy, scheduleTagOneTime),
@@ -176,4 +199,16 @@ func (s *OccupancySchedule) EditOneTimeEntry(e *OccupancyOneTimeEntry) error {
 	}
 
 	return nil
+}
+
+func cleanOneTimeSchedule() {
+	log.Debug("cleaning one-time occupancy schedule")
+	for k := range occupancy.OneTime {
+		if occupancy.OneTime[k].Start.Before(time.Now()) {
+			occupancy.RemoveOneTimeEntry(occupancy.OneTime[k].ID)
+		}
+	}
+	if err := occupancy.writeToStore(); err != nil {
+		log.Error(err.Error())
+	}
 }
