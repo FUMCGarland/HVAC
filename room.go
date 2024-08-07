@@ -48,37 +48,10 @@ func (r RoomID) Get() *Room {
 func (r *Room) SetTemp(temp DegF) {
 	r.Temperature = temp
 	r.LastUpdate = time.Now()
-	zone := r.Zone.Get()
 
-	// determine if the ZONE is occupied
-	zoneOccupied := false
-	for k := range c.Rooms {
-		if c.Rooms[k].Zone == zone.ID && c.Rooms[k].Occupied {
-			zoneOccupied = true
-			break
-		}
-	}
+	log.Debug("room temp", "room", r.ID, "temp", r.Temperature)
 
-	// calculate the average temperature of all rooms in the zone
-	{
-		var avgCnt uint8
-		var avgTot DegF
-		var avg DegF
-		maxAge := time.Now().Add(0 - tempMaxAge)
-		for k := range c.Rooms {
-			// in the zone, not zero, and more recent than tempMaxAge
-			if c.Rooms[k].Zone == zone.ID && c.Rooms[k].Temperature != 0 && c.Rooms[k].LastUpdate.After(maxAge) {
-				avgCnt++
-				avgTot += c.Rooms[k].Temperature
-			}
-			avg = avgTot / DegF(avgCnt)
-		}
-		if avg != 0 {
-			zone.AverageTemp = avg
-		}
-	}
-	log.Debug("room temp", "room", r.Name, "zone", zone.ID, "room temp", r.Temperature, "zone avg", zone.AverageTemp)
-
+	// lock-outs for extreme room temps
 	switch c.SystemMode {
 	case SystemModeHeat:
 		if r.Temperature >= boilerLockoutTemp && !c.BoilerLockout {
@@ -88,20 +61,6 @@ func (r *Room) SetTemp(temp DegF) {
 				c.Pumps[k].ID.Stop("lockout")
 			}
 		}
-		if (zoneOccupied && zone.AverageTemp < zone.Targets.HeatingOccupiedTemp-zoneHysterisisRange) || (!zoneOccupied && zone.AverageTemp < zone.Targets.HeatingUnoccupiedTemp-zoneHysterisisRange) {
-			if c.ControlMode == ControlTemp {
-				log.Info("starting zone", "zone", zone.ID, "avg temp", zone.AverageTemp)
-				_ = zone.ID.Start(defaultRunDuration, "temp")
-			}
-			return
-		}
-		if (zoneOccupied && zone.AverageTemp > zone.Targets.HeatingOccupiedTemp+zoneHysterisisRange) || (!zoneOccupied && zone.AverageTemp > zone.Targets.HeatingUnoccupiedTemp+zoneHysterisisRange) {
-			if c.ControlMode == ControlTemp {
-				log.Info("stopping zone", "zone", zone.ID, "avg temp", zone.AverageTemp)
-				zone.ID.Stop("temp")
-			}
-			return
-		}
 	case SystemModeCool:
 		if r.Temperature <= chillerLockoutTemp && !c.ChillerLockout {
 			log.Warn("locking out chiller, room temp too low", "room", r.ID, "temp", r.Temperature)
@@ -110,21 +69,11 @@ func (r *Room) SetTemp(temp DegF) {
 				c.Chillers[k].ID.Stop("lockout")
 			}
 		}
-		if (zoneOccupied && zone.AverageTemp > zone.Targets.CoolingOccupiedTemp+zoneHysterisisRange) || (!zoneOccupied && zone.AverageTemp > zone.Targets.CoolingUnoccupiedTemp+zoneHysterisisRange) {
-			if c.ControlMode == ControlTemp {
-				log.Info("starting zone", "zone", zone.ID, "avg temp", zone.AverageTemp)
-				_ = zone.ID.Start(defaultRunDuration, "temp")
-			}
-			return
-		}
-		if (zoneOccupied && zone.AverageTemp < zone.Targets.CoolingOccupiedTemp-zoneHysterisisRange) || (!zoneOccupied && zone.AverageTemp < zone.Targets.CoolingUnoccupiedTemp-zoneHysterisisRange) {
-			if c.ControlMode == ControlTemp {
-				log.Info("stopping zone", "zone", zone.ID, "avg temp", zone.AverageTemp)
-				zone.ID.Stop("temp")
-			}
-			return
-		}
 	}
+
+	// update the zone average and run logic on starting/stopping the zone
+	zone := r.Zone.Get()
+	zone.UpdateTemp()
 }
 
 // SetHumidity records the humidity as reported by the sensors, called from MQTT subsystem
@@ -149,6 +98,9 @@ func GetRoomIDFromShelly(shellyID string) RoomID {
 }
 
 func (r RoomID) getPreRunTime() (time.Duration, error) {
+	return 0, nil
+
+	// disable for now
 	room := r.Get()
 	if room == nil {
 		err := fmt.Errorf("invalid room")
@@ -177,12 +129,13 @@ func (r RoomID) getPreRunTime() (time.Duration, error) {
 		}
 	}
 	t := time.Duration(tempDiff) * z.OneDegreeAdjTime
-	log.Debug("Zone occupancy range", "tempDiff", tempDiff, "zone 1 degree adjustment time", z.OneDegreeAdjTime, "time required", t)
+	log.Debug("Zone occupancy range", "tempDiff", tempDiff, "zone 1 degree adjustment time", z.OneDegreeAdjTime, "pre run minutes required", t)
 	return t, nil
 }
 
 func (r *Room) writeToStore() error {
 	path := path.Join(c.StateStore, fmt.Sprintf("room-%d.json", r.ID))
+	log.Debug("writing room data", "file", path)
 
 	fd, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {

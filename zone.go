@@ -150,6 +150,8 @@ func (z ZoneID) Stop(msg string) {
 func (z ZoneID) Start(d time.Duration, msg string) error {
 	enabled := make([]DeviceID, 0)
 
+	log.Debug("starting zone", "zone", z)
+
 	for k := range c.Blowers {
 		if c.Blowers[k].Zone == z {
 			if err := c.Blowers[k].ID.Start(d, msg); err != nil {
@@ -181,6 +183,7 @@ func (z ZoneID) Start(d time.Duration, msg string) error {
 			}
 		}
 	}
+	log.Debug("things started/extended", "enabled", enabled)
 	return nil
 }
 
@@ -194,4 +197,94 @@ func stopAll(enabled []DeviceID) {
 // this will get smarter once we have more data to do some ML on
 func (z ZoneID) estimateOneDegAdjTime() (time.Duration, error) {
 	return (15 * time.Minute), nil
+}
+
+func (z *Zone) recalcAvgTemp() {
+	var avgCnt uint8
+	var avgTot DegF
+	var avg DegF
+	maxAge := time.Now().Add(0 - tempMaxAge)
+	for k := range c.Rooms {
+		// in the zone, not zero, and more recent than tempMaxAge
+		if c.Rooms[k].Zone == z.ID && c.Rooms[k].Temperature != 0 && c.Rooms[k].LastUpdate.After(maxAge) {
+			avgCnt++
+			avgTot += c.Rooms[k].Temperature
+		}
+		avg = avgTot / DegF(avgCnt)
+	}
+	if avg != 0 {
+		z.AverageTemp = avg
+	}
+}
+
+func (z *Zone) UpdateTemp() {
+	zoneOccupied := false
+	for k := range c.Rooms {
+		if c.Rooms[k].Zone == z.ID && c.Rooms[k].Occupied {
+			zoneOccupied = true
+			break
+		}
+	}
+
+	z.recalcAvgTemp()
+	log.Debug("temp", "zone", z.ID, "zone avg", z.AverageTemp)
+
+	switch c.SystemMode {
+	case SystemModeHeat:
+		if (zoneOccupied && z.AverageTemp < z.Targets.HeatingOccupiedTemp-zoneHysterisisRange) || (!zoneOccupied && z.AverageTemp < z.Targets.HeatingUnoccupiedTemp-zoneHysterisisRange) {
+			if c.ControlMode == ControlTemp {
+				log.Info("starting/extending zone", "zone", z.ID, "avg temp", z.AverageTemp, "targets", z.Targets)
+				_ = z.ID.Start(defaultRunDuration, "temp")
+			}
+			return
+		}
+		if (zoneOccupied && z.AverageTemp > z.Targets.HeatingOccupiedTemp+zoneHysterisisRange) || (!zoneOccupied && z.AverageTemp > z.Targets.HeatingUnoccupiedTemp+zoneHysterisisRange) {
+			if c.ControlMode == ControlTemp && z.ID.IsRunning() {
+				log.Info("stopping zone", "zone", z.ID, "avg temp", z.AverageTemp, "targets", z.Targets)
+				z.ID.Stop("temp")
+			}
+			return
+		}
+	case SystemModeCool:
+		if (zoneOccupied && z.AverageTemp > z.Targets.CoolingOccupiedTemp+zoneHysterisisRange) || (!zoneOccupied && z.AverageTemp > z.Targets.CoolingUnoccupiedTemp+zoneHysterisisRange) {
+			if c.ControlMode == ControlTemp {
+				log.Info("starting/extending zone", "zone", z.ID, "avg temp", z.AverageTemp, "targets", z.Targets)
+				_ = z.ID.Start(defaultRunDuration, "temp")
+			}
+			return
+		}
+		if (zoneOccupied && z.AverageTemp < z.Targets.CoolingOccupiedTemp-zoneHysterisisRange) || (!zoneOccupied && z.AverageTemp < z.Targets.CoolingUnoccupiedTemp-zoneHysterisisRange) {
+			if c.ControlMode == ControlTemp && z.ID.IsRunning() {
+				log.Info("stopping zone", "zone", z.ID, "avg temp", z.AverageTemp, "targets", z.Targets)
+				z.ID.Stop("temp")
+			}
+			return
+		}
+	}
+}
+
+func (z ZoneID) IsRunning() bool {
+	for k := range c.Blowers {
+		if c.Blowers[k].Zone == z {
+			if !c.Blowers[k].Running {
+				return false
+			}
+
+			pumpid := c.Blowers[k].getPump(c.SystemMode)
+			if pumpid != 0 {
+				if !pumpid.Get().Running {
+					return false
+				}
+			}
+
+			chillerid := pumpid.getChiller()
+			if chillerid != 0 {
+				if !chillerid.Get().Running {
+					return false
+				}
+			}
+		}
+	}
+
+	return true
 }
