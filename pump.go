@@ -109,6 +109,7 @@ func (c *Config) getPumpFromLoop(id LoopID) PumpID {
 
 func (p *Pump) writeToStore() error {
 	path := path.Join(c.StateStore, fmt.Sprintf("pump-%d.json", p.ID))
+	log.Debug("writing pump data", "ID", p.ID, "file", path)
 
 	fd, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
@@ -160,6 +161,7 @@ func (p *Pump) readFromStore() error {
 
 // Start sends the command to the MQTT subsystem to tell the relay-module to start the pump
 func (p PumpID) Start(duration time.Duration, source string) error {
+	log.Debug("starting pump", "ID", p, "source", source)
 	if err := p.canEnable(); err != nil {
 		log.Error("cannot enable pump", "id", p, "err", err.Error())
 		return err
@@ -221,7 +223,7 @@ func (p PumpID) Stop(source string) {
 		}
 	}
 
-	log.Debug("stopping pump", "pumpID", p)
+	log.Debug("stopping pump", "pumpID", p, "source", source)
 	cc := MQTTRequest{
 		DeviceID: p,
 		Command: Command{
