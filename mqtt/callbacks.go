@@ -14,14 +14,13 @@ import (
 )
 
 func blowerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
-	log.Debug("blowerCallbackFn", "data", pk.Payload)
-
 	ts := strings.Split(pk.TopicName, "/")
 	bn, err := strconv.ParseInt(ts[2], 10, 8)
 	if err != nil {
 		log.Error("invalid blower number", "topic", pk.TopicName, "parsed", bn, "error", err.Error())
 		return
 	}
+	log.Debug("blower update", "blower", bn, "relay-module", pk.Origin, "data", pk.Payload)
 
 	blower := (hvac.BlowerID(bn)).Get()
 	if blower == nil {
@@ -74,14 +73,13 @@ func blowerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 }
 
 func pumpCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
-	log.Debug("pumpCallbackFn", "data", pk.Payload)
-
 	ts := strings.Split(pk.TopicName, "/")
 	pn, err := strconv.ParseInt(ts[2], 10, 8)
 	if err != nil {
 		log.Error("invalid pump number", "topic", pk.TopicName, "parsed", pn, "error", err.Error())
 		return
 	}
+	log.Debug("pump update", "pump", pn, "relay-module", pk.Origin, "data", pk.Payload)
 
 	pump := (hvac.PumpID(pn)).Get()
 	if pump == nil {
@@ -278,11 +276,10 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 			}
 		}
 	case "act_reasons":
-		if string(pk.Payload) != "[\"sensor\"]" || string(pk.Payload) != "[\"periodic\"]" {
-			log.Info("act_reason", "shelly", ts[1], "room", room, "data", pk.Payload)
-		}
+		// log.Debug("act_reason", "shelly", ts[1], "room", room, "data", pk.Payload)
+		return
 	case "ext_power":
-		log.Debug("ext_power", "shelly", ts[1], "room", room, "data", pk.Payload)
+		// log.Debug("ext_power", "shelly", ts[1], "room", room, "data", pk.Payload)
 		if string(pk.Payload) != "true" {
 			return
 		}
