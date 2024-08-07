@@ -8,10 +8,16 @@ import (
 // Currently log is just a wrapper around "log/slog", if we need more roubust logging facilities, we can add them here later
 // e.g. logging to an MQTT stream
 var l *slog.Logger
+var lvl *slog.LevelVar
 
 // Start initializes the logging interface and returns a "log/slog"
 func Start() *slog.Logger {
-	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	lvl = new(slog.LevelVar)
+	lvl.Set(slog.LevelInfo)
+
+	log := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: lvl,
+	}))
 	// create a log destination on MQTT?
 
 	l = log
@@ -45,6 +51,6 @@ func Fatal(title string, args ...interface{}) {
 }
 
 func EnableDebug() {
-	l.Info("Verbose Logging Enabled")
-	slog.SetLogLoggerLevel(slog.LevelDebug)
+	lvl.Set(slog.LevelDebug)
+	l.Debug("debugging enabled")
 }
