@@ -183,3 +183,12 @@ func (r *Room) readFromStore() error {
 
 	return nil
 }
+
+func (r RoomID) ToogleOccupancy() {
+	room := r.Get()
+	if room == nil {
+		return
+	}
+
+	room.Occupied = !room.Occupied
+}

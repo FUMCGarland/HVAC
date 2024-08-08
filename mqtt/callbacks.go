@@ -120,14 +120,13 @@ func pumpCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet
 }
 
 func chillerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
-	log.Debug("chillerCallbackFn", "data", pk.Payload)
-
 	ts := strings.Split(pk.TopicName, "/")
 	cn, err := strconv.ParseInt(ts[2], 10, 8)
 	if err != nil {
 		log.Error("invalid chiller number", "topic", pk.TopicName, "parsed", cn, "error", err.Error())
 		return
 	}
+	log.Debug("chiller update", "chiller", cn, "relay-module", pk.Origin, "data", pk.Payload)
 
 	chiller := (hvac.ChillerID(cn)).Get()
 	if chiller == nil {

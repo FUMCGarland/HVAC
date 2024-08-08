@@ -210,7 +210,12 @@ func (z *Zone) recalcAvgTemp() {
 			avgCnt++
 			avgTot += c.Rooms[k].Temperature
 		}
-		avg = avgTot / DegF(avgCnt)
+
+		if avgCnt > 1 {
+			avg = avgTot / DegF(avgCnt)
+		} else {
+			avg = avgTot // save a div if 1, avoid NaN if 0
+		}
 	}
 	if avg != 0 {
 		z.AverageTemp = avg
@@ -227,7 +232,7 @@ func (z *Zone) UpdateTemp() {
 	}
 
 	z.recalcAvgTemp()
-	log.Debug("temp", "zone", z.ID, "zone avg", z.AverageTemp)
+	log.Debug("zone temp", "zone", z.ID, "avg", z.AverageTemp)
 
 	switch c.SystemMode {
 	case SystemModeHeat:
@@ -238,7 +243,7 @@ func (z *Zone) UpdateTemp() {
 			}
 			return
 		}
-		if (zoneOccupied && z.AverageTemp > z.Targets.HeatingOccupiedTemp+zoneHysterisisRange) || (!zoneOccupied && z.AverageTemp > z.Targets.HeatingUnoccupiedTemp+zoneHysterisisRange) {
+		if (zoneOccupied && z.AverageTemp > z.Targets.HeatingOccupiedTemp) || (!zoneOccupied && z.AverageTemp > z.Targets.HeatingUnoccupiedTemp) {
 			if c.ControlMode == ControlTemp && z.ID.IsRunning() {
 				log.Info("stopping zone", "zone", z.ID, "avg temp", z.AverageTemp, "targets", z.Targets)
 				z.ID.Stop("temp")
@@ -253,7 +258,7 @@ func (z *Zone) UpdateTemp() {
 			}
 			return
 		}
-		if (zoneOccupied && z.AverageTemp < z.Targets.CoolingOccupiedTemp-zoneHysterisisRange) || (!zoneOccupied && z.AverageTemp < z.Targets.CoolingUnoccupiedTemp-zoneHysterisisRange) {
+		if (zoneOccupied && z.AverageTemp < z.Targets.CoolingOccupiedTemp) || (!zoneOccupied && z.AverageTemp < z.Targets.CoolingUnoccupiedTemp) {
 			if c.ControlMode == ControlTemp && z.ID.IsRunning() {
 				log.Info("stopping zone", "zone", z.ID, "avg temp", z.AverageTemp, "targets", z.Targets)
 				z.ID.Stop("temp")

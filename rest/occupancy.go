@@ -212,3 +212,18 @@ func putOccupancyOneTime(w http.ResponseWriter, r *http.Request, ps httprouter.P
 
 	fmt.Fprint(w, jsonStatusOK)
 }
+
+func putOccupancyManual(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	headers(w, r)
+
+	inid, err := strconv.ParseInt(ps.ByName("id"), 10, 8)
+	if err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	room := hvac.RoomID(inid)
+	room.ToogleOccupancy()
+	fmt.Fprint(w, jsonStatusOK)
+}

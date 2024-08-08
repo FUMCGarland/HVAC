@@ -16,7 +16,7 @@ func getSystem(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	headers(w, r)
 
 	if err := json.NewEncoder(w).Encode(c); err != nil {
-		log.Error(err.Error())
+		log.Error("json.Encode failed in getSystem", err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}

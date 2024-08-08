@@ -142,6 +142,57 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 		gocron.WithTags(newTags...),
 		gocron.WithName(e.Name),
 	)
+	if err != nil {
+		return err
+	}
+
+	endtimes := make([]gocron.AtTime, 0)
+	etimes := strings.Split(e.EndTime, ";")
+	for _, v := range etimes {
+		log.Debug("end time", "time", v)
+		units := strings.Split(v, ":")
+		hour, err := strconv.ParseInt(units[0], 10, 8)
+		if err != nil {
+			log.Error(err.Error())
+			return err
+		}
+		hour = hour % 24
+
+		minute, err := strconv.ParseInt(units[1], 10, 8)
+		if err != nil {
+			log.Error(err.Error())
+			return err
+		}
+		minute = minute % 60
+		if minute < 0 {
+			hour = hour - 1
+			minute = minute + 60
+		}
+		log.Debug("end time", "configured time", v, "prerun hour", hour, "prerun minute", minute)
+		endtimes = append(endtimes, gocron.NewAtTime(uint(hour), uint(minute), 0))
+	}
+
+	_, err = occScheduler.NewJob(
+		gocron.WeeklyJob(
+			1,
+			func() []time.Weekday { return e.Weekdays },
+			func() []gocron.AtTime { return endtimes },
+		),
+		gocron.NewTask(
+			func() {
+				log.Debug("marking room as unoccupied", "e", e)
+				for _, room := range e.Rooms {
+					r := room.Get()
+					r.Occupied = false
+					r.Zone.Get().UpdateTemp() // recalculates the avg and runs if needed
+				}
+				cleanOneTimeSchedule()
+
+			},
+		),
+		gocron.WithTags(newTags...),
+		gocron.WithName(fmt.Sprintf("%s end", e.Name)),
+	)
 
 	return err
 }
