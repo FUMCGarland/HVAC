@@ -216,12 +216,13 @@ func putOccupancyOneTime(w http.ResponseWriter, r *http.Request, ps httprouter.P
 func putOccupancyManual(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	headers(w, r)
 
-	inid, err := strconv.ParseInt(ps.ByName("id"), 10, 8)
+	inid, err := strconv.ParseInt(ps.ByName("id"), 10, 16)
 	if err != nil {
 		log.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
+	// don't bother parsing the incoming command, just toggle #lazy
 
 	room := hvac.RoomID(inid)
 	room.ToogleOccupancy()

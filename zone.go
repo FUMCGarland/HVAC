@@ -127,7 +127,7 @@ func (z ZoneID) Stop(msg string) {
 
 	for k := range c.Blowers {
 		if c.Blowers[k].Zone == z && c.Blowers[k].Running {
-			log.Debug("stopping blower on zone", "zone", c.Blowers[k].ID)
+			log.Debug("stopping blower", "zone", z, "blower", c.Blowers[k].ID)
 			c.Blowers[k].ID.Stop(msg)
 		}
 	}
@@ -147,10 +147,13 @@ func (z ZoneID) Stop(msg string) {
 }
 
 // Start starts up all devices in a zone
+// if the zone is running, it extends the time the zone is running if the new duration is longer than the current duration
+// e.g. 55 minutes left, called for 60 minutes, extends to 60 minutes.
+// e.g. 120 minutes left, called for 60 minutes, does nothing
 func (z ZoneID) Start(d time.Duration, msg string) error {
 	enabled := make([]DeviceID, 0)
 
-	log.Debug("starting zone", "zone", z)
+	log.Debug("starting/extending zone", "zone", z)
 
 	for k := range c.Blowers {
 		if c.Blowers[k].Zone == z {
@@ -183,7 +186,6 @@ func (z ZoneID) Start(d time.Duration, msg string) error {
 			}
 		}
 	}
-	log.Debug("things started/extended", "enabled", enabled)
 	return nil
 }
 
@@ -268,8 +270,12 @@ func (z *Zone) UpdateTemp() {
 	}
 }
 
+// A zone is runing of all devices in the zone are running, no matter how they were started
+// XXX TODO this is not complete for radiant heating zones
 func (z ZoneID) IsRunning() bool {
+	var totalDevices uint8
 	for k := range c.Blowers {
+		totalDevices++
 		if c.Blowers[k].Zone == z {
 			if !c.Blowers[k].Running {
 				return false
@@ -277,6 +283,7 @@ func (z ZoneID) IsRunning() bool {
 
 			pumpid := c.Blowers[k].getPump(c.SystemMode)
 			if pumpid != 0 {
+				totalDevices++
 				if !pumpid.Get().Running {
 					return false
 				}
@@ -284,11 +291,16 @@ func (z ZoneID) IsRunning() bool {
 
 			chillerid := pumpid.getChiller()
 			if chillerid != 0 {
+				totalDevices++
 				if !chillerid.Get().Running {
 					return false
 				}
 			}
 		}
+	}
+
+	if totalDevices == 0 { // radiant heating zones in cooling mode
+		return false
 	}
 
 	return true

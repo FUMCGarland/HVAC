@@ -191,4 +191,9 @@ func (r RoomID) ToogleOccupancy() {
 	}
 
 	room.Occupied = !room.Occupied
+	log.Debug("manually set room occupancy", "room", r, "state", room.Occupied)
+	if zone := room.Zone.Get(); zone != nil {
+		log.Debug("running zone check")
+		zone.recalcAvgTemp()
+	}
 }
