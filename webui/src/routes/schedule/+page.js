@@ -10,6 +10,8 @@ export async function load({ fetch, params }) {
 	item.Schedule.forEach((s) => {
 		s.RunTime = s.RunTime / durationMult;
 	});
-	item.Schedule.sort((a, b) => { Number(a.ID) - Number(b.ID) });
+	item.Schedule.sort((a, b) => {
+		Number(a.ID) - Number(b.ID);
+	});
 	return item;
 }

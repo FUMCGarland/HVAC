@@ -14,7 +14,7 @@
 		A,
 		P
 	} from 'flowbite-svelte';
-	import { setOccupancyManual } from "$lib/hvac";
+	import { setOccupancyManual } from '$lib/hvac';
 
 	export let data;
 
