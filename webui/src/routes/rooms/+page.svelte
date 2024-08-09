@@ -58,6 +58,12 @@
 		console.log('toggle occupied', room, state);
 		setOccupancyManual(room, state);
 	}
+
+	function zoneRunning(zone) {
+		const blowers = data.Blowers.filter((b) => b.Zone == zone);
+		const running = blowers.filter((b) => b.Running);
+		return blowers.length == running.length && blowers.length != 0;
+	}
 </script>
 
 <Heading tag="h2">Rooms</Heading>
@@ -91,7 +97,14 @@
 						<A on:click={toggleOccupied(room.ID, false)}><UsersGroupOutline /></A>
 					{/if}
 				</TableBodyCell>
-				<TableBodyCell><A href="/zone/{room.Zone}">{zoneName(room.Zone)}</A></TableBodyCell>
+				<TableBodyCell
+					><A href="/zone/{room.Zone}">
+						{#if zoneRunning(room.Zone)}
+							<Badge color="green">Running</Badge>
+						{/if}
+						{zoneName(room.Zone)}</A
+					></TableBodyCell
+				>
 				<TableBodyCell><A href="/zone/{room.Zone}">{room.Targets.Min + 3}</A></TableBodyCell>
 
 				{#if room.Temperature == 0}
@@ -132,7 +145,10 @@
 					<TableBodyCell><Badge color="red">{room.Humidity}</Badge></TableBodyCell>
 				{/if}
 
-				{#if room.Battery > 45}
+				{#if room.Battery == 101}
+					<TableBodyCell><Badge color="green">Powered</Badge></TableBodyCell>
+				{/if}
+				{#if room.Battery <= 100 && room.Battery > 45}
 					<TableBodyCell><Badge color="green">{room.Battery}</Badge></TableBodyCell>
 				{/if}
 				{#if room.Battery <= 45 && room.Battery > 15}
