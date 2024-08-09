@@ -416,3 +416,29 @@ export async function chillerStart(id, minutes = 60, source = 'manual') {
 	}
 	invalidateAll();
 }
+
+export async function setOccupancyManual(id, state) {
+	const cmd = `{ "Room": ${id}, "TargetState": ${state} }`; // ignored
+	const request = {
+		method: 'PUT',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwt'),
+			'Content-Type': 'application/json'
+		},
+		body: cmd
+	};
+
+	const response = await fetch(`${hvaccontroller}/api/v1/occupancy/toggle/${id}`, request);
+	const payload = await response.json();
+
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		toast.push('Server Responded with: ' + response.status + ': ' + payload.error);
+		return;
+	}
+	invalidateAll();
+}

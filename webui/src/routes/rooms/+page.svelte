@@ -14,6 +14,7 @@
 		A,
 		P
 	} from 'flowbite-svelte';
+	import { setOccupancyManual } from "$lib/hvac";
 
 	export let data;
 
@@ -52,6 +53,11 @@
 		const z = data.Zones.filter((z) => z.ID == zoneID);
 		return z[0].Name;
 	}
+
+	function toggleOccupied(room, state) {
+		console.log('toggle occupied', room, state);
+		setOccupancyManual(room, state);
+	}
 </script>
 
 <Heading tag="h2">Rooms</Heading>
@@ -79,10 +85,10 @@
 				<TableBodyCell><A href="/room/{room.ID}">{room.Name}</A></TableBodyCell>
 				<TableBodyCell>
 					{#if !room.Occupied}
-						<CloseCircleOutline />
+						<A on:click={toggleOccupied(room.ID, true)}><CloseCircleOutline /></A>
 					{/if}
 					{#if room.Occupied}
-						<UsersGroupOutline />
+						<A on:click={toggleOccupied(room.ID, false)}><UsersGroupOutline /></A>
 					{/if}
 				</TableBodyCell>
 				<TableBodyCell><A href="/zone/{room.Zone}">{zoneName(room.Zone)}</A></TableBodyCell>
