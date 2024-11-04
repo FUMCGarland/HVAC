@@ -9,7 +9,7 @@ import (
 )
 
 // var pins = []int{5, 6, 13, 16, 19, 20, 21, 26}
-const chipname = "gpiochip4"
+const chipname = "gpiochip0"
 
 var gpiochip *gpiocdev.Chip
 var gpiorunning bool
