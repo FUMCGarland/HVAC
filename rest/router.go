@@ -62,6 +62,7 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 	m.PUT("/api/v1/occupancy/toggle/:id", authMW(putOccupancyManual, AuthLevelControl)) // manually toggle a room's status
 
 	m.GET("/api/v1/datalog", getDatalog) // any reason to protect this?
+	m.GET("/api/v1/runlog", getRunlog) // any reason to protect this?
 
 	return m
 }
