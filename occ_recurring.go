@@ -142,7 +142,7 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 			log.Error(err.Error())
 			return err
 		}
-		
+
 		log.Debug("end time", "configured time", v)
 		endtimes = append(endtimes, gocron.NewAtTime(uint(hour), uint(minute), 0))
 	}

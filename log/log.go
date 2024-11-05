@@ -12,7 +12,9 @@ import (
 // e.g. logging to an MQTT stream
 var l *slog.Logger
 var lvl *slog.LevelVar
+
 const bufsiz = 1048576
+
 var buf *ringbuffer.RingBuffer
 
 // Start initializes the logging interface and returns a "log/slog"
