@@ -53,29 +53,9 @@ func (s *OccupancySchedule) AddOneTimeEntry(e *OccupancyOneTimeEntry) error {
 
 // buildOneTimeJob adds a job to the onetime scheduler
 func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
-	var maxPreRunTime time.Duration
-	for _, r := range e.Rooms {
-		timeDiff, err := r.getPreRunTime()
-		if err != nil {
-			log.Error(err.Error())
-			continue
-		}
-		if timeDiff > maxPreRunTime {
-			maxPreRunTime = timeDiff
-		}
-	}
-	log.Debug("Setting prerun offset", "prerun", maxPreRunTime, "job", e.Name)
-	startWithPrerun := e.Start.Add(0 - maxPreRunTime)
-
-	if e.Start.Before(time.Now()) {
-		log.Info("not adding job in the past")
-		occupancy.RemoveOneTimeEntry(e.ID)
-		return nil // not an error, just info
-	}
-
 	_, err := occScheduler.NewJob(
 		gocron.OneTimeJob(
-			gocron.OneTimeJobStartDateTime(startWithPrerun),
+			gocron.OneTimeJobStartDateTime(e.Start),
 		),
 		gocron.NewTask(
 			func() {

@@ -97,42 +97,6 @@ func GetRoomIDFromShelly(shellyID string) RoomID {
 	return 0
 }
 
-func (r RoomID) getPreRunTime() (time.Duration, error) {
-	return 0, nil
-
-	// disable for now
-	room := r.Get()
-	if room == nil {
-		err := fmt.Errorf("invalid room")
-		return 0, err
-	}
-	zid := room.Zone
-	z := zid.Get()
-	if z == nil {
-		err := fmt.Errorf("invalid zone")
-		return 0, err
-	}
-
-	var tempDiff DegF
-	if c.SystemMode == SystemModeHeat {
-		tempDiff = z.Targets.HeatingOccupiedTemp - z.Targets.HeatingUnoccupiedTemp
-	} else {
-		tempDiff = z.Targets.CoolingUnoccupiedTemp - z.Targets.CoolingOccupiedTemp
-	}
-
-	if z.OneDegreeAdjTime == 0 {
-		var err error
-		z.OneDegreeAdjTime, err = zid.estimateOneDegAdjTime()
-		if err != nil {
-			log.Error(err.Error())
-			return 0, err
-		}
-	}
-	t := time.Duration(tempDiff) * z.OneDegreeAdjTime
-	log.Debug("Zone occupancy range", "tempDiff", tempDiff, "zone 1 degree adjustment time", z.OneDegreeAdjTime, "pre run minutes required", t)
-	return t, nil
-}
-
 func (r *Room) writeToStore() error {
 	path := path.Join(c.StateStore, fmt.Sprintf("room-%d.json", r.ID))
 	log.Debug("writing room data", "file", path)

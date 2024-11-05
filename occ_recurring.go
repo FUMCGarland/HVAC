@@ -60,20 +60,6 @@ func (s *OccupancySchedule) AddRecurringEntry(e *OccupancyRecurringEntry) error 
 func buildRecurringJob(e *OccupancyRecurringEntry) error {
 	attimes := make([]gocron.AtTime, 0)
 
-	var maxPreRunTime time.Duration
-	for _, r := range e.Rooms {
-		timeDiff, err := r.getPreRunTime()
-		if err != nil {
-			log.Error(err.Error())
-			continue
-		}
-		if timeDiff > maxPreRunTime {
-			maxPreRunTime = timeDiff
-		}
-	}
-	preRunHours := int64(maxPreRunTime.Hours())
-	preRunMinutes := int64(maxPreRunTime.Minutes()) % 60
-
 	times := strings.Split(e.StartTime, ";")
 	for _, v := range times {
 		log.Debug("time", "time", v)
@@ -83,20 +69,14 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 			log.Error(err.Error())
 			return err
 		}
-		hour = (hour - preRunHours) % 24
 
 		minute, err := strconv.ParseInt(units[1], 10, 8)
 		if err != nil {
 			log.Error(err.Error())
 			return err
 		}
-		minute = (minute - preRunMinutes) % 60
-		if minute < 0 {
-			hour = hour - 1
-			minute = minute + 60
-		}
 
-		log.Debug("time", "configured time", v, "prerun hour", hour, "prerun minute", minute)
+		log.Debug("time", "configured time", v)
 		attimes = append(attimes, gocron.NewAtTime(uint(hour), uint(minute), 0))
 	}
 
@@ -156,19 +136,14 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 			log.Error(err.Error())
 			return err
 		}
-		hour = hour % 24
 
 		minute, err := strconv.ParseInt(units[1], 10, 8)
 		if err != nil {
 			log.Error(err.Error())
 			return err
 		}
-		minute = minute % 60
-		if minute < 0 {
-			hour = hour - 1
-			minute = minute + 60
-		}
-		log.Debug("end time", "configured time", v, "prerun hour", hour, "prerun minute", minute)
+		
+		log.Debug("end time", "configured time", v)
 		endtimes = append(endtimes, gocron.NewAtTime(uint(hour), uint(minute), 0))
 	}
 
