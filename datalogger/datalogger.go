@@ -145,7 +145,7 @@ func boolstr(b bool) string {
 
 func roomTarget(r hvac.Room, c *hvac.Config) string {
 	for k := range c.Zones {
-		if c.Zones[k].ID == r.Zone {
+		if c.Zones[k].ID == r.GetZoneIDInMode() {
 			if c.SystemMode == hvac.SystemModeHeat {
 				if r.Occupied {
 					return fmt.Sprintf("%.2f", c.Zones[k].Targets.HeatingOccupiedTemp)

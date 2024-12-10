@@ -50,6 +50,7 @@
 	};
 
 	function zoneName(zoneID) {
+		if (zoneID == 0) return "no zone";
 		const z = data.Zones.filter((z) => z.ID == zoneID);
 		return z[0].Name;
 	}
@@ -79,7 +80,8 @@
 	<TableHead>
 		<TableHeadCell on:click={tablesort('Name')}>Name</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Occupied')}>Occupied</TableHeadCell>
-		<TableHeadCell on:click={tablesort('Zone')}>Zone</TableHeadCell>
+		<TableHeadCell on:click={tablesort('CoolZone')}>CoolZone</TableHeadCell>
+		<TableHeadCell on:click={tablesort('HeatZone')}>HeatZone</TableHeadCell>
 		<TableHeadCell>Target Temp</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Temperature')}>Temperature</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Humidity')}>Humidity</TableHeadCell>
@@ -98,14 +100,22 @@
 					{/if}
 				</TableBodyCell>
 				<TableBodyCell
-					><A href="/zone/{room.Zone}">
-						{#if zoneRunning(room.Zone)}
+					><A href="/zone/{room.CoolZone}">
+						{#if zoneRunning(room.CoolZone)}
 							<Badge color="green">Running</Badge>
 						{/if}
-						{zoneName(room.Zone)}</A
+						{zoneName(room.CoolZone)}</A
 					></TableBodyCell
 				>
-				<TableBodyCell><A href="/zone/{room.Zone}">{room.Targets.Min + 3}</A></TableBodyCell>
+				<TableBodyCell
+					><A href="/zone/{room.HeatZone}">
+						{#if zoneRunning(room.HeatZone)}
+							<Badge color="green">Running</Badge>
+						{/if}
+						{zoneName(room.HeatZone)}</A
+					></TableBodyCell
+				>
+				<TableBodyCell><A href="/zone/{room.CoolZone}">{room.Targets.Min + 3}</A></TableBodyCell>
 
 				{#if room.Temperature == 0}
 					<TableBodyCell>&nbsp;</TableBodyCell>

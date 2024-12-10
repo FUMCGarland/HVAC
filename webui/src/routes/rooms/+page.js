@@ -13,7 +13,8 @@ export async function load({ fetch, params }) {
 
 function roomZoneTargets(data, room) {
 	const d = data.Zones.filter((z) => {
-		return z.ID == room.Zone;
+		if (data.SystemMode == 0) return z.ID == room.HeatZone;
+		return z.ID == room.CoolZone;
 	});
 	const rz = d[0];
 	if (data.SystemMode == 1) {
