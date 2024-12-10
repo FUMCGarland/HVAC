@@ -208,7 +208,7 @@ func (z *Zone) recalcAvgTemp() {
 	maxAge := time.Now().Add(0 - tempMaxAge)
 	for k := range c.Rooms {
 		// in the zone, not zero, and more recent than tempMaxAge
-		if c.Rooms[k].Zone == z.ID && c.Rooms[k].Temperature != 0 && c.Rooms[k].LastUpdate.After(maxAge) {
+		if c.Rooms[k].GetZoneIDInMode() == z.ID && c.Rooms[k].Temperature != 0 && c.Rooms[k].LastUpdate.After(maxAge) {
 			avgCnt++
 			avgTot += c.Rooms[k].Temperature
 		}
@@ -227,7 +227,7 @@ func (z *Zone) recalcAvgTemp() {
 func (z *Zone) UpdateTemp() {
 	zoneOccupied := false
 	for k := range c.Rooms {
-		if c.Rooms[k].Zone == z.ID && c.Rooms[k].Occupied {
+		if c.Rooms[k].GetZoneIDInMode() == z.ID && c.Rooms[k].Occupied {
 			zoneOccupied = true
 			break
 		}

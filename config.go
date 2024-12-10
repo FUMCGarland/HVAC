@@ -178,13 +178,24 @@ func validateRooms() error {
 	found := false
 	for _, room := range c.Rooms {
 		for _, zone := range c.Zones {
-			if zone.ID == room.Zone {
+			if zone.ID == room.CoolZone {
 				found = true
 				break
 			}
 		}
 		if !found {
-			return (fmt.Errorf("room %d set to invalid zone %d", room.ID, room.Zone))
+			return (fmt.Errorf("room %d set to invalid cool zone %d", room.ID, room.CoolZone))
+		}
+	}
+	for _, room := range c.Rooms {
+		for _, zone := range c.Zones {
+			if zone.ID == room.HeatZone {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return (fmt.Errorf("room %d set to invalid heat zone %d", room.ID, room.HeatZone))
 		}
 	}
 	return nil

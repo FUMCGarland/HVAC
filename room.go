@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/FUMCGarland/hvac/log"
+	"github.com/go-co-op/gocron/v2"
 )
 
 // RoomID is the room number or other identifying number
@@ -27,7 +28,8 @@ type Room struct {
 	ShellyID    string
 	Temperature DegF
 	ID          RoomID
-	Zone        ZoneID
+	CoolZone    ZoneID
+	HeatZone    ZoneID
 	Humidity    uint8
 	Battery     uint8
 	Occupied    bool
@@ -61,6 +63,10 @@ func (r *Room) SetTemp(temp DegF) {
 				c.Pumps[k].ID.Stop("lockout")
 			}
 		}
+
+		// update the zone average and run logic on starting/stopping the zone
+		zone := r.HeatZone.Get()
+		zone.UpdateTemp()
 	case SystemModeCool:
 		if r.Temperature <= chillerLockoutTemp && !c.ChillerLockout {
 			log.Warn("locking out chiller, room temp too low", "room", r.ID, "temp", r.Temperature)
@@ -69,11 +75,11 @@ func (r *Room) SetTemp(temp DegF) {
 				c.Chillers[k].ID.Stop("lockout")
 			}
 		}
-	}
 
-	// update the zone average and run logic on starting/stopping the zone
-	zone := r.Zone.Get()
-	zone.UpdateTemp()
+		// update the zone average and run logic on starting/stopping the zone
+		zone := r.CoolZone.Get()
+		zone.UpdateTemp()
+	}
 }
 
 // SetHumidity records the humidity as reported by the sensors, called from MQTT subsystem
@@ -156,8 +162,52 @@ func (r RoomID) ToogleOccupancy() {
 
 	room.Occupied = !room.Occupied
 	log.Debug("manually set room occupancy", "room", r, "state", room.Occupied)
-	if zone := room.Zone.Get(); zone != nil {
+	if zone := room.GetZoneInMode(); zone != nil {
 		log.Debug("running zone check")
-		zone.recalcAvgTemp()
+		zone.UpdateTemp()
 	}
+
+	if !room.Occupied {
+		return
+	}
+
+	log.Debug("scheduling room to be unoccupied")
+	end := time.Now().Add(time.Hour * 2)
+	_, err := occScheduler.NewJob(
+		gocron.OneTimeJob(
+			gocron.OneTimeJobStartDateTime(end),
+		),
+		gocron.NewTask(
+			func() {
+				log.Debug("clearing manual occupancy for room: %d", r)
+				room.Occupied = false
+				room.GetZoneInMode().UpdateTemp() // recalculates the avg and runs if needed
+			},
+		),
+		// gocron.WithTags(e.Name, scheduleTagOccupancy, scheduleTagOneTime),
+		gocron.WithName(fmt.Sprintf("manual occupancy end")),
+	)
+	if err != nil {
+		log.Error(err.Error())
+	}
+}
+
+func (r Room) GetZoneInMode() *Zone {
+	switch c.SystemMode {
+	case SystemModeHeat:
+		return r.HeatZone.Get()
+	case SystemModeCool:
+		return r.CoolZone.Get()
+	}
+	return nil
+}
+
+func (r Room) GetZoneIDInMode() ZoneID {
+	switch c.SystemMode {
+	case SystemModeHeat:
+		return r.HeatZone
+	case SystemModeCool:
+		return r.CoolZone
+	}
+	return 0
 }

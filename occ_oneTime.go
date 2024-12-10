@@ -71,14 +71,14 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 					r.Occupied = true
 					zoneActivated = false
 					for k := range zones {
-						if zones[k] == r.Zone {
+						if zones[k] == r.GetZoneIDInMode() {
 							zoneActivated = true
 						}
 					}
 					if !zoneActivated {
 						log.Debug("activating zone")
-						r.Zone.Get().UpdateTemp() // recalculates the avg and runs if needed
-						zones = append(zones, r.Zone)
+						r.GetZoneInMode().UpdateTemp() // recalculates the avg and runs if needed
+						zones = append(zones, r.GetZoneIDInMode())
 					}
 				}
 			},
@@ -100,7 +100,7 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 				for _, room := range e.Rooms {
 					r := room.Get()
 					r.Occupied = false
-					r.Zone.Get().UpdateTemp() // recalculates the avg and runs if needed
+					r.GetZoneInMode().UpdateTemp() // recalculates the avg and runs if needed
 				}
 				cleanOneTimeSchedule()
 
