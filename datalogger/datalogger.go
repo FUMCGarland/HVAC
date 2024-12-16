@@ -60,39 +60,39 @@ func writeHeader(c *hvac.Config) {
 	var b strings.Builder
 
 	b.WriteString("Date,Outside Temp,Outside Humidity")
-	for k := range c.Blowers {
+	for _, k := range c.Blowers {
 		b.WriteString(",")
-		b.WriteString(c.Blowers[k].Name)
+		b.WriteString(k.Name)
 		b.WriteString(" Running")
 	}
 
-	for k := range c.Pumps {
+	for _, k := range c.Pumps {
 		b.WriteString(",")
-		b.WriteString(c.Pumps[k].Name)
+		b.WriteString(k.Name)
 		b.WriteString(" Running")
 	}
 
-	for k := range c.Chillers {
+	for _, k := range c.Chillers {
 		b.WriteString(",")
-		b.WriteString(c.Chillers[k].Name)
+		b.WriteString(k.Name)
 		b.WriteString(" Running")
 	}
 
-	for k := range c.Rooms {
+	for _, k := range c.Rooms {
 		b.WriteString(",")
-		b.WriteString(c.Rooms[k].Name)
+		b.WriteString(k.Name)
 		b.WriteString(" Temp")
 		b.WriteString(",")
-		b.WriteString(c.Rooms[k].Name)
+		b.WriteString(k.Name)
 		b.WriteString(" Humidity")
 		b.WriteString(",")
-		b.WriteString(c.Rooms[k].Name)
+		b.WriteString(k.Name)
 		b.WriteString(" Target")
 	}
 
-	for k := range c.Zones {
+	for _, k := range c.Zones {
 		b.WriteString(",")
-		b.WriteString(c.Zones[k].Name)
+		b.WriteString(k.Name)
 		b.WriteString(" Zone Average Temp")
 	}
 
@@ -144,19 +144,19 @@ func boolstr(b bool) string {
 }
 
 func roomTarget(r *hvac.Room, c *hvac.Config) string {
-	for k := range c.Zones {
-		if c.Zones[k].ID == r.GetZoneIDInMode() {
+	for _, k := range c.Zones {
+		if k.ID == r.GetZoneIDInMode() {
 			if c.SystemMode == hvac.SystemModeHeat {
 				if r.Occupied {
-					return fmt.Sprintf("%.2f", c.Zones[k].Targets.HeatingOccupiedTemp)
+					return fmt.Sprintf("%.2f", k.Targets.HeatingOccupiedTemp)
 				} else {
-					return fmt.Sprintf("%.2f", c.Zones[k].Targets.HeatingUnoccupiedTemp)
+					return fmt.Sprintf("%.2f", k.Targets.HeatingUnoccupiedTemp)
 				}
 			} else {
 				if r.Occupied {
-					return fmt.Sprintf("%.2f", c.Zones[k].Targets.CoolingOccupiedTemp)
+					return fmt.Sprintf("%.2f", k.Targets.CoolingOccupiedTemp)
 				} else {
-					return fmt.Sprintf("%.2f", c.Zones[k].Targets.CoolingUnoccupiedTemp)
+					return fmt.Sprintf("%.2f", k.Targets.CoolingUnoccupiedTemp)
 				}
 			}
 		}
