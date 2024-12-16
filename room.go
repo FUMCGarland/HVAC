@@ -179,7 +179,7 @@ func (r RoomID) ToogleOccupancy() {
 		),
 		gocron.NewTask(
 			func() {
-				log.Debug("clearing manual occupancy for room: %d", r)
+				log.Debug("clearing manual occupancy for room: %s", room.Name)
 				room.Occupied = false
 				room.GetZoneInMode().UpdateTemp() // recalculates the avg and runs if needed
 			},

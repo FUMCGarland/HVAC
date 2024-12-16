@@ -184,7 +184,7 @@ func (s *OccupancySchedule) EditOneTimeEntry(e *OccupancyOneTimeEntry) error {
 func cleanOneTimeSchedule() {
 	log.Debug("cleaning one-time occupancy schedule")
 	for k := range occupancy.OneTime {
-		if occupancy.OneTime[k].Start.Before(time.Now()) {
+		if occupancy.OneTime[k].ID != 0 && occupancy.OneTime[k].Start.Before(time.Now()) {
 			occupancy.RemoveOneTimeEntry(occupancy.OneTime[k].ID)
 		}
 	}
