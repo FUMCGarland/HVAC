@@ -13,12 +13,12 @@ import (
 
 // The occupancy scheduler tracks when people are expected to be in a room. If a room is marked as occupied it adjusts the heating/cooling target temp
 type OccupancySchedule struct {
-	Recurring []OccupancyRecurringEntry
-	OneTime   []OccupancyOneTimeEntry
+	Recurring []*OccupancyRecurringEntry
+	OneTime   []*OccupancyOneTimeEntry
 }
 
 // a pointer to the running schedule
-var occupancy OccupancySchedule
+var occupancy *OccupancySchedule
 
 // the scheduler which toggles the occupied bit on rooms
 var occScheduler gocron.Scheduler
@@ -57,16 +57,7 @@ func init() {
 
 // GetOccupancySchedule returns the live schedule
 func (c *Config) GetOccupancySchedule() (*OccupancySchedule, error) {
-	if len(occupancy.Recurring) == 0 && len(occupancy.OneTime) == 0 {
-		s, err := readOccupancyFromStore()
-		if err != nil {
-			log.Error(err.Error())
-			return &occupancy, err
-		}
-		occupancy = *s
-	}
-
-	return &occupancy, nil
+	return occupancy, nil
 }
 
 func (s *OccupancySchedule) writeToStore() error {
@@ -115,27 +106,24 @@ func readOccupancyFromStore() (*OccupancySchedule, error) {
 	}
 
 	if len(sl.Recurring) == 0 {
-		sl.Recurring = make([]OccupancyRecurringEntry, 0)
+		sl.Recurring = make([]*OccupancyRecurringEntry, 0)
 	}
 
 	if len(sl.OneTime) == 0 {
-		sl.OneTime = make([]OccupancyOneTimeEntry, 0)
+		sl.OneTime = make([]*OccupancyOneTimeEntry, 0)
 	}
 
-	for k := range sl.Recurring {
-		log.Debug("loading recurring occupancy entry", "entry", sl.Recurring[k])
-		if err := buildRecurringJob(&sl.Recurring[k]); err != nil {
+	for _, k := range sl.Recurring {
+		log.Debug("loading recurring occupancy entry", "entry", k)
+		if err := buildRecurringJob(k); err != nil {
 			log.Error(err.Error())
-			return &sl, err
 		}
 	}
 
-	for k := range sl.OneTime {
-		log.Debug("loading onetime occupancy entry", "entry", sl.OneTime[k])
-		if err := buildOneTimeJob(&sl.OneTime[k]); err != nil {
+	for _, k := range sl.OneTime {
+		log.Debug("loading onetime occupancy entry", "entry", k)
+		if err := buildOneTimeJob(k); err != nil {
 			log.Error(err.Error())
-			// return &sl, err
-			// TODO: purge jobs in the past routinely
 		}
 	}
 

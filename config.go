@@ -27,14 +27,14 @@ type Config struct {
 	OpenWeatherMapID  int          // locaiton ID in OpenWeatherMap
 	ChillerLockout    bool         // is the chiller locked-out due to being too cold?
 	BoilerLockout     bool         // is the boiler locked-out due to being to warm?
-	Blowers           []Blower
-	Chillers          []Chiller
-	Dampers           []Damper
-	Loops             []Loop
-	Pumps             []Pump
-	Rooms             []Room
-	Valves            []Valve
-	Zones             []Zone
+	Blowers           []*Blower
+	Chillers          []*Chiller
+	Dampers           []*Damper
+	Loops             []*Loop
+	Pumps             []*Pump
+	Rooms             []*Room
+	Valves            []*Valve
+	Zones             []*Zone
 }
 
 // MQTTConfig is the configuration of the MQTT subsystem
@@ -208,30 +208,30 @@ func GetMQTTChan() chan MQTTRequest {
 
 // StopAll sends a command to all devices to shut down.
 func StopAll() {
-	for k := range c.Chillers {
-		if !c.Chillers[k].Running {
+	for _, k := range c.Chillers {
+		if !k.Running {
 			continue
 		}
-		c.Chillers[k].ID.Stop("stop all")
-		c.Chillers[k].Running = false
+		k.ID.Stop("stop all")
+		k.Running = false
 		time.Sleep(1 * time.Second) // prevent current inrush/overload
 	}
 
-	for k := range c.Pumps {
-		if !c.Pumps[k].Running {
+	for _, k := range c.Pumps {
+		if !k.Running {
 			continue
 		}
-		c.Pumps[k].ID.Stop("stop all")
-		c.Pumps[k].Running = false
+		k.ID.Stop("stop all")
+		k.Running = false
 		time.Sleep(1 * time.Second) // prevent overload
 	}
 
-	for k := range c.Blowers {
-		if !c.Blowers[k].Running {
+	for _, k := range c.Blowers {
+		if !k.Running {
 			continue
 		}
-		c.Blowers[k].ID.Stop("stop all")
-		c.Blowers[k].Running = false
+		k.ID.Stop("stop all")
+		k.Running = false
 		time.Sleep(1 * time.Second) // prevent overload
 	}
 }

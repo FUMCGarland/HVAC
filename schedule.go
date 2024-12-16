@@ -18,10 +18,10 @@ import (
 // and stops devices based on the schedule, not room temp/occupancy
 // this is akin to the old mode of operation using the scheduler from the 1980s...
 type ScheduleList struct {
-	List []ScheduleEntry
+	List []*ScheduleEntry
 }
 
-var schedule ScheduleList
+var schedule *ScheduleList
 var scheduler gocron.Scheduler
 
 // ScheduleEntry is the definition of a job to be run at specified times
@@ -46,15 +46,7 @@ func init() {
 
 // GetSchedule returns the live schedule
 func (c *Config) GetSchedule() (*ScheduleList, error) {
-	if len(schedule.List) == 0 {
-		s, err := readScheduleFromStore()
-		if err != nil {
-			log.Error(err.Error())
-			return &schedule, err
-		}
-		schedule = *s
-	}
-	return &schedule, nil
+	return schedule, nil
 }
 
 func (s *ScheduleList) writeToStore() error {
@@ -87,7 +79,7 @@ func (s *ScheduleList) writeToStore() error {
 
 func readScheduleFromStore() (*ScheduleList, error) {
 	sl := ScheduleList{}
-	sl.List = []ScheduleEntry{}
+	sl.List = []*ScheduleEntry{}
 
 	path := path.Join(c.StateStore, "schedule.json")
 
@@ -102,15 +94,15 @@ func readScheduleFromStore() (*ScheduleList, error) {
 		return &sl, err
 	}
 
+	// why?
 	if len(sl.List) == 0 {
-		sl.List = make([]ScheduleEntry, 0)
+		sl.List = make([]*ScheduleEntry, 0)
 	}
 
-	for k := range sl.List {
-		log.Debug("loading schedule entry", "entry", sl.List[k])
-		if err := buildJob(&sl.List[k]); err != nil {
+	for _, k := range sl.List {
+		log.Debug("loading schedule entry", "entry", k)
+		if err := buildJob(k); err != nil {
 			log.Error(err.Error())
-			return &sl, err
 		}
 	}
 
@@ -119,9 +111,9 @@ func readScheduleFromStore() (*ScheduleList, error) {
 
 // GetEntry returns an entry in the ScheduleList by ID
 func (s *ScheduleList) GetEntry(id uint8) *ScheduleEntry {
-	for k := range s.List {
-		if s.List[k].ID == id {
-			return &s.List[k]
+	for _, k := range s.List {
+		if k.ID == id {
+			return k
 		}
 	}
 	return nil
@@ -164,8 +156,8 @@ func (s *ScheduleList) AddEntry(e *ScheduleEntry) error {
 		return err
 	}
 
-	schedule.List = append(schedule.List, *e)
-	if err := schedule.writeToStore(); err != nil {
+	s.List = append(s.List, e)
+	if err := s.writeToStore(); err != nil {
 		log.Error(err.Error())
 		return err
 	}
@@ -222,9 +214,9 @@ func buildJob(e *ScheduleEntry) error {
 // RemoveEntry removes a ScheduleEntry from the list by ID
 func (s *ScheduleList) RemoveEntry(id uint8) {
 	index := -1
-	for k := range schedule.List {
-		if s.List[k].ID == id {
-			index = k
+	for i, k := range s.List {
+		if k.ID == id {
+			index = i
 			break
 		}
 	}
@@ -242,9 +234,9 @@ func (s *ScheduleList) RemoveEntry(id uint8) {
 // EditEntry updates an entry in the ScheduleList, keyed based on e.ID
 func (s *ScheduleList) EditEntry(e *ScheduleEntry) error {
 	index := -1
-	for k := range schedule.List {
-		if s.List[k].ID == e.ID {
-			index = k
+	for i, k := range s.List {
+		if k.ID == e.ID {
+			index = i
 			break
 		}
 	}
@@ -276,7 +268,7 @@ func (s *ScheduleList) EditEntry(e *ScheduleEntry) error {
 		e.Name = fmt.Sprintf("Unnamed %d", e.ID)
 	}
 
-	s.List[index] = *e
+	s.List[index] = e
 	if err := s.writeToStore(); err != nil {
 		log.Error(err.Error(), "entry", e)
 		return err

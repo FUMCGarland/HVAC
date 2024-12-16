@@ -35,36 +35,36 @@ func (c *Config) loadFromStore() error {
 		log.Fatal(err.Error())
 	}
 
-	for k := range c.Pumps {
-		if err := c.Pumps[k].readFromStore(); err != nil {
+	for _, k := range c.Pumps {
+		if err := k.readFromStore(); err != nil {
 			log.Error(err.Error())
 			return err
 		}
 	}
 
-	for k := range c.Blowers {
-		if err := c.Blowers[k].readFromStore(); err != nil {
+	for _, k := range c.Blowers {
+		if err := k.readFromStore(); err != nil {
 			log.Error(err.Error())
 			return err
 		}
 	}
 
-	for k := range c.Zones {
-		if err := c.Zones[k].readFromStore(); err != nil {
+	for _, k := range c.Zones {
+		if err := k.readFromStore(); err != nil {
 			log.Error(err.Error())
 			return err
 		}
 	}
 
-	for k := range c.Chillers {
-		if err := c.Chillers[k].readFromStore(); err != nil {
+	for _, k := range c.Chillers {
+		if err := k.readFromStore(); err != nil {
 			log.Error(err.Error())
 			return err
 		}
 	}
 
-	for k := range c.Rooms {
-		if err := c.Rooms[k].readFromStore(); err != nil {
+	for _, k := range c.Rooms {
+		if err := k.readFromStore(); err != nil {
 			log.Error(err.Error())
 			return err
 		}
@@ -75,14 +75,14 @@ func (c *Config) loadFromStore() error {
 		log.Error(err.Error())
 		return err
 	}
-	schedule = *s // pointless?
+	schedule = s
 
 	o, err := readOccupancyFromStore()
 	if err != nil {
 		log.Error(err.Error())
 		return err
 	}
-	occupancy = *o // pointless?
+	occupancy = o
 	return nil
 }
 
@@ -101,47 +101,47 @@ func (c *Config) WriteToStore() error {
 		return err
 	}
 
-	for k := range c.Pumps {
-		if err := c.Pumps[k].writeToStore(); err != nil {
+	for _, k := range c.Pumps {
+		if err := k.writeToStore(); err != nil {
 			log.Error(err.Error())
 			return err
 		}
 	}
 
-	for k := range c.Blowers {
-		if err := c.Blowers[k].writeToStore(); err != nil {
+	for _, k := range c.Blowers {
+		if err := k.writeToStore(); err != nil {
 			log.Error(err.Error())
 			return err
 		}
 	}
 
-	for k := range c.Zones {
-		if err := c.Zones[k].writeToStore(); err != nil {
+	for _, k := range c.Zones {
+		if err := k.writeToStore(); err != nil {
 			log.Error(err.Error())
 			return err
 		}
 	}
 
-	for k := range c.Chillers {
-		if err := c.Chillers[k].writeToStore(); err != nil {
+	for _, k := range c.Chillers {
+		if err := k.writeToStore(); err != nil {
 			log.Error(err.Error())
 			return err
 		}
 	}
 
-	for k := range c.Rooms {
-		if err := c.Rooms[k].writeToStore(); err != nil {
+	for _, k := range c.Rooms {
+		if err := k.writeToStore(); err != nil {
 			log.Error(err.Error())
 			return err
 		}
 	}
 
-	if err := (&schedule).writeToStore(); err != nil {
+	if err := schedule.writeToStore(); err != nil {
 		log.Error(err.Error())
 		return err
 	}
 
-	if err := (&occupancy).writeToStore(); err != nil {
+	if err := occupancy.writeToStore(); err != nil {
 		log.Error(err.Error())
 		return err
 	}

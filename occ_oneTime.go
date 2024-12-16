@@ -10,9 +10,9 @@ import (
 
 // GetOneTimeEntry returns an entry based on ID
 func (s *OccupancySchedule) GetOneTimeEntry(id OccupancyOneTimeID) *OccupancyOneTimeEntry {
-	for k := range s.OneTime {
-		if s.OneTime[k].ID == id {
-			return &s.OneTime[k]
+	for _, k := range s.OneTime {
+		if k.ID == id {
+			return k
 		}
 	}
 	return nil
@@ -43,8 +43,8 @@ func (s *OccupancySchedule) AddOneTimeEntry(e *OccupancyOneTimeEntry) error {
 		return err
 	}
 
-	occupancy.OneTime = append(occupancy.OneTime, *e)
-	if err := occupancy.writeToStore(); err != nil {
+	s.OneTime = append(s.OneTime, e)
+	if err := s.writeToStore(); err != nil {
 		log.Error(err.Error())
 		return err
 	}
@@ -70,8 +70,8 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 					}
 					r.Occupied = true
 					zoneActivated = false
-					for k := range zones {
-						if zones[k] == r.GetZoneIDInMode() {
+					for _, k := range zones {
+						if k == r.GetZoneIDInMode() {
 							zoneActivated = true
 						}
 					}
@@ -103,7 +103,6 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 					r.GetZoneInMode().UpdateTemp() // recalculates the avg and runs if needed
 				}
 				cleanOneTimeSchedule()
-
 			},
 		),
 		gocron.WithTags(e.Name, scheduleTagOccupancy, scheduleTagOneTime),
@@ -119,9 +118,9 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 // RemoveOneTimeEntry remove an entry from the running scheduler and the configuration
 func (s *OccupancySchedule) RemoveOneTimeEntry(id OccupancyOneTimeID) {
 	index := -1
-	for k := range occupancy.OneTime {
-		if s.OneTime[k].ID == id {
-			index = k
+	for i, k := range s.OneTime {
+		if k.ID == id {
+			index = i
 			break
 		}
 	}
@@ -141,9 +140,9 @@ func (s *OccupancySchedule) RemoveOneTimeEntry(id OccupancyOneTimeID) {
 // EditEntry updates an entry in the OccupancySchedule, keyed based on e.ID
 func (s *OccupancySchedule) EditOneTimeEntry(e *OccupancyOneTimeEntry) error {
 	index := -1
-	for k := range occupancy.OneTime {
-		if s.OneTime[k].ID == e.ID {
-			index = k
+	for i, k := range s.OneTime {
+		if k.ID == e.ID {
+			index = i
 			break
 		}
 	}
@@ -163,7 +162,7 @@ func (s *OccupancySchedule) EditOneTimeEntry(e *OccupancyOneTimeEntry) error {
 		e.Name = fmt.Sprintf("Unnamed %d", e.ID)
 	}
 
-	s.OneTime[index] = *e
+	s.OneTime[index] = e
 	if err := s.writeToStore(); err != nil {
 		log.Error(err.Error(), "entry", e)
 		return err
@@ -183,9 +182,9 @@ func (s *OccupancySchedule) EditOneTimeEntry(e *OccupancyOneTimeEntry) error {
 
 func cleanOneTimeSchedule() {
 	log.Debug("cleaning one-time occupancy schedule")
-	for k := range occupancy.OneTime {
-		if occupancy.OneTime[k].ID != 0 && occupancy.OneTime[k].Start.Before(time.Now()) {
-			occupancy.RemoveOneTimeEntry(occupancy.OneTime[k].ID)
+	for _, k := range occupancy.OneTime {
+		if k.ID != 0 && k.Start.Before(time.Now()) {
+			occupancy.RemoveOneTimeEntry(k.ID)
 		}
 	}
 	if err := occupancy.writeToStore(); err != nil {

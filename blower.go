@@ -32,9 +32,9 @@ type Blower struct {
 
 // Get returns a pointer to a Blower for a given BlowerId
 func (b BlowerID) Get() *Blower {
-	for k := range c.Blowers {
-		if c.Blowers[k].ID == b {
-			return &c.Blowers[k]
+	for _, k := range c.Blowers {
+		if k.ID == b {
+			return k
 		}
 	}
 	return nil
@@ -158,18 +158,18 @@ func (b BlowerID) Stop(source string) {
 		log.Warn("invalid blower", "blower ID", b)
 		return
 	}
-	for k := range c.Blowers {
+	for _, k := range c.Blowers {
 		// skip self
-		if c.Blowers[k].ID == b {
+		if k.ID == b {
 			continue
 		}
 		// if anything else on the same hot loop is running, skip
-		if c.SystemMode == SystemModeHeat && c.Blowers[k].HotLoop == blower.HotLoop && c.Blowers[k].Running {
+		if c.SystemMode == SystemModeHeat && k.HotLoop == blower.HotLoop && k.Running {
 			last = false
 			break
 		}
 		// if anything else on the same cold loop is running, skip
-		if c.SystemMode == SystemModeCool && c.Blowers[k].ColdLoop == blower.ColdLoop && c.Blowers[k].Running {
+		if c.SystemMode == SystemModeCool && k.ColdLoop == blower.ColdLoop && k.Running {
 			last = false
 			break
 		}
@@ -201,23 +201,23 @@ func (b BlowerID) Stop(source string) {
 	cmdChan <- cc
 }
 
-func (b BlowerID) getPump(sm SystemModeT) PumpID {
+/* func (b BlowerID) getPump(sm SystemModeT) PumpID {
 	blower := b.Get()
 	if blower == nil {
 		log.Warn("getPump called for invalid blower", "blower ID", b)
 		return 0
 	}
 	return blower.getPump(sm)
-}
+} */
 
 func (b *Blower) getPump(sm SystemModeT) PumpID {
 	loopID := b.HotLoop
 	if sm == SystemModeCool {
 		loopID = b.ColdLoop
 	}
-	for k := range c.Pumps {
-		if c.Pumps[k].Loop == loopID {
-			return c.Pumps[k].ID
+	for _, k := range c.Pumps {
+		if k.Loop == loopID {
+			return k.ID
 		}
 	}
 	log.Warn("unknown pump for blower", "blowerID", b.ID)

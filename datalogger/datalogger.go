@@ -104,33 +104,33 @@ func writeLine(c *hvac.Config) {
 
 	t, h := getOutsideTemp(c)
 	b.WriteString(fmt.Sprintf(",%.2f,%d", t, h))
-	for k := range c.Blowers {
+	for _, k := range c.Blowers {
 		b.WriteString(",")
-		b.WriteString(boolstr(c.Blowers[k].Running))
+		b.WriteString(boolstr(k.Running))
 	}
 
-	for k := range c.Pumps {
+	for _, k := range c.Pumps {
 		b.WriteString(",")
-		b.WriteString(boolstr(c.Pumps[k].Running))
+		b.WriteString(boolstr(k.Running))
 	}
 
-	for k := range c.Chillers {
+	for _, k := range c.Chillers {
 		b.WriteString(",")
-		b.WriteString(boolstr(c.Chillers[k].Running))
+		b.WriteString(boolstr(k.Running))
 	}
 
-	for k := range c.Rooms {
+	for _, k := range c.Rooms {
 		b.WriteString(",")
-		b.WriteString(fmt.Sprintf("%.2f", c.Rooms[k].Temperature))
+		b.WriteString(fmt.Sprintf("%.2f", k.Temperature))
 		b.WriteString(",")
-		b.WriteString(fmt.Sprintf("%d", c.Rooms[k].Humidity))
+		b.WriteString(fmt.Sprintf("%d", k.Humidity))
 		b.WriteString(",")
-		b.WriteString(roomTarget(c.Rooms[k], c))
+		b.WriteString(roomTarget(k, c))
 	}
 
-	for k := range c.Zones {
+	for _, k := range c.Zones {
 		b.WriteString(",")
-		b.WriteString(fmt.Sprintf("%.2f", c.Zones[k].AverageTemp))
+		b.WriteString(fmt.Sprintf("%.2f", k.AverageTemp))
 	}
 
 	log.Println(b.String())
@@ -143,7 +143,7 @@ func boolstr(b bool) string {
 	return "False"
 }
 
-func roomTarget(r hvac.Room, c *hvac.Config) string {
+func roomTarget(r *hvac.Room, c *hvac.Config) string {
 	for k := range c.Zones {
 		if c.Zones[k].ID == r.GetZoneIDInMode() {
 			if c.SystemMode == hvac.SystemModeHeat {

@@ -11,9 +11,9 @@ import (
 )
 
 func (s *OccupancySchedule) GetRecurringEntry(id OccupancyRecurringID) *OccupancyRecurringEntry {
-	for k := range s.Recurring {
-		if s.Recurring[k].ID == id {
-			return &s.Recurring[k]
+	for _, k := range s.Recurring {
+		if k.ID == id {
+			return k
 		}
 	}
 	return nil
@@ -49,8 +49,8 @@ func (s *OccupancySchedule) AddRecurringEntry(e *OccupancyRecurringEntry) error 
 		return err
 	}
 
-	occupancy.Recurring = append(occupancy.Recurring, *e)
-	if err := occupancy.writeToStore(); err != nil {
+	s.Recurring = append(s.Recurring, e)
+	if err := s.writeToStore(); err != nil {
 		log.Error(err.Error())
 		return err
 	}
@@ -106,8 +106,8 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 					r.Occupied = true
 
 					zoneActivated = false
-					for k := range zones {
-						if zones[k] == r.GetZoneIDInMode() {
+					for _, k := range zones {
+						if k == r.GetZoneIDInMode() {
 							zoneActivated = true
 						}
 					}
@@ -174,9 +174,9 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 
 func (s *OccupancySchedule) RemoveRecurringEntry(id OccupancyRecurringID) {
 	index := -1
-	for k := range occupancy.Recurring {
-		if s.Recurring[k].ID == id {
-			index = k
+	for i, k := range s.Recurring {
+		if k.ID == id {
+			index = i
 			break
 		}
 	}
@@ -196,9 +196,9 @@ func (s *OccupancySchedule) RemoveRecurringEntry(id OccupancyRecurringID) {
 // EditEntry updates an entry in the OccupancySchedule, keyed based on e.ID
 func (s *OccupancySchedule) EditRecurringEntry(e *OccupancyRecurringEntry) error {
 	index := -1
-	for k := range occupancy.Recurring {
-		if s.Recurring[k].ID == e.ID {
-			index = k
+	for i, k := range s.Recurring {
+		if k.ID == e.ID {
+			index = i
 			break
 		}
 	}
@@ -224,7 +224,7 @@ func (s *OccupancySchedule) EditRecurringEntry(e *OccupancyRecurringEntry) error
 		e.Name = fmt.Sprintf("Unnamed %d", e.ID)
 	}
 
-	s.Recurring[index] = *e
+	s.Recurring[index] = e
 	if err := s.writeToStore(); err != nil {
 		log.Error(err.Error(), "entry", e)
 		return err

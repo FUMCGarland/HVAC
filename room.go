@@ -37,9 +37,9 @@ type Room struct {
 
 // Get returns a full room struct for a RoomID
 func (r RoomID) Get() *Room {
-	for k := range c.Rooms {
-		if c.Rooms[k].ID == r {
-			return &c.Rooms[k]
+	for _, k := range c.Rooms {
+		if k.ID == r {
+			return k
 		}
 	}
 	return nil
@@ -59,8 +59,8 @@ func (r *Room) SetTemp(temp DegF) {
 		if r.Temperature >= boilerLockoutTemp && !c.BoilerLockout {
 			log.Warn("locking out boiler, room temp too high")
 			c.BoilerLockout = true
-			for k := range c.Pumps {
-				c.Pumps[k].ID.Stop("lockout")
+			for _, k := range c.Pumps {
+				k.ID.Stop("lockout")
 			}
 		}
 
@@ -71,8 +71,8 @@ func (r *Room) SetTemp(temp DegF) {
 		if r.Temperature <= chillerLockoutTemp && !c.ChillerLockout {
 			log.Warn("locking out chiller, room temp too low", "room", r.ID, "temp", r.Temperature)
 			c.ChillerLockout = true
-			for k := range c.Chillers {
-				c.Chillers[k].ID.Stop("lockout")
+			for _, k := range c.Chillers {
+				k.ID.Stop("lockout")
 			}
 		}
 
@@ -94,9 +94,9 @@ func (r *Room) SetBattery(battery uint8) {
 
 // GetRoomIDFromShelly returns a RoomID based on an associated (case insensitive) shelly ID
 func GetRoomIDFromShelly(shellyID string) RoomID {
-	for k := range c.Rooms {
-		if strings.EqualFold(c.Rooms[k].ShellyID, shellyID) {
-			return c.Rooms[k].ID
+	for _, k := range c.Rooms {
+		if strings.EqualFold(k.ShellyID, shellyID) {
+			return k.ID
 		}
 	}
 
@@ -185,7 +185,7 @@ func (r RoomID) ToogleOccupancy() {
 			},
 		),
 		// gocron.WithTags(e.Name, scheduleTagOccupancy, scheduleTagOneTime),
-		gocron.WithName(fmt.Sprintf("manual occupancy end")),
+		gocron.WithName("manual occupancy end"),
 	)
 	if err != nil {
 		log.Error(err.Error())

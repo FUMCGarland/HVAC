@@ -32,9 +32,9 @@ type ZoneTargets struct {
 
 // Get returns a populated zone for a given ZoneID
 func (z ZoneID) Get() *Zone {
-	for k := range c.Zones {
-		if c.Zones[k].ID == z {
-			return &c.Zones[k]
+	for _, k := range c.Zones {
+		if k.ID == z {
+			return k
 		}
 	}
 	return nil
@@ -125,19 +125,19 @@ func (z *Zone) readFromStore() error {
 func (z ZoneID) Stop(msg string) {
 	log.Debug("stopping zone", "ID", z, "msg", msg)
 
-	for k := range c.Blowers {
-		if c.Blowers[k].Zone == z && c.Blowers[k].Running {
-			log.Debug("stopping blower", "zone", z, "blower", c.Blowers[k].ID)
-			c.Blowers[k].ID.Stop(msg)
+	for _, k := range c.Blowers {
+		if k.Zone == z && k.Running {
+			log.Debug("stopping blower", "zone", z, "blower", k.ID)
+			k.ID.Stop(msg)
 		}
 	}
 	// stopping the blowers will stop the pumps and chillers if necessary.
 
 	if c.SystemMode == SystemModeHeat {
 		// shut down the radiant loops for the zone
-		for k := range c.Loops {
-			if c.Loops[k].RadiantZone == z {
-				pump := c.getPumpFromLoop(c.Loops[k].ID)
+		for _, k := range c.Loops {
+			if k.RadiantZone == z {
+				pump := c.getPumpFromLoop(k.ID)
 				if pump.Get().Running {
 					pump.Stop(msg)
 				}
@@ -155,16 +155,16 @@ func (z ZoneID) Start(d time.Duration, msg string) error {
 
 	log.Debug("starting/extending zone", "zone", z)
 
-	for k := range c.Blowers {
-		if c.Blowers[k].Zone == z {
-			if err := c.Blowers[k].ID.Start(d, msg); err != nil {
+	for _, k := range c.Blowers {
+		if k.Zone == z {
+			if err := k.ID.Start(d, msg); err != nil {
 				stopAll(enabled)
 				return err
 			}
-			enabled = append(enabled, c.Blowers[k].ID)
+			enabled = append(enabled, k.ID)
 			time.Sleep(time.Second) // let blowers start before attempting to start pump
 
-			pumpid := c.Blowers[k].getPump(c.SystemMode)
+			pumpid := k.getPump(c.SystemMode)
 			if pumpid != 0 {
 				// don't skip if the pump is already running, we want to extend the running time if necessary
 				if err := pumpid.Start(d, msg); err != nil {
@@ -191,8 +191,8 @@ func (z ZoneID) Start(d time.Duration, msg string) error {
 
 func stopAll(enabled []DeviceID) {
 	log.Debug("calling stopAll", "enabled", enabled)
-	for k := range enabled {
-		enabled[k].Stop("internal")
+	for _, k := range enabled {
+		k.Stop("internal")
 	}
 }
 
@@ -206,11 +206,11 @@ func (z *Zone) recalcAvgTemp() {
 	var avgTot DegF
 	var avg DegF
 	maxAge := time.Now().Add(0 - tempMaxAge)
-	for k := range c.Rooms {
+	for _, k := range c.Rooms {
 		// in the zone, not zero, and more recent than tempMaxAge
-		if c.Rooms[k].GetZoneIDInMode() == z.ID && c.Rooms[k].Temperature != 0 && c.Rooms[k].LastUpdate.After(maxAge) {
+		if k.GetZoneIDInMode() == z.ID && k.Temperature != 0 && k.LastUpdate.After(maxAge) {
 			avgCnt++
-			avgTot += c.Rooms[k].Temperature
+			avgTot += k.Temperature
 		}
 
 		if avgCnt > 1 {
@@ -226,8 +226,8 @@ func (z *Zone) recalcAvgTemp() {
 
 func (z *Zone) UpdateTemp() {
 	zoneOccupied := false
-	for k := range c.Rooms {
-		if c.Rooms[k].GetZoneIDInMode() == z.ID && c.Rooms[k].Occupied {
+	for _, k := range c.Rooms {
+		if k.GetZoneIDInMode() == z.ID && k.Occupied {
 			zoneOccupied = true
 			break
 		}
@@ -274,14 +274,14 @@ func (z *Zone) UpdateTemp() {
 // XXX TODO this is not complete for radiant heating zones
 func (z ZoneID) IsRunning() bool {
 	var totalDevices uint8
-	for k := range c.Blowers {
+	for _, k := range c.Blowers {
 		totalDevices++
-		if c.Blowers[k].Zone == z {
-			if !c.Blowers[k].Running {
+		if k.Zone == z {
+			if !k.Running {
 				return false
 			}
 
-			pumpid := c.Blowers[k].getPump(c.SystemMode)
+			pumpid := k.getPump(c.SystemMode)
 			if pumpid != 0 {
 				totalDevices++
 				if !pumpid.Get().Running {

@@ -25,9 +25,9 @@ type Pump struct {
 }
 
 func (p PumpID) Get() *Pump {
-	for k := range c.Pumps {
-		if c.Pumps[k].ID == p {
-			return &c.Pumps[k]
+	for _, k := range c.Pumps {
+		if k.ID == p {
+			return k
 		}
 	}
 	return nil
@@ -53,8 +53,8 @@ func (p PumpID) canEnable() error {
 	// if the loop is a cold loop, check for running blowers
 	if pump.SystemMode == SystemModeCool {
 		blowerRunning := false
-		for k := range c.Blowers {
-			if pump.Loop == c.Blowers[k].ColdLoop && c.Blowers[k].Running {
+		for _, k := range c.Blowers {
+			if pump.Loop == k.ColdLoop && k.Running {
 				blowerRunning = true
 			}
 		}
@@ -74,8 +74,8 @@ func (p PumpID) canEnable() error {
 		boilerReset := true
 		// TODO only check rooms on this pump? ... do we need a per-zone boiler lockout instead of a global?
 		// TODO make sure temp reports are recent (1 hour)
-		for k := range c.Rooms {
-			if c.Rooms[k].Temperature != 0 && c.Rooms[k].Temperature > boilerRecoveryTemp {
+		for _, k := range c.Rooms {
+			if k.Temperature != 0 && k.Temperature > boilerRecoveryTemp {
 				// a room above the reset temp, do not reset
 				log.Debug("not unlocking boiler, rooms still above max temp")
 				boilerReset = false
@@ -99,9 +99,9 @@ func (p PumpID) canEnable() error {
 }
 
 func (c *Config) getPumpFromLoop(id LoopID) PumpID {
-	for k := range c.Pumps {
-		if c.Pumps[k].Loop == id {
-			return c.Pumps[k].ID
+	for _, k := range c.Pumps {
+		if k.Loop == id {
+			return k.ID
 		}
 	}
 	return PumpID(0)
@@ -195,7 +195,7 @@ func (p PumpID) Stop(source string) {
 	// if we are the last active blower on the loop, ensure that the pump is shut down
 	last := true
 	pump := p.Get()
-	for k := range c.Pumps {
+	for _, k := range c.Pumps {
 		// if heating no need to stop chiller
 		if c.SystemMode == SystemModeHeat {
 			last = false
@@ -203,13 +203,13 @@ func (p PumpID) Stop(source string) {
 		}
 
 		// skip self
-		if c.Pumps[k].ID == p {
+		if k.ID == p {
 			continue
 		}
 
 		// something else is running, we aren't last
 		// TODO the running pump needs to be a cool pump, but that is just paranoia
-		if c.Pumps[k].Running {
+		if k.Running {
 			last = false
 			break
 		}
@@ -245,10 +245,10 @@ func (p PumpID) getChiller() ChillerID {
 }
 
 func (p *Pump) getChiller() ChillerID {
-	for k := range c.Chillers {
-		for _, l := range c.Chillers[k].Loops {
+	for _, k := range c.Chillers {
+		for _, l := range k.Loops {
 			if l == p.Loop {
-				return c.Chillers[k].ID
+				return k.ID
 			}
 		}
 	}

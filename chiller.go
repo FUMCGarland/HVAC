@@ -24,9 +24,9 @@ type Chiller struct {
 }
 
 func (p ChillerID) Get() *Chiller {
-	for k := range c.Chillers {
-		if c.Chillers[k].ID == p {
-			return &c.Chillers[k]
+	for _, k := range c.Chillers {
+		if k.ID == p {
+			return k
 		}
 	}
 	log.Debug("unable to get chiller", "chillerID", p)
@@ -56,8 +56,8 @@ func (ch ChillerID) canEnable() error {
 	}
 
 	pumpRunning := false
-	for k := range c.Pumps {
-		if c.Pumps[k].SystemMode == SystemModeCool && c.Pumps[k].Running {
+	for _, k := range c.Pumps {
+		if k.SystemMode == SystemModeCool && k.Running {
 			pumpRunning = true
 		}
 	}
@@ -75,8 +75,8 @@ func (ch ChillerID) canEnable() error {
 	if c.ChillerLockout {
 		chillerReset := true
 
-		for k := range c.Rooms {
-			if c.Rooms[k].Temperature != 0 && c.Rooms[k].Temperature < chillerRecoveryTemp {
+		for _, k := range c.Rooms {
+			if k.Temperature != 0 && k.Temperature < chillerRecoveryTemp {
 				// a room below the reset temp, do not reset
 				chillerReset = false
 				break
@@ -191,10 +191,10 @@ func (ch ChillerID) Stop(source string) {
 }
 
 func (c *Config) GetChillerFromLoop(id LoopID) ChillerID {
-	for k := range c.Chillers {
-		for j := range c.Chillers[k].Loops {
-			if c.Chillers[k].Loops[j] == id {
-				return c.Chillers[k].ID
+	for _, k := range c.Chillers {
+		for j := range k.Loops {
+			if k.Loops[j] == id {
+				return k.ID
 			}
 		}
 	}
