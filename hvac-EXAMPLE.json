@@ -10,7 +10,7 @@
     "Blowers": [
         {"ID": 1, "Name": "First Floor", "HotLoop": 0, "ColdLoop": 5, "Zone": 1 },
         {"ID": 2, "Name": "2nd Floor West Wing", "HotLoop": 0, "ColdLoop": 5, "Zone": 2 },
-        {"ID": 3, "Name": "2nd Floor East Wing", "HotLoop": 2, "ColdLoop": 5, "Zone": 3 },
+        {"ID": 3, "Name": "2nd Floor East Wing", "HotLoop": 1, "ColdLoop": 5, "Zone": 3 },
         {"ID": 4, "Name": "Sancutary Blower", "HotLoop": 4, "ColdLoop": 6, "Zone": 4 },
         {"ID": 5, "Name": "Choir Loft", "HotLoop": 4, "ColdLoop": 6, "Zone": 5 },
         {"ID": 6, "Name": "LW Basement", "HotLoop": 4, "ColdLoop": 6, "Zone": 6 },
@@ -24,7 +24,7 @@
         {"ID": 1, "Name": "Main Chiller", "Loops": [5, 6] }
     ],
     "Loops": [
-        {"ID": 1, "Name": "Boiler Main Loop", "RadiantZone": 11 },
+        {"ID": 1, "Name": "Boiler Main Loop" },
         {"ID": 2, "Name": "Boiler North Loop", "RadiantZone": 12 },
         {"ID": 3, "Name": "Boiler South Loop", "RadiantZone": 13 },
         {"ID": 4, "Name": "Boiler Sanctuary Loop" },
@@ -45,42 +45,50 @@
         {"ID": 5, "Name": "Choir Loft", "CoolZone": 5, "HeatZone": 5, "ShellyID": "shellyht-746f7d"},
         {"ID": 6, "Name": "Narthex", "CoolZone": 7, "HeatZone": 7, "ShellyID": "shellyht-746bb6"},
         {"ID": 7, "Name": "Balcony", "CoolZone": 7, "HeatZone": 7, "ShellyID": "shellyht-74A103"},
-        {"ID": 8, "Name": "Schreiber Hall", "CoolZone": 8, "HeatZone": 11, "ShellyID": "shellyht-746B60"},
-        {"ID": 9, "Name": "Kitchen", "CoolZone": 9, "HeatZone": 11, "ShellyID": "shellyht-746c3e"},
-	{"ID": 10, "Name": "Scout Room", "CoolZone": 10, "HeatZone": 11, "ShellyID": "shellyht-749dda"},
+        {"ID": 8, "Name": "Schreiber Hall", "CoolZone": 8, "HeatZone": 8, "ShellyID": "shellyht-746B60"},
+        {"ID": 9, "Name": "Kitchen", "CoolZone": 9, "HeatZone": 9, "ShellyID": "shellyht-746c3e"},
+	{"ID": 10, "Name": "Scout Room", "CoolZone": 10, "HeatZone": 10, "ShellyID": "shellyht-749dda"},
         {"ID": 11, "Name": "LW Choir Room", "CoolZone": 6, "HeatZone": 6, "ShellyID": "shellyht-74a184"},
         {"ID": 16, "Name": "LW 21 Handbells", "CoolZone": 6, "HeatZone": 6, "ShellyID": "shellyht-74a0dd"},
+
         {"ID": 113, "Name": "113 Koinonia", "CoolZone": 1, "HeatZone": 12, "ShellyID": "shellyht-7475cf"},
-        {"ID": 116, "Name": "116 Library/The Center", "CoolZone": 13, "HeatZone": 12, "ShellyID": "shellyht-74923F"},
         {"ID": 117, "Name": "117 Nursery", "CoolZone": 1, "HeatZone": 12, "ShellyID": "shellyht-747816"},
-        {"ID": 118, "Name": "118 Meditation Room", "CoolZone": 13, "HeatZone": 13, "ShellyID": "shellyht-746FF2"},
         {"ID": 119, "Name": "119 Mother's Room", "CoolZone": 1, "HeatZone": 12, "ShellyID": "shellyht-74A1A6"},
-        {"ID": 120, "Name": "120 GIFT", "CoolZone": 1, "HeatZone": 13, "ShellyID": "shellyht-74A140"},
         {"ID": 123, "Name": "123 Young and Faithful", "CoolZone": 1, "HeatZone": 12, "ShellyID": ""},
         {"ID": 125, "Name": "125 George Topper Class", "CoolZone": 1, "HeatZone": 12, "ShellyID": "shellyht-748E25"},
         {"ID": 127, "Name": "127 Missions", "CoolZone": 1, "HeatZone": 12, "ShellyID": "shellyht-74a100"},
+
+        {"ID": 116, "Name": "116 Library/The Center", "CoolZone": 1, "HeatZone": 13, "ShellyID": "shellyht-74923F"},
+        {"ID": 118, "Name": "118 Meditation Room", "CoolZone": 1, "HeatZone": 13, "ShellyID": "shellyht-746FF2"},
+        {"ID": 120, "Name": "120 GIFT", "CoolZone": 1, "HeatZone": 13, "ShellyID": "shellyht-74A140"},
+
         {"ID": 132, "Name": "132 Sacristy", "CoolZone": 5, "HeatZone": 5, "ShellyID": "shellyht-747552"},
+
         {"ID": 201, "Name": "W201 Male Restrooms", "CoolZone": 2, "HeatZone": 13, "ShellyID": ""},
-        {"ID": 202, "Name": "W202 Breakroom", "CoolZone": 2, "HeatZone": 13, "ShellyID": "shellyht-74a093"},
+	{"ID": 202, "Name": "W202 Breakroom", "CoolZone": 2, "HeatZone": 13, "ShellyID": "shellyht-74a093"},
         {"ID": 203, "Name": "W203 Female Restroom", "CoolZone": 2, "HeatZone": 13, "ShellyID": ""},
-        {"ID": 204, "Name": "W204 Classroom", "CoolZone": 2, "HeatZone": 13, "ShellyID": "shellyht-74a0c0"},
         {"ID": 205, "Name": "W205 Kitchenette", "CoolZone": 2, "HeatZone": 13, "ShellyID": ""},
         {"ID": 207, "Name": "W207 Childrens Music", "CoolZone": 2, "HeatZone": 13, "ShellyID": ""},
         {"ID": 211, "Name": "W211 Office", "CoolZone": 2, "HeatZone": 13, "ShellyID": ""},
         {"ID": 215, "Name": "W215 Office", "CoolZone": 2, "HeatZone": 13, "ShellyID": ""},
+        
+        {"ID": 204, "Name": "W204 Classroom", "CoolZone": 2, "HeatZone": 12, "ShellyID": "shellyht-74a0c0"},
         {"ID": 206, "Name": "W206 Classroom", "CoolZone": 2, "HeatZone": 12, "ShellyID": "shellyht-746ddb"},
         {"ID": 208, "Name": "W208 Classroom", "CoolZone": 2, "HeatZone": 12, "ShellyID": "shellyht-747610"},
         {"ID": 212, "Name": "W212 Classroom", "CoolZone": 2, "HeatZone": 12, "ShellyID": "shellyht-747051"},
-        {"ID": 216, "Name": "E216 Godly Play", "CoolZone": 3, "HeatZone": 12, "ShellyID": ""},
-        {"ID": 218, "Name": "E218 Storage", "CoolZone": 3, "HeatZone": 12, "ShellyID": "shellyht-748FB7"},
-        {"ID": 220, "Name": "E220 Classroom", "CoolZone": 3, "HeatZone": 12, "ShellyID": "shellyht-74908a"},
-        {"ID": 222, "Name": "E222 Classroom", "CoolZone": 3, "HeatZone": 12, "ShellyID": "shellyht-747785"},
-        {"ID": 225, "Name": "E225 Classroom", "CoolZone": 3, "HeatZone": 12, "ShellyID": "shellyht-746d75"},
-        {"ID": 226, "Name": "E226 Classroom", "CoolZone": 3, "HeatZone": 12, "ShellyID": "shellyht-746e64"},
-	{"ID": 229, "Name": "E229 Kitchen", "CoolZone": 3, "HeatZone": 12, "ShellyID": "shellyht-74765A"},
-        {"ID": 302, "Name": "302 Youth Gathering", "HeatZone": 14, "ShellyID": "shellyht-7476D4"},
-        {"ID": 307, "Name": "307 Classroom", "HeatZone": 14, "ShellyID": "shellyht-749ebc"},
-        {"ID": 310, "Name": "310 DAPE", "HeatZone": 14, "ShellyID": "shellyht-748FBF"}
+
+        {"ID": 216, "Name": "E216 Godly Play", "CoolZone": 3, "HeatZone": 3, "ShellyID": ""},
+        {"ID": 218, "Name": "E218 Storage", "CoolZone": 3, "HeatZone": 3, "ShellyID": "shellyht-748FB7"},
+        {"ID": 220, "Name": "E220 Classroom", "CoolZone": 3, "HeatZone": 3, "ShellyID": "shellyht-74908a"},
+        {"ID": 222, "Name": "E222 Classroom", "CoolZone": 3, "HeatZone": 3, "ShellyID": "shellyht-747785"},
+        {"ID": 225, "Name": "E225 Classroom", "CoolZone": 3, "HeatZone": 3, "ShellyID": "shellyht-746d75"},
+        {"ID": 226, "Name": "E226 Classroom", "CoolZone": 3, "HeatZone": 3, "ShellyID": "shellyht-746e64"},
+	{"ID": 229, "Name": "E229 Kitchen", "CoolZone": 3, "HeatZone": 3, "ShellyID": "shellyht-74765A"},
+
+        {"ID": 307, "Name": "307 Classroom", "CoolZone": 14, "HeatZone": 13, "ShellyID": "shellyht-749ebc"},
+
+        {"ID": 302, "Name": "302 Youth Gathering", "CoolZone": 14, "HeatZone": 12, "ShellyID": "shellyht-7476D4"},
+        {"ID": 310, "Name": "310 DAPE", "CoolZone": 14, "HeatZone": 12, "ShellyID": "shellyht-748FBF"}
     ],
     "Zones":   [
         {"ID": 1, "Name": "1st Floor (a/c only)"},
@@ -93,10 +101,10 @@
         {"ID": 8, "Name": "Schreiber Hall (a/c & heat)"},
         {"ID": 9, "Name": "Kitchen (a/c & heat)"},
         {"ID": 10, "Name": "Scout Room (a/c & heat)"},
-        {"ID": 11, "Name": "Main Boiler Loop (heat only)"},
+        {"ID": 11, "Name": "(unused)"},
         {"ID": 12, "Name": "North Boiler Loop (heat only)"},
         {"ID": 13, "Name": "South Boiler Loop (heat only)"},
-        {"ID": 14, "Name": "3rd Floor (heat only)"}
+        {"ID": 14, "Name": "3rd Floor (dummy)"}
     ],
     "Dampers": [],
     "Valves":  []
