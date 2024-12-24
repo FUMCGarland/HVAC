@@ -235,6 +235,10 @@ func (z *Zone) UpdateTemp() {
 
 	z.recalcAvgTemp()
 	log.Debug("zone temp", "zone", z.ID, "avg", z.AverageTemp)
+	if z.AverageTemp == 0 {
+		log.Info("update called, no zone data", "zone", z.ID, "avg temp", z.AverageTemp)
+		return
+	}
 
 	switch c.SystemMode {
 	case SystemModeHeat:
