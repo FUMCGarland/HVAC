@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { UsersGroupOutline, CloseCircleOutline } from 'flowbite-svelte-icons';
 	import { invalidateAll } from '$app/navigation';
 	import {
 		Badge,
@@ -10,17 +11,25 @@
 		TableHead,
 		TableHeadCell,
 		Heading,
-		P,
 		A,
-		Hr
+		P
 	} from 'flowbite-svelte';
+	import { setOccupancyManual } from '$lib/hvac';
 
 	export let data;
 
+	// how do we sort the data for display
+	const sortBy = { col: 'Name', ascending: true };
+
 	// refresh every 30 seconds
 	onMount(() => {
-		const interval = setInterval(() => {
-			invalidateAll();
+		console.log(data);
+		tablesort(sortBy.col);
+
+		const interval = setInterval(async () => {
+			await invalidateAll();
+			tablesort(sortBy.col);
+			tablesort(sortBy.col); // twice to keep the ascending correct
 		}, 30000);
 
 		return () => {
@@ -28,110 +37,149 @@
 		};
 	});
 
-	function systemModeLabel(sm) {
-		if (sm == 0) return 'heating';
-		return 'cooling';
-	}
+	$: tablesort = (column) => {
+		if (sortBy.col == column) {
+			sortBy.ascending = !sortBy.ascending;
+		} else {
+			sortBy.col = column;
+			sortBy.ascending = true;
+		}
 
-	function inMode(pump) {
-		return data.SystemMode == pump.SystemMode;
-	}
+		let sm = sortBy.ascending ? 1 : -1;
+
+		let sortcallback = (a, b) =>
+			a[column] < b[column] ? -1 * sm : a[column] > b[column] ? 1 * sm : 0;
+		data.Rooms = data.Rooms.sort(sortcallback);
+	};
 
 	function zoneName(zoneID) {
+		if (zoneID == 0) return "no zone";
 		const z = data.Zones.filter((z) => z.ID == zoneID);
 		return z[0].Name;
 	}
 
-	function loopName(loopID) {
-		const l = data.Loops.filter((l) => l.ID == loopID);
-		if (l.length > 0) return l[0].Name;
-		return 'Not Used';
+	function toggleOccupied(room, state) {
+		console.log('toggle occupied', room, state);
+		setOccupancyManual(room, state);
+	}
+
+	function zoneAvgTemp(room) {
+		// console.log(room);
+		var zoneID = 0;
+		if (data.SystemMode == 0) {
+			zoneID = room.HeatZone;
+		} else {
+			zoneID = room.CoolZone;
+		}
+		const zone = data.Zones.find((z) => z.ID == zoneID);
+		return Math.round(zone.AverageTemp);
+	}
+
+	function zoneRunning(zone) {
+		// if a zone has blowers, it is running if all the blowers in the zone are running
+		const blowers = data.Blowers.filter((b) => b.Zone == zone);
+		if (blowers.length != 0) {
+			const running = blowers.filter((b) => b.Running);
+			return blowers.length == running.length && blowers.length != 0;
+		}
+
+		// if a zone does not have blowers, it is running if the pump is running
+		// zone has loop, loop has pump, pump has running
+		const loop = data.Loops.filter((l) => l.RadiantZone == zone);
+		if (loop.length != 1) return; // no blowers, no radiant... nothing to run
+		const pump = data.Pumps.filter((p) => p.Loop == loop[0].ID);
+		return pump[0].Running;
 	}
 </script>
 
-<Heading tag="h2">Blowers</Heading>
+<Heading tag="h2">Rooms</Heading>
+<P
+	>Legend:
+	<Badge color="green">+/- 3 degrees of target</Badge>
+	<Badge color="blue">3-10 degrees cooler</Badge>
+	<Badge color="yellow">3-10 degrees warmer</Badge>
+	<Badge color="purple">&gt; 10 degrees cooler</Badge>
+	<Badge color="red">&gt; 10 degrees warmer</Badge>
+</P>
 <Table>
 	<TableHead>
-		<TableHeadCell>Name</TableHeadCell>
-		<TableHeadCell>Running</TableHeadCell>
-		<TableHeadCell>Zone</TableHeadCell>
-		<TableHeadCell>Loop</TableHeadCell>
+		<TableHeadCell on:click={tablesort('Name')}>Name</TableHeadCell>
+		<TableHeadCell on:click={tablesort('Occupied')}>Occupied</TableHeadCell>
+		<TableHeadCell on:click={tablesort('Zone')}>Zone</TableHeadCell>
+		<TableHeadCell on:click={tablesort('Temperature')}>Zone Avg</TableHeadCell>
+		<TableHeadCell on:click={tablesort('Temperature')}>Room Temp</TableHeadCell>
+		<TableHeadCell on:click={tablesort('Battery')}>Battery</TableHeadCell>
 	</TableHead>
 	<TableBody>
-		{#each data.Blowers as blower}
+		{#each data.Rooms as room}
 			<TableBodyRow>
-				<TableBodyCell><A href="/blower/{blower.ID}">{blower.Name}</A></TableBodyCell>
-				{#if blower.Running}
-					<TableBodyCell><Badge color="green">Running</Badge></TableBodyCell>
-				{/if}
-				{#if !blower.Running}
-					<TableBodyCell><Badge color="red">Stopped</Badge></TableBodyCell>
-				{/if}
-				<TableBodyCell><A href="/zone/{blower.Zone}">{zoneName(blower.Zone)}</A></TableBodyCell>
-				{#if data.SystemMode == 0}
-					{#if blower.HotLoop > 0}
-						<TableBodyCell
-							><A href="/loop/{blower.HotLoop}">{loopName(blower.HotLoop)}</A></TableBodyCell
-						>
+				<TableBodyCell><A href="/room/{room.ID}">{room.Name}</A></TableBodyCell>
+				<TableBodyCell>
+					{#if !room.Occupied}
+						<A on:click={toggleOccupied(room.ID, true)}><CloseCircleOutline /></A>
 					{/if}
-					{#if blower.HotLoop == 0}
-						<TableBodyCell></TableBodyCell>
+					{#if room.Occupied}
+						<A on:click={toggleOccupied(room.ID, false)}><UsersGroupOutline /></A>
 					{/if}
-				{/if}
+				</TableBodyCell>
 				{#if data.SystemMode == 1}
-					<TableBodyCell
-						><A href="/loop/{blower.ColdLoop}">{loopName(blower.ColdLoop)}</A></TableBodyCell
-					>
+				<TableBodyCell
+					><A href="/zone/{room.CoolZone}">
+						{#if zoneRunning(room.CoolZone)}
+							<Badge color="green">Running</Badge>
+						{/if}
+						{zoneName(room.CoolZone)}</A
+					></TableBodyCell
+				>
+				{/if}
+				{#if data.SystemMode == 0}
+				<TableBodyCell
+					><A href="/zone/{room.HeatZone}">
+						{#if zoneRunning(room.HeatZone)}
+							<Badge color="green">Running</Badge>
+						{/if}
+						{zoneName(room.HeatZone)}</A
+					></TableBodyCell
+				>
+				{/if}
+				<TableBodyCell>{zoneAvgTemp(room)}</TableBodyCell>
+				{#if room.Temperature == 0}
+					<TableBodyCell>&nbsp;</TableBodyCell>
+				{/if}
+				{#if room.Temperature != 0 && room.Temperature < room.Targets.Min - 10}
+					<TableBodyCell><Badge color="purple">{room.Temperature}</Badge></TableBodyCell>
+				{/if}
+				{#if room.Temperature >= room.Targets.Min - 10 && room.Temperature < room.Targets.Min}
+					<TableBodyCell><Badge color="blue">{room.Temperature}</Badge></TableBodyCell>
+				{/if}
+				{#if room.Temperature >= room.Targets.Min && room.Temperature < room.Targets.Max}
+					<TableBodyCell><Badge color="green">{room.Temperature}</Badge></TableBodyCell>
+				{/if}
+				{#if room.Temperature >= room.Targets.Max && room.Temperature < room.Targets.Max + 10}
+					<TableBodyCell><Badge color="yellow">{room.Temperature}</Badge></TableBodyCell>
+				{/if}
+				{#if room.Temperature >= room.Targets.Max + 10}
+					<TableBodyCell><Badge color="red">{room.Temperature}</Badge></TableBodyCell>
+				{/if}
+
+				{#if room.ShellyID != ""}
+				{#if room.Battery == 101}
+					<TableBodyCell><Badge color="green">Powered</Badge></TableBodyCell>
+				{/if}
+				{#if room.Battery <= 100 && room.Battery > 45}
+					<TableBodyCell><Badge color="green">{room.Battery}</Badge></TableBodyCell>
+				{/if}
+				{#if room.Battery <= 45 && room.Battery > 15}
+					<TableBodyCell><Badge color="yellow">{room.Battery}</Badge></TableBodyCell>
+				{/if}
+				{#if room.Battery <= 15}
+					<TableBodyCell><Badge color="red">{room.Battery}</Badge></TableBodyCell>
+				{/if}
+				{/if}
+				{#if room.ShellyID == ""}
+					<TableBodyCell>(none)</TableBodyCell>
 				{/if}
 			</TableBodyRow>
 		{/each}
 	</TableBody>
 </Table>
-<Hr />
-<Heading tag="h2">Pumps ({systemModeLabel(data.SystemMode)})</Heading>
-<Table>
-	<TableHead>
-		<TableHeadCell>Name</TableHeadCell>
-		<TableHeadCell>Running</TableHeadCell>
-		<TableHeadCell>Loop</TableHeadCell>
-	</TableHead>
-	<TableBody>
-		{#each data.Pumps as pump}
-			{#if inMode(pump)}
-				<TableBodyRow>
-					<TableBodyCell><A href="/pump/{pump.ID}">{pump.Name}</A></TableBodyCell>
-					{#if pump.Running}
-						<TableBodyCell><Badge color="green">Running</Badge></TableBodyCell>
-					{/if}
-					{#if !pump.Running}
-						<TableBodyCell><Badge color="red">Stopped</Badge></TableBodyCell>
-					{/if}
-					<TableBodyCell><A href="/loop/{pump.Loop}">{loopName(pump.Loop)}</A></TableBodyCell>
-				</TableBodyRow>
-			{/if}
-		{/each}
-	</TableBody>
-</Table>
-{#if data.SystemMode == 1}
-	<Hr />
-	<Heading tag="h2">Chillers</Heading>
-	<Table>
-		<TableHead>
-			<TableHeadCell>Name</TableHeadCell>
-			<TableHeadCell>Running</TableHeadCell>
-		</TableHead>
-		<TableBody>
-			{#each data.Chillers as chiller}
-				<TableBodyRow>
-					<TableBodyCell><A href="/chiller/{chiller.ID}">{chiller.Name}</A></TableBodyCell>
-					{#if chiller.Running}
-						<TableBodyCell><Badge color="green">Running</Badge></TableBodyCell>
-					{/if}
-					{#if !chiller.Running}
-						<TableBodyCell><Badge color="red">Stopped</Badge></TableBodyCell>
-					{/if}
-				</TableBodyRow>
-			{/each}
-		</TableBody>
-	</Table>
-{/if}

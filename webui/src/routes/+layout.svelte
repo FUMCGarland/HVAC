@@ -35,7 +35,7 @@
 		</NavBrand>
 		<NavHamburger />
 		<NavUl>
-			<NavLi href="/rooms">Room Status</NavLi>
+			<NavLi href="/devices">Device Status</NavLi>
 			<NavLi href="/occupancy">Occupancy Schedule</NavLi>
 			<NavLi class="cursor-pointer">
 				Advanced<ChevronDownOutline class="ms-2 inline h-6 w-6 text-primary-800 dark:text-white" />
