@@ -53,7 +53,7 @@
 	};
 
 	function zoneName(zoneID) {
-		if (zoneID == 0) return "no zone";
+		if (zoneID == 0) return 'no zone';
 		const z = data.Zones.filter((z) => z.ID == zoneID);
 		return z[0].Name;
 	}
@@ -123,24 +123,24 @@
 					{/if}
 				</TableBodyCell>
 				{#if data.SystemMode == 1}
-				<TableBodyCell
-					><A href="/zone/{room.CoolZone}">
-						{#if zoneRunning(room.CoolZone)}
-							<Badge color="green">Running</Badge>
-						{/if}
-						{zoneName(room.CoolZone)}</A
-					></TableBodyCell
-				>
+					<TableBodyCell
+						><A href="/zone/{room.CoolZone}">
+							{#if zoneRunning(room.CoolZone)}
+								<Badge color="green">Running</Badge>
+							{/if}
+							{zoneName(room.CoolZone)}</A
+						></TableBodyCell
+					>
 				{/if}
 				{#if data.SystemMode == 0}
-				<TableBodyCell
-					><A href="/zone/{room.HeatZone}">
-						{#if zoneRunning(room.HeatZone)}
-							<Badge color="green">Running</Badge>
-						{/if}
-						{zoneName(room.HeatZone)}</A
-					></TableBodyCell
-				>
+					<TableBodyCell
+						><A href="/zone/{room.HeatZone}">
+							{#if zoneRunning(room.HeatZone)}
+								<Badge color="green">Running</Badge>
+							{/if}
+							{zoneName(room.HeatZone)}</A
+						></TableBodyCell
+					>
 				{/if}
 				<TableBodyCell>{zoneAvgTemp(room)}</TableBodyCell>
 				{#if room.Temperature == 0}
@@ -162,21 +162,21 @@
 					<TableBodyCell><Badge color="red">{room.Temperature}</Badge></TableBodyCell>
 				{/if}
 
-				{#if room.ShellyID != ""}
-				{#if room.Battery == 101}
-					<TableBodyCell><Badge color="green">Powered</Badge></TableBodyCell>
+				{#if room.ShellyID != ''}
+					{#if room.Battery == 101}
+						<TableBodyCell><Badge color="green">Powered</Badge></TableBodyCell>
+					{/if}
+					{#if room.Battery <= 100 && room.Battery > 45}
+						<TableBodyCell><Badge color="green">{room.Battery}</Badge></TableBodyCell>
+					{/if}
+					{#if room.Battery <= 45 && room.Battery > 15}
+						<TableBodyCell><Badge color="yellow">{room.Battery}</Badge></TableBodyCell>
+					{/if}
+					{#if room.Battery <= 15}
+						<TableBodyCell><Badge color="red">{room.Battery}</Badge></TableBodyCell>
+					{/if}
 				{/if}
-				{#if room.Battery <= 100 && room.Battery > 45}
-					<TableBodyCell><Badge color="green">{room.Battery}</Badge></TableBodyCell>
-				{/if}
-				{#if room.Battery <= 45 && room.Battery > 15}
-					<TableBodyCell><Badge color="yellow">{room.Battery}</Badge></TableBodyCell>
-				{/if}
-				{#if room.Battery <= 15}
-					<TableBodyCell><Badge color="red">{room.Battery}</Badge></TableBodyCell>
-				{/if}
-				{/if}
-				{#if room.ShellyID == ""}
+				{#if room.ShellyID == ''}
 					<TableBodyCell>(none)</TableBodyCell>
 				{/if}
 			</TableBodyRow>

@@ -11,7 +11,8 @@ export async function load({ fetch, params }) {
 			const lastupdate = Date.parse(r.LastUpdate);
 			const fourHoursAgo = new Date();
 			fourHoursAgo.setHours(fourHoursAgo.getHours() - 4);
-			if (lastupdate < fourHoursAgo) { // older than 4 hours
+			if (lastupdate < fourHoursAgo) {
+				// older than 4 hours
 				r.Temperature = 0;
 			}
 		}
