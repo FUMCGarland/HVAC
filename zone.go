@@ -186,6 +186,19 @@ func (z ZoneID) Start(d time.Duration, msg string) error {
 			}
 		}
 	}
+
+	if c.SystemMode == SystemModeHeat {
+		for _, loop := range c.Loops {
+			if loop.RadiantZone == z {
+				if err := loop.ID.Start(d, msg); err != nil {
+					// stopAll(enabled)
+					return err
+				}
+				// enabled = append(enabled, chillerid)
+			}
+		}
+	}
+
 	return nil
 }
 

@@ -6,6 +6,8 @@ import (
 
 type DegF float32 // uint8
 
+const ShellyExternalPowerBattLevel = 101
+
 // min/max durations for user-scheduled run-times, does not affect temp based
 const (
 	defaultRunDuration time.Duration = (2 * time.Hour) // used in temp control mode, we just need a value to send to the relays

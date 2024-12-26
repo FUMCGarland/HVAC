@@ -71,13 +71,14 @@ func (p PumpID) canEnable() error {
 
 	// if locked out, see if we are safet to restart
 	if c.BoilerLockout {
+		maxAge := time.Now().Add(0 - tempMaxAge)
 		boilerReset := true
 		// TODO only check rooms on this pump? ... do we need a per-zone boiler lockout instead of a global?
 		// TODO make sure temp reports are recent (1 hour)
 		for _, k := range c.Rooms {
-			if k.Temperature != 0 && k.Temperature > boilerRecoveryTemp {
+			if k.Temperature != 0 && k.Temperature > boilerRecoveryTemp && k.LastUpdate.After(maxAge) {
 				// a room above the reset temp, do not reset
-				log.Debug("not unlocking boiler, rooms still above max temp")
+				log.Debug("not unlocking boiler, rooms still above max temp", "room", k)
 				boilerReset = false
 			}
 		}

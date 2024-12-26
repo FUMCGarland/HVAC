@@ -1,5 +1,9 @@
 package hvac
 
+import (
+	"time"
+)
+
 // LoopID is the unique identifier for a loop
 type LoopID uint8
 
@@ -8,4 +12,12 @@ type Loop struct {
 	Name        string
 	ID          LoopID
 	RadiantZone ZoneID
+}
+
+func (l LoopID) Start(d time.Duration, msg string) error {
+	pump := c.getPumpFromLoop(l)
+	if pump != 0 {
+		return pump.Start(d, msg)
+	}
+	return nil
 }
