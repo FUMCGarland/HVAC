@@ -61,7 +61,7 @@ func blowerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 				}
 			}
 			if !blowerRunning {
-				log.Debug("last blower on cool loop stopped, shutting down pump for the loop")
+				log.Info("last blower on cool loop stopped, shutting down pump for the loop")
 				for k := range c.Pumps {
 					if c.Pumps[k].Loop == blower.ColdLoop {
 						c.Pumps[k].ID.Stop("internal")
@@ -95,7 +95,7 @@ func pumpCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet
 
 	// ignore the routine check-ins if no change
 	if response.CurrentState != pump.Running {
-		log.Debug("pump state change", "pump", pn, "state", response.CurrentState)
+		log.Info("pump state change", "pump", pn, "state", response.CurrentState)
 		pump.Running = response.CurrentState
 		if !response.CurrentState && response.RanTime > 0 {
 			pump.Runtime += response.RanTime
@@ -142,7 +142,7 @@ func chillerCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pac
 
 	// ignore the routine check-ins if no change
 	if response.CurrentState != chiller.Running {
-		log.Debug("chiller state change", "chiller", cn, "state", response.CurrentState)
+		log.Info("chiller state change", "chiller", cn, "state", response.CurrentState)
 		chiller.Running = response.CurrentState
 		if !response.CurrentState && response.RanTime > 0 {
 			chiller.Runtime += response.RanTime
@@ -287,6 +287,6 @@ func shellyCallbackFn(cl *mqtt.Client, sub packets.Subscription, pk packets.Pack
 			log.Warn("unknown shelly", "shelly", ts[1])
 			return
 		}
-		r.SetBattery(101)
+		r.SetBattery(hvac.ShellyExternalPowerBattLevel)
 	}
 }
