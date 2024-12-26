@@ -106,8 +106,8 @@
 		<TableHeadCell on:click={tablesort('Name')}>Name</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Occupied')}>Occupied</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Zone')}>Zone</TableHeadCell>
-		<TableHeadCell on:click={tablesort('Temperature')}>Zone Avg</TableHeadCell>
-		<TableHeadCell on:click={tablesort('Temperature')}>Room Temp</TableHeadCell>
+		<TableHeadCell on:click={tablesort('Zone Avg')}>Zone Avg</TableHeadCell>
+		<TableHeadCell on:click={tablesort('Room Temp')}>Room Temp</TableHeadCell>
 		<TableHeadCell on:click={tablesort('Battery')}>Battery</TableHeadCell>
 	</TableHead>
 	<TableBody>
