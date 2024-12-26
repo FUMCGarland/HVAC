@@ -115,7 +115,7 @@ func validate() error {
 }
 
 func validateBlower() error {
-	log.Debug("blowers", "blowers", c.Pumps)
+	// log.Debug("blowers", "blowers", c.Blower)
 	found := false
 	for _, blower := range c.Blowers {
 		// loop
@@ -157,7 +157,7 @@ func validateBlower() error {
 }
 
 func validatePumps() error {
-	log.Debug("pumps", "pumps", c.Pumps)
+	// log.Debug("pumps", "pumps", c.Pumps)
 	found := false
 	for _, pump := range c.Pumps {
 		for _, loop := range c.Loops {
@@ -174,7 +174,7 @@ func validatePumps() error {
 }
 
 func validateRooms() error {
-	log.Debug("rooms", "rooms", c.Rooms)
+	// log.Debug("rooms", "rooms", c.Rooms)
 	found := false
 	for _, room := range c.Rooms {
 		for _, zone := range c.Zones {
