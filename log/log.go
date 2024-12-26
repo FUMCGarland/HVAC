@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/smallnest/ringbuffer"
 )
@@ -37,29 +39,28 @@ func Get() *slog.Logger {
 	return l
 }
 
-func Debug(title string, args ...interface{}) {
+func Debug(title string, args ...any) {
 	l.Debug(title, args...)
-	fmt.Fprintf(buf, title, args...)
+	WriteToBuff(title, args...)
 }
 
 func Info(title string, args ...interface{}) {
 	l.Info(title, args...)
-	fmt.Fprintf(buf, title, args...)
+	WriteToBuff(title, args...)
 }
 
 func Error(title string, args ...interface{}) {
 	l.Error(title, args...)
-	fmt.Fprintf(buf, title, args...)
+	WriteToBuff(title, args...)
 }
 
 func Warn(title string, args ...interface{}) {
 	l.Warn(title, args...)
-	fmt.Fprintf(buf, title, args...)
+	WriteToBuff(title, args...)
 }
 
 func Fatal(title string, args ...interface{}) {
 	l.Error(title, args...)
-	fmt.Fprintf(buf, title, args...)
 	panic(title)
 }
 
@@ -78,4 +79,37 @@ func ReadBuf() (string, error) {
 	}
 	o := string(b[:count])
 	return o, nil
+}
+
+func WriteToBuff(title string, args ...any) {
+	var out strings.Builder
+
+	now := time.Now()
+
+	out.WriteString(now.Format(time.DateTime))
+	out.WriteString(" : ")
+	out.WriteString(title)
+	out.WriteString(" ")
+	pos := 0
+	for _, v := range args {
+		switch v.(type) {
+		case string:
+			out.WriteString(v.(string))
+			if pos%2 == 0 {
+				out.WriteString("=")
+			} else {
+				out.WriteString("; ")
+			}
+		case []byte:
+			out.WriteString(string(v.([]byte)))
+		case int, uint8:
+			out.WriteString(fmt.Sprintf("%d; ", v))
+		default:
+			out.WriteString(fmt.Sprintf("%v; ", v))
+		}
+		pos = pos + 1
+	}
+	// fmt.Println(out.String())
+	out.WriteString("\n")
+	fmt.Fprintf(buf, out.String())
 }
