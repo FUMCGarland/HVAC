@@ -56,12 +56,9 @@ func (r *Room) SetTemp(temp DegF) {
 	// lock-outs for extreme room temps
 	switch c.SystemMode {
 	case SystemModeHeat:
-		if r.Temperature >= boilerLockoutTemp && !c.BoilerLockout {
-			log.Warn("locking out boiler, room temp too high")
-			c.BoilerLockout = true
-			for _, k := range c.Pumps {
-				k.ID.Stop("lockout")
-			}
+		if r.Temperature >= boilerLockoutTemp {
+			log.Warn("stopping pump, room temp too high", "room", r.ID)
+			r.HeatZone.Stop("boiler lockout temp exceeded")
 		}
 
 		// update the zone average and run logic on starting/stopping the zone
@@ -161,9 +158,8 @@ func (r RoomID) ToogleOccupancy() {
 	}
 
 	room.Occupied = !room.Occupied
-	log.Debug("manually set room occupancy", "room", r, "state", room.Occupied)
+	log.Info("manually set room occupancy", "room", r, "state", room.Occupied)
 	if zone := room.GetZoneInMode(); zone != nil {
-		log.Debug("running zone check")
 		zone.UpdateTemp()
 	}
 

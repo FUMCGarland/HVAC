@@ -31,8 +31,7 @@ const zoneHysterisisRange DegF = 3 // DegF above and below the zone's configured
 const (
 	chillerLockoutTemp  DegF = 60 // if a room is too cold, stop all chillers (let blowers/pumps run) to prevent freezeout
 	chillerRecoveryTemp DegF = 68 // all rooms must be above this temp to unlock the chiller
-	boilerLockoutTemp   DegF = 78 // if a room is warmer than this, stop all heater pumps (thereby stopping boilers)
-	boilerRecoveryTemp  DegF = 68 // all rooms must fall below this to unlock the heater pumps
+	boilerLockoutTemp   DegF = 78 // if a room is warmer than this, stop the affected zone, recovers when below this value
 	minZoneTemp         DegF = 58 // the coolest we will accept as a user-defined value
 	maxZoneTemp         DegF = 85 // the warmest we will accept as a user-defined value
 )

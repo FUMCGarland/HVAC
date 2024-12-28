@@ -76,7 +76,7 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 						}
 					}
 					if !zoneActivated {
-						log.Debug("activating zone")
+						log.Info("activating zone")
 						r.GetZoneInMode().UpdateTemp() // recalculates the avg and runs if needed
 						zones = append(zones, r.GetZoneIDInMode())
 					}

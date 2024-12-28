@@ -26,15 +26,15 @@ type Config struct {
 	OpenWeatherMapKey string       // API key from OpenWeatherMap
 	OpenWeatherMapID  int          // locaiton ID in OpenWeatherMap
 	ChillerLockout    bool         // is the chiller locked-out due to being too cold?
-	BoilerLockout     bool         // is the boiler locked-out due to being to warm?
-	Blowers           []*Blower
-	Chillers          []*Chiller
-	Dampers           []*Damper
-	Loops             []*Loop
-	Pumps             []*Pump
-	Rooms             []*Room
-	Valves            []*Valve
-	Zones             []*Zone
+	// BoilerLockout     bool         // is the boiler locked-out due to being to warm? // move to per-zone check
+	Blowers  []*Blower
+	Chillers []*Chiller
+	Dampers  []*Damper
+	Loops    []*Loop
+	Pumps    []*Pump
+	Rooms    []*Room
+	Valves   []*Valve
+	Zones    []*Zone
 }
 
 // MQTTConfig is the configuration of the MQTT subsystem
@@ -62,7 +62,6 @@ var c *Config = &Config{
 	OpenWeatherMapKey: "",      // no key, do not check OWM
 	OpenWeatherMapID:  4693003, // Garland, TX
 	ChillerLockout:    false,
-	BoilerLockout:     false,
 	SystemMode:        SystemModeCool,
 }
 

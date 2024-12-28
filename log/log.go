@@ -41,7 +41,7 @@ func Get() *slog.Logger {
 
 func Debug(title string, args ...any) {
 	l.Debug(title, args...)
-	WriteToBuff(title, args...)
+	// WriteToBuff(title, args...)
 }
 
 func Info(title string, args ...interface{}) {
@@ -84,6 +84,10 @@ func ReadBuf() (string, error) {
 func WriteToBuff(title string, args ...any) {
 	var out strings.Builder
 
+	if strings.Contains(title, "client disconnected") {
+		return
+	}
+
 	now := time.Now()
 
 	out.WriteString(now.Format(time.DateTime))
@@ -92,16 +96,16 @@ func WriteToBuff(title string, args ...any) {
 	out.WriteString(" ")
 	pos := 0
 	for _, v := range args {
-		switch v.(type) {
+		switch v := v.(type) {
 		case string:
-			out.WriteString(v.(string))
+			out.WriteString(v)
 			if pos%2 == 0 {
 				out.WriteString("=")
 			} else {
 				out.WriteString("; ")
 			}
 		case []byte:
-			out.WriteString(string(v.([]byte)))
+			out.WriteString(string(v))
 		case int, uint8:
 			out.WriteString(fmt.Sprintf("%d; ", v))
 		default:
@@ -109,7 +113,10 @@ func WriteToBuff(title string, args ...any) {
 		}
 		pos = pos + 1
 	}
-	// fmt.Println(out.String())
 	out.WriteString("\n")
-	fmt.Fprintf(buf, out.String())
+	built := []byte(out.String())
+	if _, err := buf.TryWrite(built); err != nil {
+		buf.Reset() // if the buffer is full, dump it
+		Debug("reset log buffer")
+	}
 }

@@ -54,6 +54,7 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 	m.POST("/api/v1/occupancy/recurring", authMW(postOccupancyRecurring, AuthLevelControl))         // add a new entry
 	m.PUT("/api/v1/occupancy/recurring/:id", authMW(putOccupancyRecurring, AuthLevelControl))       // update an occupancy-expected entry
 	m.DELETE("/api/v1/occupancy/recurring/:id", authMW(deleteOccupancyRecurring, AuthLevelControl)) // update an occupancy-expected entry
+	m.GET("/api/v1/occupancy/internal", authMW(getOccupancyJobList, AuthLevelView))                 // see individual jobs
 
 	m.POST("/api/v1/occupancy/onetime", authMW(postOccupancyOneTime, AuthLevelControl))         // add a new entry
 	m.PUT("/api/v1/occupancy/onetime/:id", authMW(putOccupancyOneTime, AuthLevelControl))       // update an occupancy-expected entry

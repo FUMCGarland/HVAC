@@ -46,6 +46,11 @@ type OccupancyOneTimeEntry struct {
 	ID    OccupancyOneTimeID
 }
 
+type OccupancyNextRunReport struct {
+	Name string
+	NextRun time.Time
+}
+
 // init() considered harmful... set up the global scheduler
 func init() {
 	var err error
@@ -128,4 +133,17 @@ func readOccupancyFromStore() (*OccupancySchedule, error) {
 	}
 
 	return &sl, nil
+}
+
+func NextRunReport() []OccupancyNextRunReport {
+	nrr := make([]OccupancyNextRunReport, 0, len(occScheduler.Jobs()))
+	
+	for _, job := range occScheduler.Jobs() {
+		var entry OccupancyNextRunReport
+		entry.Name = job.Name()
+		nr, _ := job.NextRun()
+		entry.NextRun = nr
+		nrr = append(nrr, entry)
+	}
+	return nrr
 }

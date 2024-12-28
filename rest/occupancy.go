@@ -228,3 +228,14 @@ func putOccupancyManual(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 	room.ToogleOccupancy()
 	fmt.Fprint(w, jsonStatusOK)
 }
+
+func getOccupancyJobList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	headers(w, r)
+
+	wrr := hvac.NextRunReport()
+	if err := json.NewEncoder(w).Encode(wrr); err != nil {
+		log.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+}

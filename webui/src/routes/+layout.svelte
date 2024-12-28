@@ -44,14 +44,15 @@
 			<Dropdown class="z-20 w-44">
 				<DropdownItem href="/zones">Zones Temp Settings</DropdownItem>
 				<DropdownItem href="/shelly">Sensor Status</DropdownItem>
-				<DropdownItem href="/runlog">Run Log</DropdownItem>
 				<DropdownItem href="/api/v1/datalog">Download datalog</DropdownItem>
 				<DropdownItem href="/settings">System Settings</DropdownItem>
 				<DropdownDivider />
 				{#if level > 0}
+					<DropdownItem href="/runlog">Run Log</DropdownItem>
 					<DropdownItem href="/schedule">Zone Schedule</DropdownItem>
 					<DropdownItem href="/manual">Manual Zone Control</DropdownItem>
 					<DropdownItem href="/override">Manual Device Override</DropdownItem>
+					<DropdownItem href="/occupancy/internal">Schedule Next Run Report</DropdownItem>
 				{/if}
 				{#if level > 1}
 					<DropdownDivider />

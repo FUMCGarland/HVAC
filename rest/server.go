@@ -39,7 +39,7 @@ func Start(c *hvac.Config, done <-chan bool) {
 	// creates the keys if needed
 	sk = getJWSigningKeys()
 
-	log.Info("Starting up REST server", "on", c.HTTPaddr)
+	log.Debug("Starting up REST server", "on", c.HTTPaddr)
 	go func() {
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatal(err.Error())
@@ -47,7 +47,7 @@ func Start(c *hvac.Config, done <-chan bool) {
 	}()
 
 	<-done
-	log.Info("Shutting down REST server")
+	log.Debug("Shutting down REST server")
 	if err := srv.Shutdown(context.Background()); err != nil {
 		log.Error(err.Error())
 	}

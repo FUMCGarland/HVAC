@@ -123,11 +123,11 @@ func (z *Zone) readFromStore() error {
 
 // Stop shuts down all devices in a zone
 func (z ZoneID) Stop(msg string) {
-	log.Debug("stopping zone", "ID", z, "msg", msg)
+	log.Info("stopping zone", "ID", z, "msg", msg)
 
 	for _, k := range c.Blowers {
 		if k.Zone == z && k.Running {
-			log.Debug("stopping blower", "zone", z, "blower", k.ID)
+			log.Info("stopping blower", "zone", z, "blower", k.ID)
 			k.ID.Stop(msg)
 		}
 	}
@@ -153,7 +153,7 @@ func (z ZoneID) Stop(msg string) {
 func (z ZoneID) Start(d time.Duration, msg string) error {
 	enabled := make([]DeviceID, 0)
 
-	log.Debug("starting/extending zone", "zone", z)
+	log.Info("starting/extending zone", "zone", z)
 
 	for _, k := range c.Blowers {
 		if k.Zone == z {
@@ -247,7 +247,7 @@ func (z *Zone) UpdateTemp() {
 	}
 
 	z.recalcAvgTemp()
-	log.Debug("zone temp", "zone", z.ID, "avg", z.AverageTemp)
+	log.Info("zone temp", "zone", z.ID, "avg", z.AverageTemp)
 	if z.AverageTemp == 0 {
 		log.Info("update called, no zone data", "zone", z.ID, "avg temp", z.AverageTemp)
 		return
@@ -321,4 +321,20 @@ func (z ZoneID) IsRunning() bool {
 	}
 
 	return true
+}
+
+func (z ZoneID) getMaxTemp() (DegF, RoomID) {
+	var max DegF
+	var hotRoom RoomID
+
+	maxAge := time.Now().Add(0 - tempMaxAge)
+
+	for _, room := range c.Rooms {
+		if room.HeatZone == z && room.Temperature > max && room.LastUpdate.After(maxAge) {
+			hotRoom = room.ID
+			max = room.Temperature
+		}
+	}
+
+	return max, hotRoom
 }

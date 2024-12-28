@@ -2,6 +2,7 @@ package hvac
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +18,23 @@ func (s *OccupancySchedule) GetRecurringEntry(id OccupancyRecurringID) *Occupanc
 		}
 	}
 	return nil
+}
+
+func (s *OccupancySchedule) getLowestUnusedRecurringID() OccupancyRecurringID {
+	used := make([]OccupancyRecurringID, 0, len(s.Recurring))
+
+	for _, k := range s.Recurring {
+		used = append(used, k.ID)
+	}
+	slices.Sort(used)
+
+	var i OccupancyRecurringID
+	for i = 0 ; i < OccupancyRecurringID(len(used)); i++ {
+		if !slices.Contains(used, i) {
+			return i
+		}
+	}
+	return i + OccupancyRecurringID(1)
 }
 
 func (s *OccupancySchedule) AddRecurringEntry(e *OccupancyRecurringEntry) error {
@@ -37,7 +55,8 @@ func (s *OccupancySchedule) AddRecurringEntry(e *OccupancyRecurringEntry) error 
 	if existing := s.GetRecurringEntry(e.ID); existing != nil {
 		err := fmt.Errorf("cannot reuse existing ID")
 		log.Error(err.Error(), "entry", e)
-		return err
+		// return err
+		e.ID = s.getLowestUnusedRecurringID()
 	}
 
 	if e.Name == "" {

@@ -59,7 +59,7 @@ func (p PumpID) canEnable() error {
 			}
 		}
 		if !blowerRunning {
-			err := fmt.Errorf("cannot enable cold pump no blowers on loop are running")
+			err := fmt.Errorf("cannot enable cold pump: no blowers on loop are running")
 			return err
 		}
 	}
@@ -69,31 +69,9 @@ func (p PumpID) canEnable() error {
 		return err
 	}
 
-	// if locked out, see if we are safet to restart
-	if c.BoilerLockout {
-		maxAge := time.Now().Add(0 - tempMaxAge)
-		boilerReset := true
-		// TODO only check rooms on this pump? ... do we need a per-zone boiler lockout instead of a global?
-		// TODO make sure temp reports are recent (1 hour)
-		for _, k := range c.Rooms {
-			if k.Temperature != 0 && k.Temperature > boilerRecoveryTemp && k.LastUpdate.After(maxAge) {
-				// a room above the reset temp, do not reset
-				log.Debug("not unlocking boiler, rooms still above max temp", "room", k)
-				boilerReset = false
-			}
-		}
-
-		if boilerReset {
-			log.Warn("all rooms below recovery temp, unlocking boiler")
-			c.BoilerLockout = false
-		}
-	}
-
-	// still locked out, do not return error so pumps can start
-	if c.BoilerLockout {
-		err := fmt.Errorf("a room is still too hot, boiler locked out, not starting pump")
-		log.Warn(err.Error())
-		return nil
+	maxtemp, hotroom := c.maxTempForPump(pump)
+	if c.SystemMode == SystemModeHeat && maxtemp > boilerLockoutTemp {
+		log.Info("not starting pump, rooms above boilerLockoutTemp", "boilerLockoutTemp", boilerLockoutTemp, "pump", p, "room", hotroom)
 	}
 
 	return nil
@@ -106,6 +84,39 @@ func (c *Config) getPumpFromLoop(id LoopID) PumpID {
 		}
 	}
 	return PumpID(0)
+}
+
+func (c *Config) getHeatZonesFromPump(pump *Pump) []ZoneID {
+	var zones []ZoneID
+
+	for _, loop := range c.Loops {
+		if pump.Loop == loop.ID && loop.RadiantZone != 0 {
+			zones = append(zones, loop.RadiantZone)
+		}
+	}
+	for _, blower := range c.Blowers {
+		if blower.HotLoop == pump.Loop {
+			zones = append(zones, blower.Zone)
+		}
+	}
+	return zones
+}
+
+func (c *Config) maxTempForPump(pump *Pump) (DegF, RoomID) {
+	var max DegF
+	var hotRoom RoomID
+
+	zones := c.getHeatZonesFromPump(pump)
+
+	for _, z := range zones {
+		t, r := z.getMaxTemp()
+		if t > max {
+			hotRoom = r
+			max = t
+		}
+	}
+
+	return max, hotRoom
 }
 
 func (p *Pump) writeToStore() error {
