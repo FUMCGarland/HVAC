@@ -1,7 +1,5 @@
 <script>
-	import {
-		Heading,
-	} from 'flowbite-svelte';
+	import { Heading } from 'flowbite-svelte';
 
 	export let data;
 </script>
