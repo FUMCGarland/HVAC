@@ -19,10 +19,18 @@ const bufsiz = 1048576
 
 var buf *ringbuffer.RingBuffer
 
+var loc *time.Location
+
 // Start initializes the logging interface and returns a "log/slog"
 func Start() *slog.Logger {
 	lvl = new(slog.LevelVar)
 	lvl.Set(slog.LevelInfo)
+
+	ll, err := time.LoadLocation("America/Chicago")
+	if err != nil {
+		ll, _ = time.LoadLocation("")
+	}
+	loc = ll
 
 	log := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: lvl,
@@ -32,6 +40,10 @@ func Start() *slog.Logger {
 
 	l = log
 	return log
+}
+
+func SetLocation(t *time.Location) {
+	loc = t
 }
 
 // Get returns the logger itself so it can be used in other subsystems (e.g. MQTT)
@@ -88,9 +100,9 @@ func WriteToBuff(title string, args ...any) {
 		return
 	}
 
-	now := time.Now()
+	now := time.Now().In(loc)
 
-	out.WriteString(now.Format(time.DateTime))
+	out.WriteString(now.Format(time.RFC1123))
 	out.WriteString(" : ")
 	out.WriteString(title)
 	out.WriteString(" ")

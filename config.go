@@ -27,14 +27,15 @@ type Config struct {
 	OpenWeatherMapID  int          // locaiton ID in OpenWeatherMap
 	ChillerLockout    bool         // is the chiller locked-out due to being too cold?
 	// BoilerLockout     bool         // is the boiler locked-out due to being to warm? // move to per-zone check
-	Blowers  []*Blower
-	Chillers []*Chiller
-	Dampers  []*Damper
-	Loops    []*Loop
-	Pumps    []*Pump
-	Rooms    []*Room
-	Valves   []*Valve
-	Zones    []*Zone
+	Blowers          []*Blower
+	Chillers         []*Chiller
+	Dampers          []*Damper
+	Loops            []*Loop
+	Pumps            []*Pump
+	Rooms            []*Room
+	Valves           []*Valve
+	Zones            []*Zone
+	TimeZoneLocation string
 }
 
 // MQTTConfig is the configuration of the MQTT subsystem
@@ -63,6 +64,7 @@ var c *Config = &Config{
 	OpenWeatherMapID:  4693003, // Garland, TX
 	ChillerLockout:    false,
 	SystemMode:        SystemModeCool,
+	TimeZoneLocation:  "America/Chicago",
 }
 
 // init() considered harmful, except that this is trivial and sets up a global
