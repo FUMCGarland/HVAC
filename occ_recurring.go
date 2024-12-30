@@ -29,7 +29,7 @@ func (s *OccupancySchedule) getLowestUnusedRecurringID() OccupancyRecurringID {
 	slices.Sort(used)
 
 	var i OccupancyRecurringID
-	for i = 0 ; i < OccupancyRecurringID(len(used)); i++ {
+	for i = 0; i < OccupancyRecurringID(len(used)); i++ {
 		if !slices.Contains(used, i) {
 			return i
 		}
@@ -81,7 +81,7 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 
 	times := strings.Split(e.StartTime, ";")
 	for _, v := range times {
-		log.Debug("time", "time", v)
+		log.Debug("time", "in time", v)
 		units := strings.Split(v, ":")
 		hour, err := strconv.ParseInt(units[0], 10, 8)
 		if err != nil {
@@ -112,7 +112,7 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 		),
 		gocron.NewTask(
 			func() {
-				log.Debug("marking room as occupied", "e", e)
+				log.Info("recurring occupancy start", "name", e.Name, "rooms", e.Rooms)
 				zoneActivated := false
 				zones := make([]ZoneID, 0)
 
@@ -131,7 +131,7 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 						}
 					}
 					if !zoneActivated {
-						log.Debug("activating zone")
+						log.Info("activating zone")
 						r.GetZoneInMode().UpdateTemp() // recalculates the avg and runs if needed
 						zones = append(zones, r.GetZoneIDInMode())
 					}
@@ -148,7 +148,7 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 	endtimes := make([]gocron.AtTime, 0)
 	etimes := strings.Split(e.EndTime, ";")
 	for _, v := range etimes {
-		log.Debug("end time", "time", v)
+		log.Debug("end time", "in time", v)
 		units := strings.Split(v, ":")
 		hour, err := strconv.ParseInt(units[0], 10, 8)
 		if err != nil {
@@ -174,7 +174,7 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 		),
 		gocron.NewTask(
 			func() {
-				log.Debug("marking room as unoccupied", "e", e)
+				log.Info("recurring occupancy end", "name", e.Name, "rooms", e.Rooms)
 				for _, room := range e.Rooms {
 					r := room.Get()
 					r.Occupied = false

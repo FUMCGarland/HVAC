@@ -316,8 +316,17 @@ func (z ZoneID) IsRunning() bool {
 		}
 	}
 
-	if totalDevices == 0 { // radiant heating zones in cooling mode
+	if totalDevices == 0 && c.SystemMode == SystemModeCool { // radiant heating zones in cooling mode
 		return false
+	}
+
+	for _, loop := range c.Loops {
+		if loop.RadiantZone == z {
+			pumpid := c.getPumpFromLoop(loop.ID)
+			if !pumpid.Get().Running {
+				return false
+			}
+		}
 	}
 
 	return true

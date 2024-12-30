@@ -47,7 +47,7 @@ type OccupancyOneTimeEntry struct {
 }
 
 type OccupancyNextRunReport struct {
-	Name string
+	Name    string
 	NextRun time.Time
 }
 
@@ -137,7 +137,7 @@ func readOccupancyFromStore() (*OccupancySchedule, error) {
 
 func NextRunReport() []OccupancyNextRunReport {
 	nrr := make([]OccupancyNextRunReport, 0, len(occScheduler.Jobs()))
-	
+
 	for _, job := range occScheduler.Jobs() {
 		var entry OccupancyNextRunReport
 		entry.Name = job.Name()
