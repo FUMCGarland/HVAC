@@ -61,24 +61,26 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 			func() {
 				log.Info("marking room as occupied", "e", e)
 				zones := make([]ZoneID, 0)
-				zoneActivated := false
 				for _, room := range e.Rooms {
 					r := room.Get()
 					if r == nil {
-						log.Warn("got nil room starting recurring occupancy, update the rules")
+						log.Warn("got invalid room starting recurring occupancy, update the rules")
 						continue
 					}
 					r.Occupied = true
-					zoneActivated = false
-					for _, k := range zones {
-						if k == r.GetZoneIDInMode() {
+
+					// only run the zone temp recalc once per zone
+					zoneActivated := false
+					roomZone := r.GetZoneIDInMode()
+					for _, checkzone := range zones {
+						if checkzone == roomZone {
 							zoneActivated = true
 						}
 					}
 					if !zoneActivated {
-						log.Info("activating zone")
-						r.GetZoneInMode().UpdateTemp() // recalculates the avg and runs if needed
-						zones = append(zones, r.GetZoneIDInMode())
+						log.Debug("activating zone")
+						roomZone.Get().UpdateTemp() // recalculates the avg and runs if needed
+						zones = append(zones, roomZone)
 					}
 				}
 			},
@@ -96,11 +98,12 @@ func buildOneTimeJob(e *OccupancyOneTimeEntry) error {
 		),
 		gocron.NewTask(
 			func() {
-				log.Debug("marking room as unoccupied", "e", e)
+				log.Info("marking room as unoccupied", "e", e)
 				for _, room := range e.Rooms {
 					r := room.Get()
 					r.Occupied = false
-					r.GetZoneInMode().UpdateTemp() // recalculates the avg and runs if needed
+					// recalc for every active room in every zone; we want to be sure to shut down on last-out
+					r.GetZoneInMode().UpdateTemp()
 				}
 				cleanOneTimeSchedule()
 			},

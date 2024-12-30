@@ -153,7 +153,7 @@ func (z ZoneID) Stop(msg string) {
 func (z ZoneID) Start(d time.Duration, msg string) error {
 	enabled := make([]DeviceID, 0)
 
-	log.Info("starting/extending zone", "zone", z)
+	log.Debug("starting/extending zone", "zone", z)
 
 	for _, k := range c.Blowers {
 		if k.Zone == z {
@@ -247,9 +247,9 @@ func (z *Zone) UpdateTemp() {
 	}
 
 	z.recalcAvgTemp()
-	log.Info("zone temp", "zone", z.ID, "avg", z.AverageTemp)
+	log.Debug("zone temp", "zone", z.ID, "avg", z.AverageTemp)
 	if z.AverageTemp == 0 {
-		log.Info("update called, no zone data", "zone", z.ID, "avg temp", z.AverageTemp)
+		log.Info("update called on zone with no valid temp data", "zone", z.ID, "avg temp", z.AverageTemp)
 		return
 	}
 
