@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/FUMCGarland/hvac"
 	"github.com/FUMCGarland/hvac/datalogger"
@@ -47,6 +48,12 @@ func main() {
 		log.Info("config", "c", c)
 		return
 	}
+
+	location, err := time.LoadLocation(c.TimeZoneLocation)
+	if err != nil {
+		panic(err.Error())
+	}
+	log.SetLocation(location)
 
 	ctx, cancel := context.WithCancel(context.Background())
 
