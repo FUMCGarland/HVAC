@@ -136,6 +136,8 @@ func readOccupancyFromStore() (*OccupancySchedule, error) {
 }
 
 func NextRunReport() []OccupancyNextRunReport {
+	cleanOldJobs()
+
 	nrr := make([]OccupancyNextRunReport, 0, len(occScheduler.Jobs()))
 
 	for _, job := range occScheduler.Jobs() {
@@ -146,4 +148,22 @@ func NextRunReport() []OccupancyNextRunReport {
 		nrr = append(nrr, entry)
 	}
 	return nrr
+}
+
+func cleanOldJobs() {
+	now := time.Now()
+	for _, job := range occScheduler.Jobs() {
+		nr, err := job.NextRun()
+		if err != nil {
+			log.Info(err.Error())
+			if err := occScheduler.RemoveJob(job.ID()); err != nil {
+				log.Info(err.Error())
+			}
+		}
+		if nr.Before(now) {
+			if err := occScheduler.RemoveJob(job.ID()); err != nil {
+				log.Info(err.Error())
+			}
+		}
+	}
 }

@@ -185,6 +185,8 @@ func (s *OccupancySchedule) EditOneTimeEntry(e *OccupancyOneTimeEntry) error {
 
 func cleanOneTimeSchedule() {
 	log.Debug("cleaning one-time occupancy schedule")
+
+	// remove from our schedule
 	for _, k := range occupancy.OneTime {
 		if k.ID != 0 && k.Start.Before(time.Now()) {
 			occupancy.RemoveOneTimeEntry(k.ID)
@@ -193,4 +195,7 @@ func cleanOneTimeSchedule() {
 	if err := occupancy.writeToStore(); err != nil {
 		log.Error(err.Error())
 	}
+
+	// remove from the gocron schedule
+	cleanOldJobs()
 }
