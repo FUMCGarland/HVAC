@@ -99,11 +99,6 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 		attimes = append(attimes, gocron.NewAtTime(uint(hour), uint(minute), 0))
 	}
 
-	newTags := []string{e.Name, scheduleTagOccupancy, scheduleTagRecurring}
-	for _, r := range e.Rooms {
-		newTags = append(newTags, fmt.Sprintf("%d", r))
-	}
-
 	_, err := occScheduler.NewJob(
 		gocron.WeeklyJob(
 			1,
@@ -138,7 +133,7 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 				}
 			},
 		),
-		gocron.WithTags(newTags...),
+		gocron.WithTags(e.Name),
 		gocron.WithName(e.Name),
 	)
 	if err != nil {
@@ -184,7 +179,7 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 
 			},
 		),
-		gocron.WithTags(newTags...),
+		gocron.WithTags(e.Name),
 		gocron.WithName(fmt.Sprintf("%s end", e.Name)),
 	)
 
@@ -204,7 +199,7 @@ func (s *OccupancySchedule) RemoveRecurringEntry(id OccupancyRecurringID) {
 		return
 	}
 	log.Debug("removing job from recurring schedule", "id", id)
-	occScheduler.RemoveByTags(fmt.Sprintf("%d", id))
+	occScheduler.RemoveByTags(s.Recurring[index].Name)
 	s.Recurring = append(s.Recurring[:index], s.Recurring[index+1:]...)
 	log.Debug("new schedule", "s", s.Recurring)
 	if err := s.writeToStore(); err != nil {
@@ -249,8 +244,9 @@ func (s *OccupancySchedule) EditRecurringEntry(e *OccupancyRecurringEntry) error
 		return err
 	}
 
-	log.Debug("removing job from schedule", "id", e.ID)
-	occScheduler.RemoveByTags(fmt.Sprintf("%d", e.ID))
+	// use tags to get both start and end
+	log.Debug("removing job from schedule", "id", e.ID, "name", e.Name)
+	occScheduler.RemoveByTags(e.Name)
 
 	if err := buildRecurringJob(e); err != nil {
 		log.Error(err.Error())

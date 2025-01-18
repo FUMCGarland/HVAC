@@ -161,6 +161,7 @@ func cleanOldJobs() {
 			}
 		}
 		if nr.Before(now) {
+			log.Info("next job before now, removing", "ID", job.ID())
 			if err := occScheduler.RemoveJob(job.ID()); err != nil {
 				log.Info(err.Error())
 			}

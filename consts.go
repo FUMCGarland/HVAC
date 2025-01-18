@@ -50,14 +50,6 @@ const (
 	HumidityEndpoint     string = "humidity" // Shellies use their own topic, this is for other (potential) sensors
 )
 
-// tags for scheduler, not fully utilized yet, will be helpful when we unify the two schedulers
-const (
-	scheduleTagOccupancy string = "occupancy"
-	scheduleTagDevice    string = "device"
-	scheduleTagRecurring string = "recurring"
-	scheduleTagOneTime   string = "onetime"
-)
-
 // QoS is the MQTT Quality of Service value
 // only 0 has been tested
 const QoS byte = 0

@@ -204,7 +204,7 @@ func buildJob(e *ScheduleEntry) error {
 				}
 			},
 		),
-		gocron.WithTags(fmt.Sprintf("%d", e.ID), scheduleTagDevice, e.Name),
+		gocron.WithTags(e.Name),
 		gocron.WithName(e.Name),
 	)
 
@@ -225,7 +225,7 @@ func (s *ScheduleList) RemoveEntry(id uint8) {
 		return
 	}
 	log.Debug("removing job from schedule", "id", id)
-	scheduler.RemoveByTags(fmt.Sprintf("%d", id))
+	scheduler.RemoveByTags(s.List[index].Name)
 	s.List = append(s.List[:index], s.List[index+1:]...)
 	log.Debug("new schedule", "s", s.List)
 	_ = s.writeToStore()
@@ -274,8 +274,8 @@ func (s *ScheduleList) EditEntry(e *ScheduleEntry) error {
 		return err
 	}
 
-	log.Debug("removing job from schedule", "id", e.ID)
-	scheduler.RemoveByTags(fmt.Sprintf("%d", e.ID))
+	log.Debug("removing job from schedule", "id", e.ID, "name", e.Name)
+	scheduler.RemoveByTags(e.Name)
 
 	if err := buildJob(e); err != nil {
 		log.Error(err.Error())
