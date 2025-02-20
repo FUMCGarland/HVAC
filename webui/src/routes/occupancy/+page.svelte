@@ -25,6 +25,14 @@
 	function formatDate(d) {
 		return new Date(Date.parse(d)).toLocaleString();
 	}
+
+	function toLocalTZ(utctimestring) {
+		const hm = utctimestring.split(':');
+		let t = new Date();
+		t.setUTCHours(hm[0]);
+		t.setUTCMinutes(hm[1]);
+		return t.toTimeString();
+	}
 </script>
 
 {#if data.ControlMode != 2}
@@ -61,8 +69,8 @@
 					{/each}
 				</TableBodyCell>
 				<TableBodyCell>{parseWeekdays(r.Weekdays)}</TableBodyCell>
-				<TableBodyCell>{r.StartTime}</TableBodyCell>
-				<TableBodyCell>{r.EndTime}</TableBodyCell>
+				<TableBodyCell>{toLocalTZ(r.StartTime)}</TableBodyCell>
+				<TableBodyCell>{toLocalTZ(r.EndTime)}</TableBodyCell>
 			</TableBodyRow>
 		{/each}
 		<TableBodyRow>
