@@ -77,33 +77,54 @@ func (s *OccupancySchedule) AddRecurringEntry(e *OccupancyRecurringEntry) error 
 }
 
 func buildRecurringJob(e *OccupancyRecurringEntry) error {
-	attimes := make([]gocron.AtTime, 0)
-
-	times := strings.Split(e.StartTime, ";")
-	for _, v := range times {
-		log.Debug("time", "in time", v)
-		units := strings.Split(v, ":")
-		hour, err := strconv.ParseInt(units[0], 10, 8)
-		if err != nil {
-			log.Error(err.Error())
-			return err
-		}
-
-		minute, err := strconv.ParseInt(units[1], 10, 8)
-		if err != nil {
-			log.Error(err.Error())
-			return err
-		}
-
-		log.Debug("time", "configured time", v)
-		attimes = append(attimes, gocron.NewAtTime(uint(hour), uint(minute), 0))
+	startunits := strings.Split(e.StartTime, ":")
+	starthour, err := strconv.ParseInt(startunits[0], 10, 8)
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+	if starthour >= 24 {
+		starthour = starthour % 24
 	}
 
-	_, err := occScheduler.NewJob(
+	startminute, err := strconv.ParseInt(startunits[1], 10, 8)
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+	if startminute >= 60 {
+		startminute = startminute % 60
+	}
+
+	starttime := gocron.NewAtTime(uint(starthour), uint(startminute), 0)
+	starttimes := []gocron.AtTime{starttime}
+
+	endunits := strings.Split(e.EndTime, ":")
+	endhour, err := strconv.ParseInt(endunits[0], 10, 8)
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+	if endhour >= 24 {
+		endhour = endhour % 24
+	}
+
+	endminute, err := strconv.ParseInt(endunits[1], 10, 8)
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+	if endminute >= 60 {
+		endminute = endminute % 60
+	}
+	endtime := gocron.NewAtTime(uint(endhour), uint(endminute), 0)
+	endtimes := []gocron.AtTime{endtime}
+
+	_, err = occScheduler.NewJob(
 		gocron.WeeklyJob(
 			1,
 			func() []time.Weekday { return e.Weekdays },
-			func() []gocron.AtTime { return attimes },
+			func() []gocron.AtTime { return starttimes },
 		),
 		gocron.NewTask(
 			func() {
@@ -138,27 +159,6 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 	)
 	if err != nil {
 		return err
-	}
-
-	endtimes := make([]gocron.AtTime, 0)
-	etimes := strings.Split(e.EndTime, ";")
-	for _, v := range etimes {
-		log.Debug("end time", "in time", v)
-		units := strings.Split(v, ":")
-		hour, err := strconv.ParseInt(units[0], 10, 8)
-		if err != nil {
-			log.Error(err.Error())
-			return err
-		}
-
-		minute, err := strconv.ParseInt(units[1], 10, 8)
-		if err != nil {
-			log.Error(err.Error())
-			return err
-		}
-
-		log.Debug("end time", "configured time", v)
-		endtimes = append(endtimes, gocron.NewAtTime(uint(hour), uint(minute), 0))
 	}
 
 	_, err = occScheduler.NewJob(
