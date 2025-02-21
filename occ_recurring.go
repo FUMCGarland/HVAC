@@ -161,10 +161,20 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 		return err
 	}
 
+	endWeekdays := e.Weekdays
+	// if, due to timezone issues, the end time rolls to the next day...
+	if (starthour > endhour) || (starthour == endhour && startminute > endminute) {
+		log.Info("start and end on different days UTC", "start", starthour, "end", endhour)
+		endWeekdays = make([]time.Weekday, 0, len(e.Weekdays))
+		for _, v := range e.Weekdays {
+			endWeekdays = append(endWeekdays, v+1%7)
+		}
+	}
+
 	_, err = occScheduler.NewJob(
 		gocron.WeeklyJob(
 			1,
-			func() []time.Weekday { return e.Weekdays },
+			func() []time.Weekday { return endWeekdays },
 			func() []gocron.AtTime { return endtimes },
 		),
 		gocron.NewTask(
