@@ -167,7 +167,7 @@ func buildRecurringJob(e *OccupancyRecurringEntry) error {
 		log.Info("start and end on different days UTC", "start", starthour, "end", endhour)
 		endWeekdays = make([]time.Weekday, 0, len(e.Weekdays))
 		for _, v := range e.Weekdays {
-			endWeekdays = append(endWeekdays, v+1%7)
+			endWeekdays = append(endWeekdays, (v+1)%7)
 		}
 	}
 
