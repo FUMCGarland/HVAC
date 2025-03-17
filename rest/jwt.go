@@ -128,6 +128,63 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	fmt.Fprint(res, JWT)
 }
 
+// refresh returns a new JWT for an existing user with the expiry moved forward
+func refresh(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	// already validated in authMW, but we'll do it again here for grins
+	token, err := jwt.ParseRequest(req,
+		jwt.WithKeySet(sk, jws.WithInferAlgorithmFromKey(true), jws.WithUseDefault(true)),
+		jwt.WithValidate(true),
+		jwt.WithAudience(sessionName),
+		jwt.WithAcceptableSkew(20*time.Second),
+	)
+	if err != nil {
+		err := fmt.Errorf("token parse/validate failed", "error", err.Error())
+		log.Error(err.Error())
+		http.Error(res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	username := string(token.Subject())
+
+	// error checks are redundant, but harmless
+	claim, ok := token.Get("level")
+	if !ok {
+		err := fmt.Errorf("no level claim in token")
+		log.Error(err.Error(), "user", username, "claim", claim, "type", fmt.Sprintf("%T", claim))
+		http.Error(res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	refreshlevel, ok := claim.(float64)
+	if !ok {
+		err := fmt.Errorf("invalid refreshlevel")
+		log.Error(err.Error(), "user", username, "claim", claim, "type", fmt.Sprintf("%T", claim))
+		http.Error(res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	JWT, err := mintjwt(username, authLevel(refreshlevel))
+	if err != nil {
+		log.Error(err.Error())
+		http.Error(res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	log.Info("JWT refresh", "username", username, "level", refreshlevel)
+	headers(res, req)
+	res.Header().Set("content-type", "application/jwt")
+	http.SetCookie(res, &http.Cookie{
+		Name:     "jwt",
+		Value:    JWT,
+		Path:     "/",
+		Expires:  time.Now().Add(time.Hour * 24 * 365),
+		MaxAge:   0,
+		Secure:   false,
+		HttpOnly: false,
+		SameSite: http.SameSiteLaxMode,
+	})
+	fmt.Fprint(res, JWT)
+}
+
 func generateID(size int) string {
 	var characters = strings.Split("abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", "")
 	var buf = make([]byte, size)

@@ -28,6 +28,7 @@ func getServeMux(c *hvac.Config) *httprouter.Router {
 
 	// URL to login, returns the JWT to pass in to authenticated endpoints
 	m.POST("/api/v1/getJWT", login)
+	m.GET("/api/v1/refreshJWT", authMW(refresh, AuthLevelView)) // allow logins to persist if active
 
 	// Add handlers for all the endpoints
 	m.GET("/api/v1/system", authMW(getSystem, AuthLevelView))           // all devices in one shot
