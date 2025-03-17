@@ -7,7 +7,7 @@ export const durationMult = 60000000000; // TODO Josh wants hours not minutes
 
 export function genRequest() {
 	const jwtstring = localStorage.getItem('jwt');
-	if (!jwtstring) {
+	if (!jwtstring || isJWTExpired(jwtstring)) {
 		goto('/login');
 		return;
 	}
@@ -21,6 +21,12 @@ export function genRequest() {
 		}
 	};
 	return request;
+}
+
+function isJWTExpired(jwt) {
+	const tok = jwt.split('.');
+	const payload = JSON.parse(atob(tok[1]));
+	return Math.floor(new Date().getTime() / 1000) >= payload?.sub;
 }
 
 // TODO: these are inconsistent, pass in object{} and JSON.stringify() in the body:
