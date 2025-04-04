@@ -32,7 +32,10 @@
 	};
 
 	function formatDate(d) {
-		return new Date(Date.parse(d)).toLocaleString();
+		let nd = new Date(Date.parse(d))
+		nd.setMilliseconds(0);
+		nd.setSeconds(0);
+		return nd.toLocaleString();
 	}
 </script>
 
