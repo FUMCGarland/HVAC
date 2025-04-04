@@ -29,7 +29,7 @@
 	<Navbar>
 		<NavBrand href="/">
 			<img src="/static/fumcg.jpg" class="me-3 h-6 sm:h-9" alt="FUMCG Logo" />
-			<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"
+			<span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white"
 				>FUMC Garland HVAC</span
 			>
 		</NavBrand>
@@ -38,7 +38,7 @@
 			<NavLi href="/devices">Device Status</NavLi>
 			<NavLi href="/occupancy">Occupancy Schedule</NavLi>
 			<NavLi class="cursor-pointer">
-				Advanced<ChevronDownOutline class="ms-2 inline h-6 w-6 text-primary-800 dark:text-white" />
+				Advanced<ChevronDownOutline class="text-primary-800 ms-2 inline h-6 w-6 dark:text-white" />
 			</NavLi>
 
 			<Dropdown class="z-20 w-44">

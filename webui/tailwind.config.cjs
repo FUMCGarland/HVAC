@@ -1,15 +1,11 @@
-/** @type {import('tailwindcss').Config}*/
-// const config = { content: ['./src/**/*.{html,js,svelte,ts}'], theme: { extend: {} }, plugins: [] };
-const config = {
+import flowbitePlugin from 'flowbite/plugin';
+
+export default {
 	content: [
 		'./src/**/*.{html,js,svelte,ts}',
 		'./node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}'
 	],
-
-	plugins: [require('flowbite/plugin')],
-
-	darkMode: 'class',
-
+	darkMode: 'selector',
 	theme: {
 		extend: {
 			colors: {
@@ -28,7 +24,6 @@ const config = {
 				}
 			}
 		}
-	}
-};
-
-module.exports = config;
+	},
+	plugins: [flowbitePlugin]
+}; //  as Config;

@@ -1,7 +1,8 @@
 <script>
 	import { goto } from '$app/navigation';
-	import Flatpickr from 'svelte-flatpickr';
-	import 'flatpickr/dist/flatpickr.css';
+	// import Flatpickr from 'svelte-flatpickr';
+	// import 'flatpickr/dist/flatpickr.css';
+	import svlatepickr from 'svelte-flatpickr-plus';
 	import { postOneTimeOccupancy } from '$lib/occupancy';
 	import {
 		Table,
@@ -85,13 +86,15 @@
 			<TableBodyRow>
 				<TableBodyCell>Start</TableBodyCell>
 				<TableBodyCell>
-					<Flatpickr options={optionsStart} name="startdate" />
+					<!-- <Flatpickr options={optionsStart} name="startdate" /> -->
+					<input name="startdate" use:svlatepickr />
 				</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
 				<TableBodyCell>End</TableBodyCell>
 				<TableBodyCell>
-					<Flatpickr options={optionsEnd} name="enddate" />
+					<!-- <Flatpickr options={optionsEnd} name="enddate" /> -->
+					<input name="enddate" use:svlatepickr />
 				</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
