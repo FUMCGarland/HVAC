@@ -19,3 +19,28 @@ export function getAccessLevel() {
 	const token = JSON.parse(window.atob(raw.split('.')[1]).toString());
 	return token.level;
 }
+
+export function toLocaleTimestring(timestring) {
+	const hm = timestring.split(':');
+	let t = new Date();
+	t.setUTCHours(Number(hm[0]));
+	t.setUTCMinutes(Number(hm[1]));
+	t.setUTCSeconds(0);
+	return t.toLocaleTimeString();
+}
+
+export function toZTimestring(timestring) {
+	const hm = timestring.split(':');
+
+	let hour = Number(hm[0]);
+	if (hm[2] !== undefined && hm[2].endsWith('PM')) {
+		hour = hour + 12;
+	}
+
+	let t = new Date();
+	t.setHours(hour);
+	t.setMinutes(Number(hm[1]));
+	t.setSeconds(0);
+
+	return t.getUTCHours() + ':' + hm[1]; // saves writing padding code, but assumes the user isn't doing something stupid
+}

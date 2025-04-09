@@ -1,5 +1,4 @@
 <script>
-	import { goto } from '$app/navigation';
 	import {
 		Table,
 		TableBody,
@@ -7,10 +6,7 @@
 		TableBodyRow,
 		TableHead,
 		TableHeadCell,
-		Heading,
-		Button,
-		A,
-		Banner
+		Heading
 	} from 'flowbite-svelte';
 
 	export var data;
@@ -32,7 +28,7 @@
 	};
 
 	function formatDate(d) {
-		let nd = new Date(Date.parse(d))
+		const nd = new Date(Date.parse(d));
 		nd.setMilliseconds(0);
 		nd.setSeconds(0);
 		return nd.toLocaleString();
@@ -43,15 +39,13 @@
 <Table>
 	<TableHead>
 		<TableHeadCell on:click={tablesort('Name')}>Name</TableHeadCell>
-		<TableHeadCell on:click={tablesort('NextRun')}>Next Run (pretty)</TableHeadCell>
-		<TableHeadCell on:click={tablesort('NextRun')}>Next Run (raw)</TableHeadCell>
+		<TableHeadCell on:click={tablesort('NextRun')}>Next Run (local timezone)</TableHeadCell>
 	</TableHead>
 	<TableBody>
 		{#each data.data as r}
 			<TableBodyRow>
 				<TableBodyCell>{r.Name}</TableBodyCell>
 				<TableBodyCell>{formatDate(r.NextRun)}</TableBodyCell>
-				<TableBodyCell>{r.NextRun}</TableBodyCell>
 			</TableBodyRow>
 		{/each}
 	</TableBody>

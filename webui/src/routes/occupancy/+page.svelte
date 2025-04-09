@@ -13,6 +13,7 @@
 		Banner
 	} from 'flowbite-svelte';
 	import { BullhornSolid } from 'flowbite-svelte-icons';
+	import { toLocaleTimestring } from '$lib/util.js';
 
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
 	const weekdays = ['Sun', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
@@ -24,14 +25,6 @@
 
 	function formatDate(d) {
 		return new Date(Date.parse(d)).toLocaleString();
-	}
-
-	function toLocalTZ(utctimestring) {
-		const hm = utctimestring.split(':');
-		let t = new Date();
-		t.setUTCHours(hm[0]);
-		t.setUTCMinutes(hm[1]);
-		return t.toTimeString();
 	}
 </script>
 
@@ -56,7 +49,7 @@
 		<TableHeadCell>Name</TableHeadCell>
 		<TableHeadCell>Rooms</TableHeadCell>
 		<TableHeadCell>Weekdays</TableHeadCell>
-		<TableHeadCell>Start Time</TableHeadCell>
+		<TableHeadCell>Start Time (local timezone)</TableHeadCell>
 		<TableHeadCell>End Time</TableHeadCell>
 	</TableHead>
 	<TableBody>
@@ -69,8 +62,8 @@
 					{/each}
 				</TableBodyCell>
 				<TableBodyCell>{parseWeekdays(r.Weekdays)}</TableBodyCell>
-				<TableBodyCell>{toLocalTZ(r.StartTime)}</TableBodyCell>
-				<TableBodyCell>{toLocalTZ(r.EndTime)}</TableBodyCell>
+				<TableBodyCell>{toLocaleTimestring(r.StartTime)}</TableBodyCell>
+				<TableBodyCell>{toLocaleTimestring(r.EndTime)}</TableBodyCell>
 			</TableBodyRow>
 		{/each}
 		<TableBodyRow>

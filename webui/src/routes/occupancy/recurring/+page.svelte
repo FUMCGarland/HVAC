@@ -20,7 +20,7 @@
 		A
 	} from 'flowbite-svelte';
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
-	import { lowestFreeID } from '$lib/util';
+	import { lowestFreeID, toLocaleTimestring, toZTimestring } from '$lib/util.js';
 
 	const weekdays = ['Sun', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
 	const selectedwd = weekdays.map(() => false);
@@ -33,8 +33,8 @@
 	let id = lowestFreeID(data.Recurring);
 	let name = 'not set';
 	$: mode = 0;
-	let starttime = '09:30';
-	let endtime = '16:30';
+	let starttime = '09:30 AM';
+	let endtime = '4:30 PM';
 
 	function modeString(mode) {
 		if (mode == 0) return 'heating';
@@ -63,8 +63,8 @@
 				.filter((o) => {
 					return o !== undefined;
 				}),
-			StartTime: starttime,
-			EndTime: endtime,
+			StartTime: toZTimestring(starttime),
+			EndTime: toZTimestring(endtime),
 			Rooms: data.Rooms.filter((r) => r.selected).map((r) => r.ID)
 		};
 		await postRecurringOccupancy(c);

@@ -21,11 +21,14 @@
 		A
 	} from 'flowbite-svelte';
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
+	import { toLocaleTimestring, toZTimestring } from '$lib/util.js';
+
 	const weekdays = ['Sun', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
 	const selectedwd = weekdays.map(() => false);
 
 	export let data;
-	console.log(data);
+	data.StartTime = toLocaleTimestring(data.StartTime);
+	data.EndTime = toLocaleTimestring(data.EndTime);
 
 	data.SystemRooms.forEach((r) => {
 		r.selected = false;
@@ -58,8 +61,8 @@
 				.filter((o) => {
 					return o !== undefined;
 				}),
-			StartTime: data.StartTime,
-			EndTime: data.EndTime,
+			StartTime: toZTimestring(data.StartTime),
+			EndTime: toZTimesttring(data.EndTime),
 			Rooms: data.SystemRooms.filter((r) => r.selected).map((r) => r.ID)
 		};
 		try {
@@ -101,11 +104,13 @@
 				</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell>Start Time (24-hour hh:mm format)</TableBodyCell>
+				<TableBodyCell
+					>Start Time <br />either 24-hour "hh:mm" or 12-hour "hh:mm PM" format<br /> local timezone</TableBodyCell
+				>
 				<TableBodyCell><Input type="text" bind:value={data.StartTime} /></TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell>End Time (24-hour hh:mm format)</TableBodyCell>
+				<TableBodyCell>End Time</TableBodyCell>
 				<TableBodyCell><Input type="text" bind:value={data.EndTime} /></TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
