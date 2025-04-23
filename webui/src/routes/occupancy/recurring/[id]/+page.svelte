@@ -62,7 +62,7 @@
 					return o !== undefined;
 				}),
 			StartTime: toZTimestring(data.StartTime),
-			EndTime: toZTimesttring(data.EndTime),
+			EndTime: toZTimestring(data.EndTime),
 			Rooms: data.SystemRooms.filter((r) => r.selected).map((r) => r.ID)
 		};
 		try {
