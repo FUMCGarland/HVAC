@@ -27,10 +27,10 @@
 			>Manual is "full manual mode" - the system will only make changed based on user action in this
 			UI.</Li
 		>
-		<Li>Schedule is "schedule mode" - the system will run based on the scheduled entries.</Li>
+		<Li>Schedule is "schedule mode" - the system will run based on the scheduled entries. (not useful now)</Li>
 		<Li
 			>Temperature - the system will run when sensors in the rooms indicate an out-of-range
-			temperature. (NOT BUILT YET)</Li
+			temperature. (This is probably what you want)</Li
 		>
 		<Li
 			>Off - nothing will run. This setting is only used when changing the system from heating to
