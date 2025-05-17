@@ -9,7 +9,7 @@ export async function load({ fetch, params }) {
 
 	const sys = await fetch(`${hvaccontroller}/api/v1/system`, genRequest());
 	const system = await sys.json();
-	item.SystemRooms = system.Rooms;
+	if (system.Rooms) item.SystemRooms = system.Rooms;
 
 	return item;
 }
